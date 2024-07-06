@@ -1,0 +1,14 @@
+black
+coverage
+esbonio
+ipympl
+jupyter
+line-profiler
+matplotlib
+numba>=0.55.0
+pandas
+pytest
+pytest-cov
+pytest-xdist
+sympy
+ruff

@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robust_hermite_fit"
+description = "Noise- and Outlier-Robust Fourier Transform with Hermite Functions in NumPy and Numba"
+authors = [{name = "Niklas Zell", email = "nik.zoe@web.de"}]
+requires-python = ">=3.9"
+keywords = ["Fourier Transform", "Hermite Functions", "Robust", "Noise", "Outliers", "NumPy", "Numba"]
+license = {file = "LICENSE"}
+dynamic = ["version", "readme", "dependencies", "optional-dependencies"]
+
+[tool.setuptools.dynamic]
+version = {file = "src/VERSION.txt"}
+readme = {file = ["README.rst"]}
+dependencies = {file = "requirements/base.txt"}
+optional-dependencies = {fast = {file = "requirements/fast.txt"}, dev = {file = "requirements/dev.txt"}, examples = {file = "requirements/examples.txt"}}
+
+[tool.ruff]
+# Enable pycodestyle (`E`), Pyflakes (`F`) checks.
+select = ["E", "F"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+# "A", "B", "C", "D", "E", "F", "..."
+fixable = []
+unfixable = []
+
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv*",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    ".vscode",
+]
+
+line-length = 88
+target-version = "py39"
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
