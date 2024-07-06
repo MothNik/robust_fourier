@@ -1,8 +1,12 @@
 black
 coverage
+ipympl
+jupyter
 line-profiler
 matplotlib
+numba>=0.55.0
 pandas
+proplot
 pytest
 pytest-cov
 pytest-xdist
