@@ -17,12 +17,14 @@ functions or arbitrary order and argument - that can be scaled with a factor
 :math:`a^2+b^2`
 
 .. image:: docs/hermite_functions/DilatedHermiteFunctions_DifferentScales.png
+    :width: 400px
     :align: center
 
 The Hermite functions are defined as
 
 .. image:: docs/hermite_functions/equations/DilatedHermiteFunctions.png
-    :align: center
+    :width: 400px
+    :align: left
 
 By making use of logarithm tricks, the evaluation that might involve infinitely high
 polynomial values and at the same time infinitely small Gaussians - that are on top of
@@ -32,7 +34,8 @@ results.
 For doing so, the equation is rewritten in logarithmic form as
 
 .. image:: docs/hermite_functions/equations/LogDilatedHermiteFunctions.png
-    :align: center
+    :width: 400px
+    :align: left
 
 where the evaluation of the natural logarithm of the Hermite polynomials is achieved by
 making use of the
