@@ -1,0 +1,10 @@
+black
+coverage
+line-profiler
+matplotlib
+pandas
+pytest
+pytest-cov
+pytest-xdist
+sympy
+ruff
