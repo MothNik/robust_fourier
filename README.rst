@@ -7,7 +7,7 @@ the *"fast"* in *Fast Fourier Transform* 🏃🙅‍♀️
 
 🏗️🚧 👷👷‍♂️👷‍♀️🏗️🚧
 
-Currently under construction. Please come back later.
+Currently under construction. Please check back later.
 
 〰️ Hermite functions
 ---------------------
