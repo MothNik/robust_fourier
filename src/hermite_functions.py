@@ -85,8 +85,8 @@ def _slogabs_dilated_hermite_polynomial_basis(
     working in the logarithmic space is the only possible way. In the end, the
     multiplication of the arbitrarily large polynomial with an arbitrarily small scaled
     Gaussian will yield values that are bounded between
-    :math:`\\frac{\\pm 0.7511}{\\sqrt{\\alpha}}`, which means that it can always be
-    evaluated when over- and underflow are avoided.
+    :math:`\\frac{\\pm\\pi^{-\\frac{1}{4}}{\\sqrt{\\alpha}}`, which means that it can
+    always be evaluated when over- and underflow are avoided.
 
     """
 
@@ -201,7 +201,7 @@ def _dilated_hermite_function_basis(
 
     With this, Hermite functions of all orders ``n`` can be evaluated without any
     numerical issues and it can be ensured that they are always bounded between
-    :math:`\\frac{\\pm 0.7511}{\\sqrt{\\alpha}}`.
+    :math:`\\frac{\\pm\\pi^{-\\frac{1}{4}}{\\sqrt{\\alpha}}`.
 
     """
 

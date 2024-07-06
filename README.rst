@@ -55,4 +55,6 @@ evaluated for this anymore. The factorial for example would already have overflo
     :width: 1000px
     :align: center
 
-
+As a sanity check, their orthogonality is part of the tests together with a test for
+the fact that the absolute values of the Hermite functions for real input cannot exceed
+the value :math:`\frac{\pi^{-\frac{1}{4}}}{\sqrt{\alpha}}`.
