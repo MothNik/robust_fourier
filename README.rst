@@ -14,14 +14,14 @@ Currently under construction. Please come back later.
 
 The module ``hermite_functions`` offers a numerically stable way to evaluate Hermite
 functions or arbitrary order and argument - that can be scaled with a factor
-:math:`\\alpha`
+:math:`a^2+b^2`
 
 .. image:: docs/hermite_functions/DilatedHermiteFunctions_DifferentScales.png
     :align: center
 
 The Hermite functions are defined as
 
-.. image:: docs\hermite_functions\equations\DilatedHermiteFunctions.png
+.. image:: docs/hermite_functions/equations/DilatedHermiteFunctions.png
     :align: center
 
 By making use of logarithm tricks, the evaluation that might involve infinitely high
