@@ -10,6 +10,8 @@ based on a Least Squares Fit of Hermite functions.
 
 import os as _os
 
+from .hermite_functions import hermite_function_basis  # noqa: F401
+
 # === Package Metadata ===
 
 _AUTHOR_FILE_PATH = _os.path.join(_os.path.dirname(__file__), "AUTHORS.txt")
