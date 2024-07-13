@@ -76,29 +76,33 @@ def _slogabs_dilated_hermite_polynomial_basis(
 
     """
 
-    # the first two dilated Hermite polynomials are defined as h_0 = 1 and
-    # h_1 = 2 * x / alpha ** 2 so they are calculated explicitly together with handling
-    # their signs
+    # the zero-th dilated Hermite polynomial is defined as h_0 = 1, so its logarithm is
+    # 0 and its sign is +1
     logabs_prefactor = np.log(2) - 2 * np.log(alpha)  # 2 / (alpha ** 2) in normal space
     signs_h_n_minus_1 = np.ones_like(x)
     logs_h_n_minus_1 = np.zeros_like(x)  # 1 in normal space
     signs_x = np.where(x >= 0.0, 1.0, -1.0)
 
-    # h_1 inherits the sign of x
-    logsabs_x = np.log(np.abs(x))
-    signs_h_n = signs_x.copy()
-    logs_h_n = logabs_prefactor + logsabs_x  # 2 * x / (alpha ** 2) in normal space
-
-    # for the special cases of n = 0 and n = 1, the function can already return here
     logsabs_hermpoly_basis = np.zeros(shape=(x.size, n + 1))
     signs_hermpoly_basis = np.zeros(shape=(x.size, n + 1))
     logsabs_hermpoly_basis[::, 0] = logs_h_n_minus_1
     signs_hermpoly_basis[::, 0] = signs_h_n_minus_1
 
-    if n > 0:
-        logsabs_hermpoly_basis[::, 1] = logs_h_n
-        signs_hermpoly_basis[::, 1] = signs_h_n
+    # if only the 0-th order is requested, the function can exit early here
+    if n < 1:
+        return logsabs_hermpoly_basis, signs_hermpoly_basis
 
+    # if higher orders are requested, the first order is also calculated explicitly
+    # for either a direct return or a recursion
+    # the first Hermite polynomial is given by h_1 = 2 * x / alpha ** 2
+    # h_1 inherits the shifted logarithm and the sign of x
+    logsabs_x = np.log(np.abs(x))
+    signs_h_n = signs_x.copy()
+    logs_h_n = logabs_prefactor + logsabs_x  # 2 * x / (alpha ** 2) in normal space
+    logsabs_hermpoly_basis[::, 1] = logs_h_n
+    signs_hermpoly_basis[::, 1] = signs_h_n
+
+    # if only the first order is requested, the function can exit early here
     if n <= 1:
         return logsabs_hermpoly_basis, signs_hermpoly_basis
 
