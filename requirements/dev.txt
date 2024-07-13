@@ -7,8 +7,10 @@ line-profiler
 matplotlib
 numba>=0.55.0
 pandas
+perfplot
 pytest
 pytest-cov
 pytest-xdist
 sympy
 ruff
+tqdm
