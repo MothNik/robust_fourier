@@ -1,21 +1,10 @@
 """
-Module ``hermite_functions``
+Module :mod:`hermite_functions._numba_funcs`
 
-This module provides implementations of the Hermite functions which are essential for
-the robust Fourier transform.
-The ``n``-th Hermite function is given by
+This module provides Numba-based implementations of the Hermite functions.
 
-.. image:: docs/hermite_functions/equations/HermiteFunctions.png
-
-where :math:`H_{n}` is the :math:`n`-th Hermite polynomial.
-
-They have two nice properties:
-- they are orthogonal
-- they are eigenfunctions of the Fourier transform which makes them suitable for the
-    robust Fourier transform by Least Squares Fits.
-
-Here, a scaled version of the Hermite functions is used that introduces a scaling
-factor :math:`{\\alpha}`:
+Depending on the runtime availability of Numba, the functions are either compiled or
+imported from the NumPy-based implementation.
 
 """
 
@@ -24,12 +13,54 @@ factor :math:`{\\alpha}`:
 from typing import Tuple
 
 import numpy as np
-from scipy.special import gammaln, logsumexp
 
 # === Functions ===
 
 
-def _slogabs_dilated_hermite_polynomial_basis(
+def _nb_logsumexp(
+    a: np.ndarray,
+    b: np.ndarray,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Compute the log of the sum of exponentials of the real input elements in a Numba-
+    compatible way.
+    For efficiency, the function only accepts two 2-column arrays that are implicitly
+    treated with the ``axis```-parameter set to ``1``.
+
+    Parameters
+    ----------
+    a : :class:`numpy.ndarray` of shape (n, 2)
+        The input array.
+    b : :class:`numpy.ndarray` of shape (n, 2)
+        Scaling factor for exp(`a`) must be of the same shape as `a`.
+    Returns
+    -------
+    res : :class:`numpy.ndarray` of shape (n,)
+        The natural logarithm of the sum of exponentials.
+    sgn : :class:`numpy.ndarray` of shape (n,)
+        The sign of the sum of exponentials after exponentiation.
+
+    """
+
+    # all entries where the scaling factor is zero are set to -inf
+    a_internal = np.where(b != 0.0, a, -np.inf)
+
+    # then, the maximum value along the specified axis is evaluated together with the
+    # scaled reduced exponentials ``b * np.exp(a - a_max)``
+    a_max = np.empty(shape=(a_internal.shape[0]), dtype=a_internal.dtype)
+    for iter_i in range(0, a_internal.shape[0]):
+        a_max[iter_i] = np.max(a_internal[iter_i, ::])
+
+    a_max[~np.isfinite(a_max)] = 0.0
+    tmp = b * np.exp(a_internal - a_max.reshape((-1, 1)))
+
+    # then, the logsumexp is calculated from the scaled reduced exponentials
+    res = np.sum(tmp, axis=1)
+
+    return np.log(np.abs(res)) + a_max, np.sign(res)
+
+
+def _nb_slogabs_dilated_hermite_polynomial_basis(
     x: np.ndarray,
     n: int,
     alpha: float,
@@ -90,30 +121,33 @@ def _slogabs_dilated_hermite_polynomial_basis(
 
     """
 
-    # the first two dilated Hermite polynomials are defined as h_0 = 1 and
-    # h_1 = 2 * x / alpha ** 2 so they are calculated explicitly together with handling
-    # their signs
+    # the zero-th dilated Hermite polynomial is defined as h_0 = 1, so its logarithm is
+    # 0 and its sign is +1
     logabs_prefactor = np.log(2) - 2 * np.log(alpha)  # 2 / (alpha ** 2) in normal space
     signs_h_n_minus_1 = np.ones_like(x)
     logs_h_n_minus_1 = np.zeros_like(x)  # 1 in normal space
     signs_x = np.where(x >= 0.0, 1.0, -1.0)
 
-    # h_1 inherits the sign of x
-    with np.errstate(divide="ignore"):
-        logsabs_x = np.log(np.abs(x))
-    signs_h_n = signs_x.copy()
-    logs_h_n = logabs_prefactor + logsabs_x  # 2 * x / (alpha ** 2) in normal space
-
-    # for the special cases of n = 0 and n = 1, the function can already return here
     logsabs_hermpoly_basis = np.zeros(shape=(x.size, n + 1))
     signs_hermpoly_basis = np.zeros(shape=(x.size, n + 1))
     logsabs_hermpoly_basis[::, 0] = logs_h_n_minus_1
     signs_hermpoly_basis[::, 0] = signs_h_n_minus_1
 
-    if n > 0:
-        logsabs_hermpoly_basis[::, 1] = logs_h_n
-        signs_hermpoly_basis[::, 1] = signs_h_n
+    # if only the 0-th order is requested, the function can exit early here
+    if n < 1:
+        return logsabs_hermpoly_basis, signs_hermpoly_basis
 
+    # if higher orders are requested, the first order is also calculated explicitly
+    # for either a direct return or a recursion
+    # the first Hermite polynomial is given by h_1 = 2 * x / alpha ** 2
+    # h_1 inherits the shifted logarithm and the sign of x
+    logsabs_x = np.log(np.abs(x))
+    signs_h_n = signs_x.copy()
+    logs_h_n = logabs_prefactor + logsabs_x  # 2 * x / (alpha ** 2) in normal space
+    logsabs_hermpoly_basis[::, 1] = logs_h_n
+    signs_hermpoly_basis[::, 1] = signs_h_n
+
+    # if only the first order is requested, the function can exit early here
     if n <= 1:
         return logsabs_hermpoly_basis, signs_hermpoly_basis
 
@@ -145,12 +179,12 @@ def _slogabs_dilated_hermite_polynomial_basis(
         tmp_logsabs_add[::, 0] = np.log(iter_i - 1)
 
         # with those, the logs need to be calculated using the logsumexp trick
+        # NOTE: to make it Numba-compatible, the ``logsumexp`` function was replaced by
+        #       a custom implementation
         logsabs_hermpoly_basis[::, iter_i], signs_hermpoly_basis[::, iter_i] = (
-            logsumexp(
+            _nb_logsumexp(
                 a=logsabs_hermpoly_basis[::, iter_i - 2 : iter_i] + tmp_logsabs_add,
                 b=signs_hermpoly_basis[::, iter_i - 2 : iter_i] * tmp_sign_multipliers,
-                return_sign=True,
-                axis=1,
             )
         )
         logsabs_hermpoly_basis[::, iter_i] += logabs_prefactor
@@ -158,7 +192,7 @@ def _slogabs_dilated_hermite_polynomial_basis(
     return logsabs_hermpoly_basis, signs_hermpoly_basis
 
 
-def _dilated_hermite_function_basis(
+def nb_dilated_hermite_function_basis(
     x: np.ndarray,
     n: int,
     alpha: float,
@@ -212,7 +246,7 @@ def _dilated_hermite_function_basis(
     # then, the natural logarithms of the absolute values and the signs of the dilated
     # Hermite polynomials are calculated
     logsabs_hermpoly_basis, signs_hermpoly_basis = (
-        _slogabs_dilated_hermite_polynomial_basis(
+        _nb_slogabs_dilated_hermite_polynomial_basis(
             x=x,
             n=n,
             alpha=alpha,
@@ -224,17 +258,21 @@ def _dilated_hermite_function_basis(
     # NOTE: the Gaussian and the prefactor are guaranteed to be positive, so the signs
     #       can be skipped here
     logs_gaussian = -(0.5 / alpha / alpha) * np.square(x)
-    orders = np.arange(
-        start=0,
-        stop=n + 1,
-        step=1,
-        dtype=np.int64,
-    )
+    # NOTE: the function can also be jitted by Numba, but Numba does not support
+    #       keywords ``start``, ``stop``, ``step``, and ``dtype`` for ``np.arange``
+    orders = np.arange(0, n + 1, 1, np.int64)
+
+    # NOTE: the logarithm of the factorial could be computed by the ``gammaln`` function
+    #       but since only integer arguments are used, it is directly computed as the
+    #       cumulative sum of the logarithms of the integers from 1 to ``n``
+    #       (inclusive); this also makes it Numba-compatible
+    orders_for_log_factorial = orders.copy()
+    orders_for_log_factorial[0] = 1.0  # 0! = 1
     logs_prefactors = (
         negative_log_fourth_root_pi
         + negative_half_log_two * orders
         + (orders - 0.5) * np.log(alpha)
-        - 0.5 * gammaln(orders + 1)
+        - 0.5 * np.cumsum(np.log(orders_for_log_factorial))
     )
 
     # finally, the Hermite functions are evaluated by adding the logarithms of the
@@ -245,3 +283,34 @@ def _dilated_hermite_function_basis(
         + logs_prefactors.reshape((1, -1))
         + logsabs_hermpoly_basis
     )
+
+
+# === Compilation ===
+
+# if available, the functions are compiled by Numba
+try:
+    from numba import jit
+
+    # if it is enabled, the functions are compiled
+    _nb_logsumexp = jit(
+        nopython=True,
+        inline="always",
+        cache=True,
+    )(_nb_logsumexp)
+
+    _nb_slogabs_dilated_hermite_polynomial_basis = jit(
+        nopython=True,
+        cache=True,
+    )(_nb_slogabs_dilated_hermite_polynomial_basis)
+
+    nb_dilated_hermite_function_basis = jit(
+        nopython=True,
+        cache=True,
+    )(nb_dilated_hermite_function_basis)
+
+# otherwise, the NumPy-based implementation of the Hermite functions is declared as the
+# Numba-based implementation
+except ImportError:
+    from ._numpy_funcs import _dilated_hermite_function_basis
+
+    nb_dilated_hermite_function_basis = _dilated_hermite_function_basis

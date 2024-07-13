@@ -11,7 +11,7 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from src.hermite_functions import _dilated_hermite_function_basis
+from robust_hermite_ft import hermite_function_basis
 
 # === Constants ===
 
@@ -46,10 +46,11 @@ if __name__ == "__main__":
 
     # all Hermite basis functions are evaluated ...
     x_values = np.linspace(start=X_FROM, stop=X_TO, num=NUM_X)
-    hermite_basis = _dilated_hermite_function_basis(
+    hermite_basis = hermite_function_basis(
         x=x_values,
         n=max(ORDERS),
         alpha=ALPHA,
+        jit=True,
     )
 
     # ... and the individual Hermite functions of interest are plotted

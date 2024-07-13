@@ -10,7 +10,7 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from src.hermite_functions import _dilated_hermite_function_basis
+from robust_hermite_ft import hermite_function_basis
 
 # === Constants ===
 
@@ -27,7 +27,7 @@ ORDERS = 6
 OFFSET = -2.0
 
 # the path where to store the plot and its resolution
-PLOT_FILEPATH = "../docs//hermite_functions/01_DilatedHermiteFunctions.png"
+PLOT_FILEPATH = "../docs//hermite_functions/DilatedHermiteFunctions_DifferentScales.png"
 DPI = 300
 
 # === Main ===
@@ -47,10 +47,11 @@ if __name__ == "__main__":
     colors = plt.cm.winter_r(np.linspace(0, 1, ORDERS + 1))  # type: ignore
     for idx_alpha, alpha in enumerate(ALPHAS):
         # the Hermite functions are computed and plotted
-        hermite_basis = _dilated_hermite_function_basis(
+        hermite_basis = hermite_function_basis(
             x=x_values,
             n=ORDERS,
             alpha=alpha,
+            jit=True,
         )
 
         # NOTE: x-axis are plotted for orientation

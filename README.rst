@@ -12,8 +12,8 @@ Currently under construction. Please check back later.
 〰️ Hermite functions
 ---------------------
 
-Being the eigenfunctions of the Fourier transform, Hermite functions are an excellent
-candidate as the basis functions for a Least Squares Regression approach to the Fourier
+Being the eigenfunctions of the Fourier transform, Hermite functions are excellent
+candidates for the basis functions for a Least Squares Regression approach to the Fourier
 transform. However, their evaluation can be a bit tricky.
 
 The module ``hermite_functions`` offers a numerically stable way to evaluate Hermite
@@ -30,6 +30,12 @@ The Hermite functions are defined as
     :width: 500px
     :align: left
 
+with the Hermite polynomials
+
+.. image:: docs/hermite_functions/equations/DilatedHermitePolynomials.png
+    :width: 660px
+    :align: left
+
 By making use of logarithm tricks, the evaluation that might involve infinitely high
 polynomial values and at the same time infinitely small Gaussians - that are on top of
 that scaled by an infinitely high factorial - can be computed safely and yield accurate
@@ -38,7 +44,7 @@ results.
 For doing so, the equation is rewritten in logarithmic form as
 
 .. image:: docs/hermite_functions/equations/LogDilatedHermiteFunctions.png
-    :width: 902px
+    :width: 863px
     :align: left
 
 where the evaluation of the natural logarithm of the Hermite polynomials is achieved by
@@ -49,7 +55,7 @@ This approach is tested against a symbolic evaluation with ``sympy`` that uses 1
 digits of precision and it can be shown that even orders as high as 2,000 can still be
 computed even though neither the polynomial, the Gaussian nor the factorial can be
 evaluated for this anymore. The factorial for example would already have overflown for
-170 in ``float64``-precision.
+orders of 170 in ``float64``-precision.
 
 .. image:: docs/hermite_functions/DilatedHermiteFunctions_Stability.png
     :width: 1000px
