@@ -18,7 +18,7 @@ from robust_hermite_ft import hermite_function_basis
 # the x-values to evaluate the Hermite functions
 X_FROM = -65.0
 X_TO = 65.0
-NUM_X = 40_001
+NUM_X = 100_001
 
 # the scaling factor alpha to use
 ALPHA = 1.0
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         x=x_values,
         n=max(ORDERS),
         alpha=ALPHA,
-        jit=True,
+        workers=-1,
     )
 
     # ... and the individual Hermite functions of interest are plotted

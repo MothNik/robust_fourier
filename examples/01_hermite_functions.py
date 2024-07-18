@@ -17,7 +17,7 @@ from robust_hermite_ft import hermite_function_basis
 # the x-values to evaluate the Hermite functions
 X_FROM = -5.0
 X_TO = 5.0
-NUM_X = 1_001
+NUM_X = 10_001
 
 # the scaling factors alpha to use
 ALPHAS = [0.5, 1.0, 2.0]
@@ -48,21 +48,18 @@ if __name__ == "__main__":
     for idx_alpha, alpha in enumerate(ALPHAS):
         # the Hermite functions are computed and plotted
         hermite_basis = hermite_function_basis(
-            x=x_values,
-            n=ORDERS,
-            alpha=alpha,
-            jit=True,
+            x=x_values, n=ORDERS, alpha=alpha, workers=-1
         )
 
         # NOTE: x-axis are plotted for orientation
         for idx_order in range(0, ORDERS + 1):
-            ax[idx_alpha].axhline(
+            ax[idx_alpha].axhline(  # type: ignore
                 y=idx_order * OFFSET,
                 color="black",
                 linewidth=0.5,
                 zorder=idx_order * 2,
             )
-            ax[idx_alpha].plot(
+            ax[idx_alpha].plot(  # type: ignore
                 x_values,
                 hermite_basis[::, idx_order] + idx_order * OFFSET,
                 color=colors[idx_order],
@@ -71,27 +68,27 @@ if __name__ == "__main__":
             )
 
         # the title, grid, x-labels, and ticks are set
-        ax[idx_alpha].set_title(
+        ax[idx_alpha].set_title(  # type: ignore
             r"$\alpha$" + f"= {alpha:.1f}",
             fontsize=16,
         )
-        ax[idx_alpha].set_xlabel(
+        ax[idx_alpha].set_xlabel(  # type: ignore
             r"$x$",
             fontsize=16,
             labelpad=10,
         )
-        ax[idx_alpha].tick_params(axis="both", which="major", labelsize=14)
-        ax[idx_alpha].grid(which="major", axis="both")
-        ax[idx_alpha].set_xlim(X_FROM, X_TO)
+        ax[idx_alpha].tick_params(axis="both", which="major", labelsize=14)  # type: ignore
+        ax[idx_alpha].grid(which="major", axis="both")  # type: ignore
+        ax[idx_alpha].set_xlim(X_FROM, X_TO)  # type: ignore
 
         # for the first plot, a y-label and a legend are added
         if idx_alpha == 0:
-            ax[idx_alpha].set_ylabel(
+            ax[idx_alpha].set_ylabel(  # type: ignore
                 r"$\psi_{n}^{\left(\alpha\right)}\left(x\right)$",
                 fontsize=16,
                 labelpad=10,
             )
-            ax[idx_alpha].legend(
+            ax[idx_alpha].legend(  # type: ignore
                 loc="upper left",
                 fontsize=14,
                 frameon=False,
