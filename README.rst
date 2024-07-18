@@ -33,7 +33,7 @@ The Hermite functions are defined as
 with the Hermite polynomials
 
 .. image:: docs/hermite_functions/equations/DilatedHermitePolynomials.png
-    :width: 660px
+    :width: 681px
     :align: left
 
 By making use of logarithm tricks, the evaluation that might involve infinitely high
@@ -41,15 +41,22 @@ polynomial values and at the same time infinitely small Gaussians - that are on 
 that scaled by an infinitely high factorial - can be computed safely and yield accurate
 results.
 
-For doing so, the equation is rewritten in logarithmic form as
+For doing so, the relation between the dilated and the non-dilated Hermite functions
 
-.. image:: docs/hermite_functions/equations/LogDilatedHermiteFunctions.png
-    :width: 863px
+.. image:: docs/hermite_functions/equations/HermiteFunctions_UndilatedToDilated.png
+    :width: 321px
     :align: left
 
-where the evaluation of the natural logarithm of the Hermite polynomials is achieved by
-making use of the
-`logsumexp trick <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.logsumexp.html>`_.
+and the recurrence relation for the Hermite functions
+
+.. image:: docs/hermite_functions/equations/HermiteFunctions_RecurrenceRelation.png
+    :width: 699px
+    :align: left
+
+are used, but not directly. Instead, the latest evaluated Hermite function is kept at a
+value of either -1, 0, or +1 during the recursion and the logarithm of a correction
+factor is tracked and applied when the respective Hermite function is finally evaluated
+and stored.
 
 This approach is tested against a symbolic evaluation with ``sympy`` that uses 100
 digits of precision and it can be shown that even orders as high as 2,000 can still be
