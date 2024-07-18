@@ -21,4 +21,8 @@ factor :math:`{\\alpha}`:
 
 # === Imports ===
 
-from ._interface import hermite_function_basis  # noqa: F401
+from ._interface import (  # noqa: F401
+    hermite_function_basis,
+    single_hermite_function,
+    slow_hermite_function_basis,
+)
