@@ -75,4 +75,4 @@ the value :math:`\frac{\pi^{-\frac{1}{4}}}{\sqrt{\alpha}}`.
 References
 ----------
 .. [1] Bunck B. F., A fast algorithm for evaluation of normalized Hermite
-    functions, BIT Numer Math (2009), 49, pp. 281–295, DOI: 10.1007/s10543-009-0216-1
+    functions, BIT Numer Math (2009), 49, pp. 281–295, DOI: <https://doi.org/10.1007/s10543-009-0216-1>_
