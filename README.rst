@@ -58,7 +58,7 @@ value of either -1, 0, or +1 during the recursion and the logarithm of a correct
 factor is tracked and applied when the respective Hermite function is finally evaluated
 and stored.
 
-This approach is tested against a symbolic evaluation with ``sympy`` that uses 100
+This approach is tested against a symbolic evaluation with ``sympy`` that uses 200
 digits of precision and it can be shown that even orders as high as 2,000 can still be
 computed even though neither the polynomial, the Gaussian nor the factorial can be
 evaluated for this anymore. The factorial for example would already have overflown for
