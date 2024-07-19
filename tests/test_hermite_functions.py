@@ -265,7 +265,15 @@ def test_dilated_hermite_function_basis_orthonormal_and_bounded(
     assert np.allclose(dot_product, np.eye(n + 1), atol=1e-10)
 
 
-@pytest.mark.parametrize("jit", [False, True])
+@pytest.mark.parametrize(
+    "implementation",
+    [
+        HermiteFunctionImplementations.CYTHON_SINGLE,
+        HermiteFunctionImplementations.CYTHON_PARALLEL,
+        HermiteFunctionImplementations.NUMPY_SINGLE,
+        HermiteFunctionImplementations.NUMBA_SINGLE,
+    ],
+)
 @pytest.mark.parametrize(
     "x, n, alpha, exception",
     [
@@ -324,7 +332,7 @@ def test_dilated_hermite_function_basis_invalid_input(
     n: int,
     alpha: float,
     exception: Exception,
-    jit: bool,
+    implementation: HermiteFunctionImplementations,
 ) -> None:
     """
     This test checks whether the function :func:`hermite_function_basis` raises the
@@ -332,12 +340,16 @@ def test_dilated_hermite_function_basis_invalid_input(
 
     """
 
+    # the function is parametrized
+    func, kwargs = setup_hermite_function_implementations(implementation=implementation)
+
+    # the function is called and the exception is checked
     with pytest.raises(type(exception), match=str(exception)):
-        slow_hermite_function_basis(
-            x=x,
+        func(
+            x=x,  # type: ignore
             n=n,
             alpha=alpha,
-            jit=jit,
+            **kwargs,
         )
 
     return
