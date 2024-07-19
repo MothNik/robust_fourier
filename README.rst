@@ -33,7 +33,7 @@ The Hermite functions are defined as
 with the Hermite polynomials
 
 .. image:: docs/hermite_functions/equations/DilatedHermitePolynomials.png
-    :width: 660px
+    :width: 681px
     :align: left
 
 By making use of logarithm tricks, the evaluation that might involve infinitely high
@@ -41,17 +41,24 @@ polynomial values and at the same time infinitely small Gaussians - that are on 
 that scaled by an infinitely high factorial - can be computed safely and yield accurate
 results.
 
-For doing so, the equation is rewritten in logarithmic form as
+For doing so, the relation between the dilated and the non-dilated Hermite functions
 
-.. image:: docs/hermite_functions/equations/LogDilatedHermiteFunctions.png
-    :width: 863px
+.. image:: docs/hermite_functions/equations/HermiteFunctions_UndilatedToDilated.png
+    :width: 321px
     :align: left
 
-where the evaluation of the natural logarithm of the Hermite polynomials is achieved by
-making use of the
-`logsumexp trick <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.logsumexp.html>`_.
+and the recurrence relation for the Hermite functions
 
-This approach is tested against a symbolic evaluation with ``sympy`` that uses 100
+.. image:: docs/hermite_functions/equations/HermiteFunctions_RecurrenceRelation.png
+    :width: 699px
+    :align: left
+
+are used, but not directly. Instead, the latest evaluated Hermite function is kept at a
+value of either -1, 0, or +1 during the recursion and the logarithm of a correction
+factor is tracked and applied when the respective Hermite function is finally evaluated
+and stored. This approach is based on [1_].
+
+This approach is tested against a symbolic evaluation with ``sympy`` that uses 200
 digits of precision and it can be shown that even orders as high as 2,000 can still be
 computed even though neither the polynomial, the Gaussian nor the factorial can be
 evaluated for this anymore. The factorial for example would already have overflown for
@@ -64,3 +71,9 @@ orders of 170 in ``float64``-precision.
 As a sanity check, their orthogonality is part of the tests together with a test for
 the fact that the absolute values of the Hermite functions for real input cannot exceed
 the value :math:`\frac{\pi^{-\frac{1}{4}}}{\sqrt{\alpha}}`.
+
+References
+----------
+.. [1] Bunck B. F., A fast algorithm for evaluation of normalized Hermite
+    functions, BIT Numer Math (2009), 49, pp. 281–295, DOI:
+    `<https://doi.org/10.1007/s10543-009-0216-1>`_

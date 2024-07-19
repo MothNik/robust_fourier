@@ -7,58 +7,69 @@ This test suite implements the tests for the module :mod:`hermite_functions`.
 
 import json
 import os
-import warnings
 from dataclasses import dataclass
-from typing import Generator
+from enum import Enum, auto
+from typing import Any, Callable, Dict, Generator, Tuple, Union
 
 import numpy as np
 import pytest
 
-from robust_hermite_ft import hermite_function_basis
-from robust_hermite_ft.hermite_functions._numba_funcs import (
-    _nb_slogabs_dilated_hermite_polynomial_basis,
-)
-from robust_hermite_ft.hermite_functions._numpy_funcs import (
-    _slogabs_dilated_hermite_polynomial_basis,
+from robust_hermite_ft import (
+    hermite_function_basis,
+    single_hermite_function,
+    slow_hermite_function_basis,
 )
 
-from .reference_files.generate_hermpoly_references import (
+from .reference_files.generate_hermfunc_references import (
     FILE_DIRECTORY,
     METADATA_FILENAME,
-    HermitePolynomialParameters,
-    ReferenceHermitePolynomialsMetadata,
+    HermiteFunctionsParameters,
+    ReferenceHermiteFunctionsMetadata,
 )
 
 # === Models ===
 
+# an Enum class for the different implementations of the Hermite functions
+
+
+class HermiteFunctionImplementations(str, Enum):
+    CYTHON_SINGLE = auto()
+    CYTHON_PARALLEL = auto()
+    NUMPY_SINGLE = auto()
+    NUMBA_SINGLE = auto()
+
+
+# a dataclass for the reference values of the dilated Hermite functions
+
 
 @dataclass
-class ReferenceHermitePolynomialBasis:
+class ReferenceHermiteFunctionBasis:
     """
-    Contains the reference values for the dilated Hermite polynomials.
+    Contains the reference values for the dilated Hermite functions.
 
     """
 
     n: int
     alpha: float
     x_values: np.ndarray
-    hermite_polynomial_basis: np.ndarray
+    hermite_function_basis: np.ndarray
+    ns_for_single_function: list[int]
 
 
 # === Fixtures ===
 
 
 @pytest.fixture
-def reference_dilated_hermite_polynomial_basis() -> (
-    Generator[ReferenceHermitePolynomialBasis, None, None]
+def reference_dilated_hermite_function_basis() -> (
+    Generator[ReferenceHermiteFunctionBasis, None, None]
 ):
     """
-    Loads the reference values for the dilated Hermite polynomials.
+    Loads the reference values for the dilated Hermite functions.
 
     Returns
     -------
-    reference_dilated_hermite_polynomial_basis : :class:`Generator`
-        The reference values for the dilated Hermite polynomials.
+    reference_dilated_hermite_function_basis : :class:`Generator`
+        The reference values for the dilated Hermite functions.
 
     """  # noqa: E501
 
@@ -71,100 +82,141 @@ def reference_dilated_hermite_polynomial_basis() -> (
     # NOTE: this is not really necessary but also serves as a sanity check for the
     #       metadata
     filename_parameters_mapping = {
-        filename: HermitePolynomialParameters(**parameters)
-        for filename, parameters in reference_metadata[
-            "filename_parameters_mapping"
-        ].items()
+        filename: HermiteFunctionsParameters(**parameters)
+        for filename, parameters in reference_metadata["parameters_mapping"].items()
     }
-    reference_metadata = ReferenceHermitePolynomialsMetadata(
-        filename_parameters_mapping=filename_parameters_mapping,
+    reference_metadata = ReferenceHermiteFunctionsMetadata(
+        parameters_mapping=filename_parameters_mapping,
+        computation_time_mapping=reference_metadata["computation_time_mapping"],
         num_digits=reference_metadata["num_digits"],
         x_values=np.array(reference_metadata["x_values"], dtype=np.float64),
     )
 
     # then, an iterator is created that yields the reference values from the files in
     # a lazy fashion
-    def reference_iterator() -> Generator[ReferenceHermitePolynomialBasis, None, None]:
+    def reference_iterator() -> Generator[ReferenceHermiteFunctionBasis, None, None]:
         for (
             filename,
             parameters,
-        ) in reference_metadata.filename_parameters_mapping.items():
+        ) in reference_metadata.parameters_mapping.items():
             # the reference values are loaded
             filepath = os.path.join(FILE_DIRECTORY, filename)
-            reference_hermite_polynomial_basis = np.load(filepath)
+            reference_hermite_function_basis = np.load(filepath)
 
-            yield ReferenceHermitePolynomialBasis(
+            yield ReferenceHermiteFunctionBasis(
                 n=parameters.n,
                 alpha=parameters.alpha,
                 x_values=np.array(reference_metadata.x_values, dtype=np.float64),
-                hermite_polynomial_basis=reference_hermite_polynomial_basis,
+                hermite_function_basis=reference_hermite_function_basis,
+                ns_for_single_function=parameters.ns_for_single_function,
             )
 
     # finally, the iterator is returned
     return reference_iterator()
 
 
+# === Auxiliary Functions ===
+
+# a function to set up the Hermite function implementations
+
+
+def setup_hermite_function_implementations(
+    implementation: HermiteFunctionImplementations,
+) -> Tuple[
+    Union[
+        Callable[[np.ndarray, int, float, int], np.ndarray],
+        Callable[[np.ndarray, int, float, bool], np.ndarray],
+    ],
+    Dict[str, Any],
+]:
+    """
+    Sets up the Hermite function implementations by selecting the correct function and
+    its keyword arguments.
+
+    """
+
+    if implementation == HermiteFunctionImplementations.CYTHON_SINGLE:
+        return hermite_function_basis, dict(workers=1)
+
+    elif implementation == HermiteFunctionImplementations.CYTHON_PARALLEL:
+        return hermite_function_basis, dict(workers=-1)
+
+    elif implementation == HermiteFunctionImplementations.NUMPY_SINGLE:
+        return slow_hermite_function_basis, dict(jit=False)
+
+    elif implementation == HermiteFunctionImplementations.NUMBA_SINGLE:
+        return slow_hermite_function_basis, dict(jit=True)
+
+    else:
+        raise AssertionError(f"Unknown implementation: {implementation}")
+
+
 # === Tests ===
 
 
-@pytest.mark.parametrize("jit", [False, True])
-def test_slogabs_dilated_hermite_polynomial_basis(
-    reference_dilated_hermite_polynomial_basis: Generator[
-        ReferenceHermitePolynomialBasis, None, None
+@pytest.mark.parametrize(
+    "implementation",
+    [
+        HermiteFunctionImplementations.CYTHON_SINGLE,
+        HermiteFunctionImplementations.CYTHON_PARALLEL,
+        HermiteFunctionImplementations.NUMPY_SINGLE,
+        HermiteFunctionImplementations.NUMBA_SINGLE,
     ],
-    jit: bool,
+)
+def test_dilated_hermite_function_basis(
+    reference_dilated_hermite_function_basis: Generator[
+        ReferenceHermiteFunctionBasis, None, None
+    ],
+    implementation: HermiteFunctionImplementations,
 ) -> None:
     """
     This test checks the implementation of the function
-    :func:`_slogabs_dilated_hermite_polynomial_basis` against the symbolic
-    implementation of the Hermite polynomials.
-
-    It evaluates the exponential of the logarithm of the numerical results which is not
-    a step that should be taken in practice. Here, this is solely done to compare the
-    results with the symbolic reference.
+    :func:`slow_hermite_function_basis` against the symbolic implementation of the
+    Hermite functions.
 
     """
-
-    # the polynomial function is chosen based on the ``jit`` flag
-    polynomial_basis_func = (
-        _nb_slogabs_dilated_hermite_polynomial_basis
-        if jit
-        else _slogabs_dilated_hermite_polynomial_basis
-    )
 
     # the reference values are loaded from the files and compared with the numerical
     # results
-    for reference in reference_dilated_hermite_polynomial_basis:
-        # the numerical evaluation to test computes the results in the log space and
-        # also provides the signs of the Hermite polynomials at the points x
-        with np.errstate(divide="ignore", invalid="ignore"):
-            logabs_hermpoly_basis, signs_hermpoly_basis = polynomial_basis_func(
-                x=reference.x_values,
-                n=reference.n,
-                alpha=reference.alpha,
-            )
-
-        # the logarithms have to be exponentiated and multiplied with the signs to
-        # obtain the numerical Hermite polynomials
-        # NOTE: overflow might happen for some calculations since this is not the
-        #       intended way of using the function; therefore warnings are suppressed
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=RuntimeWarning)
-            hermpoly_basis = signs_hermpoly_basis * np.exp(logabs_hermpoly_basis)
+    for reference in reference_dilated_hermite_function_basis:
+        # the numerical implementation is parametrized and called
+        func, kwargs = setup_hermite_function_implementations(
+            implementation=implementation
+        )
+        numerical_herm_func_basis = func(
+            x=reference.x_values,  # type: ignore
+            n=reference.n,
+            alpha=reference.alpha,
+            **kwargs,
+        )
 
         # the reference values are compared with the numerical results
-        assert np.allclose(hermpoly_basis, reference.hermite_polynomial_basis)
+        assert np.allclose(
+            numerical_herm_func_basis,
+            reference.hermite_function_basis,
+            atol=1e-12,
+            rtol=1e-12,
+        ), f"For n = {reference.n} and alpha = {reference.alpha}"
 
 
-@pytest.mark.parametrize("jit", [False, True])
+@pytest.mark.parametrize(
+    "implementation",
+    [
+        HermiteFunctionImplementations.CYTHON_SINGLE,
+        HermiteFunctionImplementations.CYTHON_PARALLEL,
+        HermiteFunctionImplementations.NUMPY_SINGLE,
+        HermiteFunctionImplementations.NUMBA_SINGLE,
+    ],
+)
 @pytest.mark.parametrize("alpha", [0.5, 1.0, 2.0])
 def test_dilated_hermite_function_basis_orthonormal_and_bounded(
     alpha: float,
-    jit: bool,
+    implementation: HermiteFunctionImplementations,
 ) -> None:
     """
-    This test checks whether the generated dilated Hermite functions are orthonormal
-    and bounded by :math:`\\frac{\\pm\\pi^{-\\frac{1}{4}}{\\sqrt{\\alpha}}`.
+    This test checks whether the dilated Hermite functions generated by the function
+    :func:`slow_hermite_function_basis` are orthonormal and bounded by the Cramér's
+    inequality :math:`\\frac{\\pm\\pi^{-\\frac{1}{4}}{\\sqrt{\\alpha}}`.
 
     To prove the first point, the dot product of the Hermite basis function matrix with
     itself is computed which - after scaling by the step size in ``x`` - should be the
@@ -174,32 +226,34 @@ def test_dilated_hermite_function_basis_orthonormal_and_bounded(
 
     """
 
-    # the number of order is high (n = 500) to ensure that the orthonormality is
+    # the number of orders is high (n = 1000) to ensure that the orthonormality is
     # thoroughly tested
-    n = 500
+    n = 1_000
 
     # the x-values need to be set up
-    # they need to be sampled densely within the interval [-35 * alpha, 35 * alpha]
+    # they need to be sampled densely within the interval [-50 * alpha, 50 * alpha]
     # because there they have already decayed to zero while the central bump (that could
-    # potentially exceed the bounds) is still present for n <= 500
+    # potentially exceed the bounds) is still present for n <= 1000
+    x_bound = 50.0 * alpha
     x_values = np.linspace(
-        start=-35.0 * alpha,
-        stop=35.0 * alpha,
-        num=40_001,
+        start=-x_bound,
+        stop=x_bound,
+        num=50_001,
     )
 
-    # the dilated Hermite functions are evaluated
-    hermite_basis = hermite_function_basis(
-        x=x_values,
+    # the function is parametrized and called to evaluate the Hermite functions
+    func, kwargs = setup_hermite_function_implementations(implementation=implementation)
+    hermite_basis = func(
+        x=x_values,  # type: ignore
         n=n,
         alpha=alpha,
-        jit=jit,
+        **kwargs,
     )
 
     # then, the are tested for being bounded by the given values
     # the bounds are calculated for the given alpha
     bound = np.pi ** (-0.25) / np.sqrt(alpha)
-    assert np.all(np.abs(hermite_basis) <= bound + 1e-10)
+    assert np.all(np.abs(hermite_basis) <= bound + 1e-13)
 
     # the orthonormality is tested by computing the dot product of the Hermite basis
     # function matrix with itself, i.e., ``X.T @ X`` which - after scaling by the step
@@ -211,7 +265,15 @@ def test_dilated_hermite_function_basis_orthonormal_and_bounded(
     assert np.allclose(dot_product, np.eye(n + 1), atol=1e-10)
 
 
-@pytest.mark.parametrize("jit", [False, True])
+@pytest.mark.parametrize(
+    "implementation",
+    [
+        HermiteFunctionImplementations.CYTHON_SINGLE,
+        HermiteFunctionImplementations.CYTHON_PARALLEL,
+        HermiteFunctionImplementations.NUMPY_SINGLE,
+        HermiteFunctionImplementations.NUMBA_SINGLE,
+    ],
+)
 @pytest.mark.parametrize(
     "x, n, alpha, exception",
     [
@@ -270,7 +332,7 @@ def test_dilated_hermite_function_basis_invalid_input(
     n: int,
     alpha: float,
     exception: Exception,
-    jit: bool,
+    implementation: HermiteFunctionImplementations,
 ) -> None:
     """
     This test checks whether the function :func:`hermite_function_basis` raises the
@@ -278,12 +340,53 @@ def test_dilated_hermite_function_basis_invalid_input(
 
     """
 
+    # the function is parametrized
+    func, kwargs = setup_hermite_function_implementations(implementation=implementation)
+
+    # the function is called and the exception is checked
     with pytest.raises(type(exception), match=str(exception)):
-        hermite_function_basis(
-            x=x,
+        func(
+            x=x,  # type: ignore
             n=n,
             alpha=alpha,
-            jit=jit,
+            **kwargs,
         )
 
     return
+
+
+def test_single_hermite_functions(
+    reference_dilated_hermite_function_basis: Generator[
+        ReferenceHermiteFunctionBasis, None, None
+    ],
+) -> None:
+    """
+    This test checks the implementation of the function
+    :func:`single_hermite_function` against the symbolic implementation of the Hermite
+    functions, but only for selected ones that aim to cover the most relevant cases
+    given that the evaluation for a full basis would be way too expensive.
+
+    """
+
+    # the reference values are loaded from the files and compared with the numerical
+    # results
+    for reference in reference_dilated_hermite_function_basis:
+        if len(reference.ns_for_single_function) < 1:
+            continue
+
+        # all the selected orders are tested
+        for n in reference.ns_for_single_function:
+            # the numerical implementation is called
+            numerical_herm_func = single_hermite_function(
+                x=reference.x_values,
+                n=n,
+                alpha=reference.alpha,
+            )
+
+            # the reference values are compared with the numerical results
+            assert np.allclose(
+                numerical_herm_func,
+                reference.hermite_function_basis[::, n],
+                atol=1e-12,
+                rtol=1e-12,
+            ), f"For n = {n} and alpha = {reference.alpha}"

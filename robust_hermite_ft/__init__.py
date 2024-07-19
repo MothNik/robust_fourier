@@ -10,7 +10,11 @@ based on a Least Squares Fit of Hermite functions.
 
 import os as _os
 
-from .hermite_functions import hermite_function_basis  # noqa: F401
+from .hermite_functions import (  # noqa: F401
+    hermite_function_basis,
+    single_hermite_function,
+    slow_hermite_function_basis,
+)
 
 # === Package Metadata ===
 
@@ -22,4 +26,3 @@ with open(_AUTHOR_FILE_PATH, "r") as author_file:
 
 with open(_VERSION_FILE_PATH, "r") as version_file:
     __version__ = version_file.read().strip()
-

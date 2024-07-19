@@ -1,5 +1,7 @@
 black
 coverage
+cython>=3.0.10
+cython-lint>=0.16.0
 esbonio
 ipympl
 jupyter
