@@ -56,7 +56,7 @@ and the recurrence relation for the Hermite functions
 are used, but not directly. Instead, the latest evaluated Hermite function is kept at a
 value of either -1, 0, or +1 during the recursion and the logarithm of a correction
 factor is tracked and applied when the respective Hermite function is finally evaluated
-and stored.
+and stored. This approach is based on [1_].
 
 This approach is tested against a symbolic evaluation with ``sympy`` that uses 200
 digits of precision and it can be shown that even orders as high as 2,000 can still be
@@ -71,3 +71,8 @@ orders of 170 in ``float64``-precision.
 As a sanity check, their orthogonality is part of the tests together with a test for
 the fact that the absolute values of the Hermite functions for real input cannot exceed
 the value :math:`\frac{\pi^{-\frac{1}{4}}}{\sqrt{\alpha}}`.
+
+References
+----------
+.. [1] Bunck B. F., A fast algorithm for evaluation of normalized Hermite
+    functions, BIT Numer Math (2009), 49, pp. 281–295, DOI: 10.1007/s10543-009-0216-1
