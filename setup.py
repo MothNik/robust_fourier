@@ -10,12 +10,12 @@ import sys
 import Cython.Compiler.Options
 import numpy as np
 from Cython.Build import cythonize
-from setuptools import Extension, setup
+from setuptools import Extension, find_packages, setup
 
 # === Constants ===
 
 SOURCES = [
-    "robust_hermite_ft/hermite_functions/_c_hermite.pyx",
+    "src/robust_hermite_ft/hermite_functions/_c_hermite.pyx",
 ]
 
 # === Setup ===
@@ -41,8 +41,10 @@ CY_MODULES = [
 ]
 
 setup(
+    package_dir={"": "src"},
+    packages=find_packages("src"),
     ext_modules=cythonize(CY_MODULES, nthreads=1, annotate=True),
     package_data={"robust_hermite_ft": ["*.pxd"]},  # include pxd files
-    include_package_data=False,  # ignore other files
+    include_package_data=True,
     zip_safe=False,
 )

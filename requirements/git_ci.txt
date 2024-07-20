@@ -1,0 +1,9 @@
+black
+coverage
+cython>=3.0.10
+cython-lint>=0.16.0
+numba>=0.55.0
+pytest
+pytest-cov
+pytest-xdist
+ruff
