@@ -21,7 +21,7 @@ include-package-data = true
 package-data = {"*" = ["AUTHORS.txt", "VERSION.txt"]}
 
 [tool.setuptools.dynamic]
-version = {file = "robust_hermite_ft/VERSION.txt"}
+version = {file = "src/robust_hermite_ft/VERSION.txt"}
 readme = {file = ["README.rst"]}
 dependencies = {file = "requirements/base.txt"}
 optional-dependencies = {fast = {file = "requirements/fast.txt"}, dev = {file = "requirements/dev.txt"}, examples = {file = "requirements/examples.txt"}, git_ci = {file = "requirements/git_ci.txt"}}

@@ -22,14 +22,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
+      - name: Install dependencies and Build package
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install .["git_ci"]
-
-      - name: Build Cython code
-        run: |
-          python setup.py build_ext --inplace
 
       - name: Run tests
         run: |
