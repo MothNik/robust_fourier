@@ -3,10 +3,11 @@ name: Build and Test
 on:
   push:
     branches:
-      - develop # Change from main to develop
+      - main
   pull_request:
     branches:
-      - develop # Change from main to develop
+      - main
+      - develop
 
 jobs:
   build:
