@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build, Check, and Test
 
 on:
   push:
@@ -17,9 +17,9 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -27,6 +27,26 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install .["git_ci"]
+
+      - name: Run format check
+        run: |
+          black --check --diff --color ./examples ./src ./tests
+
+      - name: Run Import sort check
+        run: |
+          isort --check --diff --color ./examples ./src ./tests
+
+      - name: Run static type check
+        run: |
+          pyright
+
+      - name: Run Python lint check
+        run: |
+          ruff check ./examples ./src ./tests
+
+      - name: Run Cython check
+        run: |
+          cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
 
       - name: Run tests
         run: |
