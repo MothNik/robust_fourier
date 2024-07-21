@@ -18,7 +18,9 @@ from typing import Tuple, Union
 import numpy as np
 import psutil
 
-from ._c_hermite import hermite_function_basis as _c_hermite_function_basis
+from ._c_hermite import (
+    hermite_function_basis as _c_hermite_function_basis,  # type: ignore
+)
 from ._numba_funcs import nb_hermite_function_basis as _nb_hermite_function_basis
 from ._numpy_funcs import _hermite_function_basis as _np_hermite_function_basis
 from ._numpy_funcs import _single_hermite_function as _np_single_hermite_function
