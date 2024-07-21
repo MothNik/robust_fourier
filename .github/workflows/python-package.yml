@@ -35,7 +35,7 @@ jobs:
 
       - name: Run Import sort check
         run: |
-          isort --check --diff --color .
+          python -m isort --check --diff --color .
 
       - name: Run static type check
         run: |
