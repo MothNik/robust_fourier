@@ -14,6 +14,8 @@ import numpy as np
 from numpy import abs as np_abs
 from numpy import exp, log, sqrt, square
 
+from .._utils.numba_helpers import do_numba_normal_jit_action
+
 # === Functions ===
 
 
@@ -130,7 +132,10 @@ def _hermite_function_basis(
 
 # if available, the functions are compiled by Numba
 try:
-    from numba import jit
+    if do_numba_normal_jit_action:  # pragma: no cover
+        from numba import jit
+    else:
+        from .._utils import no_jit as jit
 
     # if it is enabled, the functions are compiled
     nb_hermite_function_basis = jit(
@@ -141,7 +146,7 @@ try:
 
 # otherwise, the NumPy-based implementation of the Hermite functions is declared as the
 # Numba-based implementation
-except ImportError:
+except ImportError:  # pragma: no cover
     from ._numpy_funcs import _hermite_function_basis
 
     nb_hermite_function_basis = _hermite_function_basis
