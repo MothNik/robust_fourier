@@ -32,18 +32,25 @@ jobs:
         run: |
           black --check --diff --color ./examples ./src ./tests
 
-      - name: Run Import sort check
+      - name: Run import sort check
         run: |
           isort --check --diff --color ./examples ./src ./tests
 
-      - name: Run static type check
+      - name: Run pyright static type check
         run: |
           pyright
+
+      - name: Run mypy static type check
+        run: |
           mypy ./examples ./src ./tests
 
-      - name: Run Python lint check
+      - name: Run ruff lint check
         run: |
           ruff check ./examples ./src ./tests
+
+      - name: Run pycodestyle check
+        run: |
+          pycodestyle ./examples ./src ./tests --max-line-length=88
 
       - name: Run Cython check
         run: |

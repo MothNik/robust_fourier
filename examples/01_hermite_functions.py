@@ -77,7 +77,7 @@ if __name__ == "__main__":
             fontsize=16,
             labelpad=10,
         )
-        ax[idx_alpha].tick_params(axis="both", which="major", labelsize=14)  # type: ignore
+        ax[idx_alpha].tick_params(axis="both", which="major", labelsize=14)  # type: ignore  # noqa: E501
         ax[idx_alpha].grid(which="major", axis="both")  # type: ignore
         ax[idx_alpha].set_xlim(X_FROM, X_TO)  # type: ignore
 
