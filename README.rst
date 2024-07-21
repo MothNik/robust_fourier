@@ -15,7 +15,6 @@
 .. image:: https://codecov.io/gh/MothNik/robust_hermite_ft/branch/10-improve-and-add-coverage-to-CI/graph/badge.svg
     :target: https://codecov.io/gh/MothNik/robust_hermite_ft/branch/10-improve-and-add-coverage-to-CI
 
-
 You want to compute the Fourier transform of a signal, but your signal can be corrupted
 by outliers? If so, this package is for you even though you will have to say goodbye to
 the *"fast"* in *Fast Fourier Transform* 🏃🙅‍♀️
@@ -23,6 +22,56 @@ the *"fast"* in *Fast Fourier Transform* 🏃🙅‍♀️
 🏗️🚧 👷👷‍♂️👷‍♀️🏗️🚧
 
 Currently under construction. Please check back later.
+
+⚙️ Setup and 🪛 Development
+----------------------------
+🎁 Installation
+~~~~~~~~~~~~~~~
+
+Currently, the package is not yet available on PyPI. To install it, you can clone the
+repository
+
+.. code-block:: bash
+    git clone https://github.com/MothNik/robust_hermite_ft.git
+
+and from within the repositories root directory, install it with
+
+.. code-block:: bash
+    pip install -e .
+
+for normal use or
+
+.. code-block:: bash
+    pip install -e .["dev"]
+
+for development which will also install the development dependencies.
+
+⚠️ **Warning**: This will require a C-compiler to be installed on your system to
+compile the Cython code.
+
+🔎 Code quality
+~~~~~~~~~~~~~~~
+
+The following checks for ``black``, ``isort``, ``pyright``, ``ruff``, and
+``cython-lint`` - that are also part of the CI pipeline - can be run with
+
+.. code-block:: bash
+    black --check --diff --color ./examples ./src ./tests
+    isort --check --diff --color ./examples ./src ./tests
+    pyright
+    ruff check ./examples ./src ./tests
+    cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
+
+✅❌ Tests
+~~~~~~~~~
+
+To run the tests - almost like in the CI pipeline - you can use
+
+.. code-block:: bash
+    pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=xml -x --no-jit
+
+for parallelized testing whose coverage report will be stored in the folder
+``./htmlcov``.
 
 〰️ Hermite functions
 ---------------------
