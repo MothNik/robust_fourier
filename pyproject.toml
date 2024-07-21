@@ -44,13 +44,13 @@ max-line-length = 120
 
 [tool.ruff]
 # Enable pycodestyle (`E`), Pyflakes (`F`) checks.
-select = ["E", "F"]
-ignore = []
+lint.select = ["E", "F"]
+lint.ignore = []
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
 # "A", "B", "C", "D", "E", "F", "..."
-fixable = []
-unfixable = []
+lint.fixable = []
+lint.unfixable = []
 
 exclude = [
     ".bzr",
@@ -80,4 +80,4 @@ line-length = 88
 target-version = "py39"
 
 # Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"

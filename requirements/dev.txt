@@ -1,4 +1,4 @@
-black
+black>=24.4.0
 coverage
 cython>=3.0.10
 cython-lint>=0.16.0
@@ -10,9 +10,10 @@ matplotlib
 numba>=0.55.0
 pandas
 perfplot
+pyright>=1.1.300
 pytest
 pytest-cov
 pytest-xdist
 sympy
-ruff
+ruff>=0.5.0
 tqdm
