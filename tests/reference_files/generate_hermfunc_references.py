@@ -297,7 +297,7 @@ if __name__ == "__main__":
     progress_bar.update(1)
 
     # the Hermite functions are evaluated for the different scaling factors and saved
-    filename_parameters_mapping = dict()
+    filename_parameters_mapping: Dict[str, HermiteFunctionsParameters] = dict()
     computation_time_mapping = dict()
 
     progress_bar.set_description("Generating Hermite reference data")
@@ -319,7 +319,7 @@ if __name__ == "__main__":
         )
         filepath = os.path.join(FILE_DIRECTORY, filename)
         np.save(file=filepath, arr=hermite_function_basis, allow_pickle=False)
-        filename_parameters_mapping[filename] = asdict(parameters)
+        filename_parameters_mapping[filename] = parameters
         computation_time_mapping[filename] = perf_counter() - start_time
 
         progress_bar.update(1)

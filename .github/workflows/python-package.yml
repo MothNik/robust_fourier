@@ -39,6 +39,7 @@ jobs:
       - name: Run static type check
         run: |
           pyright
+          mypy ./examples ./src ./tests
 
       - name: Run Python lint check
         run: |

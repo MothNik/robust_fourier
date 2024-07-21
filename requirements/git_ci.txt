@@ -4,6 +4,7 @@ coverage
 cython>=3.0.10
 cython-lint>=0.16.0
 isort>=5.13.0
+mypy>=1.11.0
 numba>=0.55.0
 pyright>=1.1.300
 pytest

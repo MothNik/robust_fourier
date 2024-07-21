@@ -9,6 +9,7 @@ isort>=5.13.0
 jupyter
 line-profiler
 matplotlib
+mypy>=1.11.0
 numba>=0.55.0
 pandas
 perfplot
