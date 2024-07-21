@@ -50,4 +50,11 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest -n=auto -x
+          pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=xml -x --no-jit
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
