@@ -22,8 +22,7 @@ from ._numba_funcs import nb_hermite_function_basis as _nb_hermite_function_basi
 from ._numpy_funcs import _hermite_function_basis as _np_hermite_function_basis
 from ._numpy_funcs import _single_hermite_function as _np_single_hermite_function
 
-#
-from ._c_hermite import (  # fmt: skip; isort: skip; pyright: ignore[reportMissingImports];  # noqa: E501
+from ._c_hermite import (  # pyright: ignore[reportMissingImports]; fmt: skip; isort: skip   # noqa: E501
     hermite_function_basis as _c_hermite_function_basis,
 )
 
