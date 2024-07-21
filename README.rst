@@ -12,7 +12,9 @@
     :target: https://github.com/psf/black
 .. image:: https://img.shields.io/badge/code%20style-isort-000000.svg
     :target: https://pycqa.github.io/isort/
-    
+.. image:: https://codecov.io/gh/MothNik/robust_hermite_ft/branch/10-improve-and-add-coverage-to-CI/graph/badge.svg
+    :target: https://codecov.io/gh/MothNik/robust_hermite_ft/branch/10-improve-and-add-coverage-to-CI
+
 
 You want to compute the Fourier transform of a signal, but your signal can be corrupted
 by outliers? If so, this package is for you even though you will have to say goodbye to
