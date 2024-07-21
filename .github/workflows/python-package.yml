@@ -31,11 +31,11 @@ jobs:
 
       - name: Run format check
         run: |
-          black --check --diff --color .
+          black --check --diff --color ./examples ./src ./tests
 
       - name: Run Import sort check
         run: |
-          python -m isort --check --diff --color .
+          isort --check --diff --color ./examples ./src ./tests
 
       - name: Run static type check
         run: |
@@ -43,7 +43,7 @@ jobs:
 
       - name: Run Python lint check
         run: |
-          ruff check .
+          ruff check ./examples ./src ./tests
 
       - name: Run Cython check
         run: |

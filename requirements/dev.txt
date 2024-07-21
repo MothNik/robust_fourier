@@ -4,6 +4,7 @@ cython>=3.0.10
 cython-lint>=0.16.0
 esbonio
 ipympl
+isort>=5.13.0
 jupyter
 line-profiler
 matplotlib

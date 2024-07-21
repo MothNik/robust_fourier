@@ -7,7 +7,7 @@ Cython module :mod:`_hermite.pyx` for the evaluation of the Hermite function bas
 
 # === Imports ===
 
-from libc.math cimport exp, sqrt, log
+from libc.math cimport exp, log, sqrt
 import numpy as np
 cimport numpy as np
 from cython.parallel import prange
