@@ -16,3 +16,4 @@ from .numba_helpers import (  # noqa: F401
     do_numba_normal_jit_action,
     no_jit,
 )
+from .parallel_helpers import _get_num_workers  # noqa: F401

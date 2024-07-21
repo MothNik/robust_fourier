@@ -16,8 +16,8 @@ from math import sqrt
 from typing import Tuple, Union
 
 import numpy as np
-import psutil
 
+from .._utils import _get_num_workers
 from ._numba_funcs import nb_hermite_function_basis as _nb_hermite_function_basis
 from ._numpy_funcs import _hermite_function_basis as _np_hermite_function_basis
 from ._numpy_funcs import _single_hermite_function as _np_single_hermite_function
@@ -27,42 +27,6 @@ from ._c_hermite import (  # pyright: ignore[reportMissingImports]; fmt: skip; i
 )
 
 # === Auxiliary Functions ===
-
-
-def _get_num_workers(workers: int) -> int:
-    """
-    Gets the number of available workers for the process calling this function.
-
-    Parameters
-    ----------
-    workers : :class:`int`
-        Number of workers requested.
-
-    Returns
-    -------
-    workers : :class:`int`
-        Number of workers available.
-
-    """
-
-    # the number of workers may not be less than -1
-    if workers < -1:
-        raise ValueError(
-            f"Expected 'workers' to be greater or equal to -1 but got {workers}."
-        )
-
-    # then, the maximum number of workers is determined ...
-    # NOTE: the following does not count the number of total threads, but the number of
-    #       threads available to the process calling this function
-    process = psutil.Process()
-    max_workers = len(process.cpu_affinity())  # type: ignore
-    del process
-
-    # ... and overwrites the number of workers if it is set to -1
-    workers = max_workers if workers == -1 else workers
-
-    # the number of workers is limited between 1 and the number of available threads
-    return max(1, min(workers, max_workers))
 
 
 def _get_validated_hermite_function_input(
