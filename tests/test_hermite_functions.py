@@ -9,7 +9,7 @@ import json
 import os
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Callable, Dict, Generator, Tuple, Union
+from typing import Any, Callable, Dict, Generator, Tuple, Type, Union
 
 import numpy as np
 import pytest
@@ -154,6 +154,7 @@ def setup_hermite_function_implementations(
 # === Tests ===
 
 
+@pytest.mark.parametrize("x_dtype", [np.float32, np.float64])
 @pytest.mark.parametrize(
     "implementation",
     [
@@ -168,6 +169,7 @@ def test_dilated_hermite_function_basis(
         ReferenceHermiteFunctionBasis, None, None
     ],
     implementation: HermiteFunctionImplementations,
+    x_dtype: Type,
 ) -> None:
     """
     This test checks the implementation of the function
@@ -184,18 +186,26 @@ def test_dilated_hermite_function_basis(
             implementation=implementation
         )
         numerical_herm_func_basis = func(
-            x=reference.x_values,  # type: ignore
+            x=reference.x_values.astype(x_dtype),  # type: ignore
             n=reference.n,
             alpha=reference.alpha,
             **kwargs,
         )
 
         # the reference values are compared with the numerical results
+        # NOTE: the numerical tolerance has to be based on the data type of the x-values
+        #       because the build-up of rounding errors is quite pronounced due to the
+        #       x-values being involved in the recursions
+        if x_dtype == np.float32:
+            atol, rtol = 1e-5, 1e-5
+        else:
+            atol, rtol = 1e-12, 1e-12
+
         assert np.allclose(
             numerical_herm_func_basis,
             reference.hermite_function_basis,
-            atol=1e-12,
-            rtol=1e-12,
+            atol=atol,
+            rtol=rtol,
         ), f"For n = {reference.n} and alpha = {reference.alpha}"
 
 
