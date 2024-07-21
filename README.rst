@@ -10,6 +10,9 @@
     :target: https://www.python.org/downloads/release/python-3120/
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
+.. image:: https://img.shields.io/badge/code%20style-isort-000000.svg
+    :target: https://pycqa.github.io/isort/
+    
 
 You want to compute the Fourier transform of a signal, but your signal can be corrupted
 by outliers? If so, this package is for you even though you will have to say goodbye to
