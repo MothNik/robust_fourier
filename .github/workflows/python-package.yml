@@ -31,7 +31,11 @@ jobs:
 
       - name: Run format check
         run: |
-          black --check .
+          black --check --diff --color .
+
+      - name: Run Import sort check
+        run: |
+          isort --check --diff --color .
 
       - name: Run static type check
         run: |
