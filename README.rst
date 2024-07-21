@@ -1,5 +1,15 @@
 ``robust_hermite_ft``
 =====================
+.. image:: https://img.shields.io/badge/python-3.9-blue.svg
+    :target: https://www.python.org/downloads/release/python-390/
+.. image:: https://img.shields.io/badge/python-3.10-blue.svg
+    :target: https://www.python.org/downloads/release/python-3100/
+.. image:: https://img.shields.io/badge/python-3.11-blue.svg
+    :target: https://www.python.org/downloads/release/python-3110/
+.. image:: https://img.shields.io/badge/python-3.12-blue.svg
+    :target: https://www.python.org/downloads/release/python-3120/
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
 
 You want to compute the Fourier transform of a signal, but your signal can be corrupted
 by outliers? If so, this package is for you even though you will have to say goodbye to
