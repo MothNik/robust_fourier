@@ -18,12 +18,14 @@ from typing import Tuple, Union
 import numpy as np
 import psutil
 
-from ._c_hermite import (
-    hermite_function_basis as _c_hermite_function_basis,  # pyright: ignore[reportMissingImports]
-)
 from ._numba_funcs import nb_hermite_function_basis as _nb_hermite_function_basis
 from ._numpy_funcs import _hermite_function_basis as _np_hermite_function_basis
 from ._numpy_funcs import _single_hermite_function as _np_single_hermite_function
+
+#
+from ._c_hermite import (  # fmt: skip; isort: skip; pyright: ignore[reportMissingImports];  # noqa: E501
+    hermite_function_basis as _c_hermite_function_basis,
+)
 
 # === Auxiliary Functions ===
 
