@@ -14,9 +14,18 @@ to complete.
 import json
 import os
 from dataclasses import asdict, dataclass, field
+from functools import partial
+from multiprocessing import Pool
+from time import perf_counter
 from typing import Dict, List, Tuple
 
 import numpy as np
+from sympy import Symbol as sp_Symbol
+from sympy import exp as sp_exp
+from sympy import pi as sp_pi
+from sympy import sqrt as sp_sqrt
+from sympy import symbols as sp_symbols
+from tqdm import tqdm
 
 # === Constants ===
 
@@ -77,146 +86,133 @@ class ReferenceHermiteFunctionsMetadata:
     x_values: np.ndarray
 
 
-# === Main code ===
+# === Functions ===
+
+
+def _eval_sym_hermite_worker(
+    row_index: int,
+    x: np.ndarray,
+    x_sym: sp_Symbol,
+    n: int,
+    alpha: float,
+    expressions: np.ndarray,
+    num_digits: int,
+) -> Tuple[int, np.ndarray]:
+    """
+    Worker function to evaluate the Hermite functions at the given points ``x``.
+
+    """
+
+    # the Hermite functions are evaluated at the given points
+    hermite_function_values = np.empty(shape=n + 1, dtype=np.float64)
+
+    # the Hermite functions are evaluated using the recurrence relation
+    for iter_j in range(0, n + 1):
+        # the expression for the Hermite function is evaluated
+        hermite_expression = expressions[iter_j]
+        hermite_function_values[iter_j] = hermite_expression.subs(
+            x_sym, alpha * x[row_index]
+        ).evalf(n=num_digits)
+
+    return row_index, hermite_function_values
+
+
+def _eval_sym_dilated_hermite_function_basis(
+    x: np.ndarray,
+    n: int,
+    alpha: float,
+    num_digits: int = 16,
+) -> np.ndarray:
+    """
+    Evaluates the first ``n + 1`` dilated Hermite functions at the given points ``x``.
+    They are defined as
+
+    .. image:: docs/hermite_functions/equations/Dilated_Hermite_Functions_Of_Generic_X.png
+
+    Parameters
+    ----------
+    x : :class:`np.ndarray` of shape (m,)
+        The points at which the Hermite functions are evaluated.
+    n : :class:`int`
+        The order of the Hermite functions.
+    alpha : :class:`float`
+        The scaling factor of the independent variable ``x`` as ``alpha * x``.
+    num_digits : :class:`int`, default=16
+        The number of digits used in the symbolic evaluation of the Hermite
+        functions.
+        For orders ``n >= 50`` and high ``x / alpha``-values, the symbolic
+        evaluation might be inaccurate. In this case, going to quadruple precision
+        (``n_digits~=32``) or higher might be necessary.
+
+    Returns
+    -------
+    hermite_function_basis : :class:`np.ndarray` of shape (m, n + 1)
+        The values of the first ``n + 1`` dilated Hermite functions evaluated at the
+        points ``x``.
+
+    """  # noqa: E501
+
+    # the Hermite functions are evaluated using their recurrence relation given by
+    # h_{n+1}(x) = sqrt(2 / (n + 1)) * x * h_{n}(x) - sqrt(n / (n + 1)) * h_{n-1}(x)
+    # with the initial conditions h_{-1}(x) = 0 and
+    # h_{0}(x) = pi**(-1/4) * exp(-x**2 / 2)
+    x_sym = sp_symbols("x")
+    hermite_expressions = np.empty(shape=(n + 1), dtype=object)
+
+    # the first two Hermite function expressions are defined with the involved
+    # Gaussian function not multiplied in yet to avoid the build-up of large
+    # expressions
+    h_i_minus_1 = 0
+    h_i = sp_exp(-(x_sym**2) / 2) / sp_sqrt(sp_sqrt(sp_pi))  # type: ignore
+    hermite_expressions[0] = h_i
+
+    # the Hermite functions are evaluated using the recurrence relation
+    for iter_j in tqdm(
+        range(0, n),
+        desc="Generating Hermite expressions",
+        leave=False,
+    ):
+        h_i_plus_1 = (
+            sp_sqrt(2 / (iter_j + 1)) * x_sym * h_i
+            - sp_sqrt(iter_j / (iter_j + 1)) * h_i_minus_1  # type: ignore
+        )
+        h_i_minus_1, h_i = h_i, h_i_plus_1
+        hermite_expressions[iter_j + 1] = h_i
+
+    # the Hermite functions are evaluated at the given points
+    hermite_function_basis = np.empty(shape=(x.size, n + 1), dtype=np.float64)
+
+    # the evaluation is done in parallel to speed up the process but a progress bar
+    # is used to keep track of the progress
+    with Pool() as pool:
+        worker = partial(
+            _eval_sym_hermite_worker,
+            x=x,
+            x_sym=x_sym,
+            n=n,
+            alpha=alpha,
+            expressions=hermite_expressions,
+            num_digits=num_digits,
+        )
+        results = list(
+            tqdm(
+                pool.imap(worker, range(0, x.size)),
+                total=x.size,
+                desc="Evaluating Hermite functions",
+                leave=False,
+            )
+        )
+
+    # the results are stored in the matrix
+    for row_idx, row_values in results:
+        hermite_function_basis[row_idx, ::] = row_values
+
+    return np.sqrt(alpha) * hermite_function_basis
+
+
+# === Main Code ===
 
 if __name__ == "__main__":
-
-    # === Imports ===
-
-    from functools import partial
-    from multiprocessing import Pool
-    from time import perf_counter
-
-    from sympy import Symbol as sp_Symbol
-    from sympy import exp as sp_exp
-    from sympy import pi as sp_pi
-    from sympy import sqrt as sp_sqrt
-    from sympy import symbols as sp_symbols
-    from tqdm import tqdm
-
-    # === Functions ===
-
-    def _eval_sym_hermite_worker(
-        row_index: int,
-        x: np.ndarray,
-        x_sym: sp_Symbol,
-        n: int,
-        alpha: float,
-        expressions: np.ndarray,
-        num_digits: int,
-    ) -> Tuple[int, np.ndarray]:
-        """
-        Worker function to evaluate the Hermite functions at the given points ``x``.
-
-        """
-
-        # the Hermite functions are evaluated at the given points
-        hermite_function_values = np.empty(shape=n + 1, dtype=np.float64)
-
-        # the Hermite functions are evaluated using the recurrence relation
-        for iter_j in range(0, n + 1):
-            # the expression for the Hermite function is evaluated
-            hermite_expression = expressions[iter_j]
-            hermite_function_values[iter_j] = hermite_expression.subs(
-                x_sym, x[row_index] / alpha
-            ).evalf(n=num_digits)
-
-        return row_index, hermite_function_values
-
-    def _eval_sym_dilated_hermite_function_basis(
-        x: np.ndarray,
-        n: int,
-        alpha: float,
-        num_digits: int = 16,
-    ) -> np.ndarray:
-        """
-        Evaluates the first ``n + 1`` dilated Hermite functions at the given points
-        ``x``.
-        They are defined as
-
-        .. image:: docs/hermite_functions/equations/DilatedHermiteFunctions.png
-
-        Parameters
-        ----------
-        x : :class:`np.ndarray` of shape (m,)
-            The points at which the Hermite functions are evaluated.
-        n : :class:`int`
-            The order of the Hermite functions.
-        alpha : :class:`float`
-            The scaling factor of the independent variable ``x``.
-        num_digits : :class:`int`, default=16
-            The number of digits used in the symbolic evaluation of the Hermite
-            functions.
-            For orders ``n >= 50`` and high ``x / alpha``-values, the symbolic
-            evaluation might be inaccurate. In this case, going to quadruple precision
-            (``n_digits~=32``) or higher might be necessary.
-
-        Returns
-        -------
-        hermite_function_basis : :class:`np.ndarray` of shape (m, n + 1)
-            The values of the first ``n + 1`` dilated Hermite functions evaluated at the
-            points ``x``.
-
-        """
-
-        # the Hermite functions are evaluated using their recurrence relation given by
-        # h_{n+1}(x) = sqrt(2 / (n + 1)) * x * h_{n}(x) - sqrt(n / (n + 1)) * h_{n-1}(x)
-        # with the initial conditions h_{-1}(x) = 0 and
-        # h_{0}(x) = pi**(-1/4) * exp(-x**2 / 2)
-        x_sym = sp_symbols("x")
-        hermite_expressions = np.empty(shape=(n + 1), dtype=object)
-
-        # the first two Hermite function expressions are defined with the involved
-        # Gaussian function not multiplied in yet to avoid the build-up of large
-        # expressions
-        h_i_minus_1 = 0
-        h_i = sp_exp(-(x_sym**2) / 2) / sp_sqrt(sp_sqrt(sp_pi))  # type: ignore
-        hermite_expressions[0] = h_i
-
-        # the Hermite functions are evaluated using the recurrence relation
-        for iter_j in tqdm(
-            range(0, n),
-            desc="Generating Hermite expressions",
-            leave=False,
-        ):
-            h_i_plus_1 = (
-                sp_sqrt(2 / (iter_j + 1)) * x_sym * h_i
-                - sp_sqrt(iter_j / (iter_j + 1)) * h_i_minus_1  # type: ignore
-            )
-            h_i_minus_1, h_i = h_i, h_i_plus_1
-            hermite_expressions[iter_j + 1] = h_i
-
-        # the Hermite functions are evaluated at the given points
-        hermite_function_basis = np.empty(shape=(x.size, n + 1), dtype=np.float64)
-
-        # the evaluation is done in parallel to speed up the process but a progress bar
-        # is used to keep track of the progress
-        with Pool() as pool:
-            worker = partial(
-                _eval_sym_hermite_worker,
-                x=x,
-                x_sym=x_sym,
-                n=n,
-                alpha=alpha,
-                expressions=hermite_expressions,
-                num_digits=num_digits,
-            )
-            results = list(
-                tqdm(
-                    pool.imap(worker, range(0, x.size)),
-                    total=x.size,
-                    desc="Evaluating Hermite functions",
-                    leave=False,
-                )
-            )
-
-        # the results are stored in the matrix
-        for row_idx, row_values in results:
-            hermite_function_basis[row_idx, ::] = row_values
-
-        return hermite_function_basis / np.sqrt(alpha)
-
-    # === Test file generation ===
 
     # this part generates NumPy binary files for the first 250 dilated Hermite functions
     # with different scaling factors evaluated at high precision for a series of 501
