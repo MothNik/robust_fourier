@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - 13-implement-robust-regression-ft
   pull_request:
     branches:
       - main
