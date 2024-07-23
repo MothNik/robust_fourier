@@ -12,7 +12,7 @@ runtime.
 
 # === Imports ===
 
-from math import sqrt
+from math import sqrt as pysqrt
 from typing import Tuple, Union
 
 import numpy as np
@@ -99,7 +99,7 @@ def hermite_function_basis(
         It must be a non-negative integer ``>= 0``.
     alpha : :class:`float` or :class:`int`, default=``1.0``
         The scaling factor of the independent variable ``x`` for
-        ``x_scaled = x / alpha``.
+        ``x_scaled = alpha * x``.
         It must be a positive number ``> 0``.
     workers : :class:`int`, default=``1``
         The number of parallel workers to use for the computation.
@@ -129,11 +129,11 @@ def hermite_function_basis(
     -----
     The dilated Hermite functions are defined as
 
-    .. image:: docs/hermite_functions/equations/DilatedHermiteFunctions.png
+    .. image:: docs/hermite_functions/equations/Dilated_Hermite_Functions_Of_Generic_X.png
 
     with the Hermite polynomials
 
-    .. image:: docs/hermite_functions/equations/DilatedHermitePolynomials.png
+    .. image:: docs/hermite_functions/equations/Dilated_Hermite_Polynomials_Of_Generic_X.png
 
     Internally, they are computed in a numerically stable way that relies on a
     logarithmic scaling trick to avoid over- and underflow in the recursive calculation
@@ -147,7 +147,7 @@ def hermite_function_basis(
     .. [1] Bunck B. F., A fast algorithm for evaluation of normalized Hermite
        functions, BIT Numer Math (2009), 49, pp. 281–295, DOI: 10.1007/s10543-009-0216-1
 
-    """
+    """  # noqa: E501
 
     # --- Input validation ---
 
@@ -159,9 +159,8 @@ def hermite_function_basis(
     # --- Computation ---
 
     # the computation is done in parallel using the Cython-accelerated implementation
-    reciprocal_alpha = 1.0 / alpha
-    return sqrt(reciprocal_alpha) * _c_hermite_function_basis(
-        x=reciprocal_alpha * x_inter,
+    return pysqrt(alpha) * _c_hermite_function_basis(
+        x=alpha * x_inter,
         n=n,
         workers=workers,
     )
@@ -190,7 +189,7 @@ def slow_hermite_function_basis(
         It must be a non-negative integer ``>= 0``.
     alpha : :class:`float` or :class:`int`, default=``1.0``
         The scaling factor of the independent variable ``x`` for
-        ``x_scaled = x / alpha``.
+        ``x_scaled = alpha * x``.
         It must be a positive number ``> 0``.
     jit : :class:`bool`, default=``False``
         Whether to use the Numba-accelerated implementation (``True``) or the
@@ -217,11 +216,11 @@ def slow_hermite_function_basis(
     -----
     The dilated Hermite functions are defined as
 
-    .. image:: docs/hermite_functions/equations/DilatedHermiteFunctions.png
+    .. image:: docs/hermite_functions/equations/Dilated_Hermite_Functions_Of_Generic_X.png
 
     with the Hermite polynomials
 
-    .. image:: docs/hermite_functions/equations/DilatedHermitePolynomials.png
+    .. image:: docs/hermite_functions/equations/Dilated_Hermite_Polynomials_Of_Generic_X.png
 
     Internally, they are computed in a numerically stable way that relies on a
     logarithmic scaling trick to avoid over- and underflow in the recursive calculation
@@ -235,7 +234,7 @@ def slow_hermite_function_basis(
     .. [1] Bunck B. F., A fast algorithm for evaluation of normalized Hermite
        functions, BIT Numer Math (2009), 49, pp. 281–295, DOI: 10.1007/s10543-009-0216-1
 
-    """
+    """  # noqa: E501
 
     # --- Input validation ---
 
@@ -246,17 +245,10 @@ def slow_hermite_function_basis(
     # if requested, the Numba-accelerated implementation is used
     # NOTE: this does not have to necessarily involve Numba because it can also be
     #       the NumPy-based implementation under the hood
-    reciprocal_alpha = 1.0 / alpha
-    if jit:
-        return sqrt(reciprocal_alpha) * _nb_hermite_function_basis(  # type: ignore
-            x=reciprocal_alpha * x_inter,  # type: ignore
-            n=n,  # type: ignore
-        )
-
-    # if Numba is not requested, the NumPy-based implementation is used
-    return sqrt(reciprocal_alpha) * _np_hermite_function_basis(
-        x=reciprocal_alpha * x_inter,
-        n=n,
+    func = _nb_hermite_function_basis if jit else _np_hermite_function_basis
+    return pysqrt(alpha) * func(  # type: ignore
+        x=alpha * x_inter,  # type: ignore
+        n=n,  # type: ignore
     )
 
 
@@ -264,7 +256,6 @@ def single_hermite_function(
     x: Union[float, int, np.ndarray],
     n: int,
     alpha: Union[float, int] = 1.0,
-    jit: bool = False,
 ) -> np.ndarray:
     """
     Computes a single dilated Hermite function of order ``n`` for the given points
@@ -281,7 +272,7 @@ def single_hermite_function(
         It must be a non-negative integer ``>= 0``.
     alpha : :class:`float` or :class:`int`, default=``1.0``
         The scaling factor of the independent variable ``x`` for
-        ``x_scaled = x / alpha``.
+        ``x_scaled = alpha * x``.
         It must be a positive number ``> 0``.
 
     Returns
@@ -303,11 +294,11 @@ def single_hermite_function(
     -----
     The dilated Hermite functions are defined as
 
-    .. image:: docs/hermite_functions/equations/DilatedHermiteFunctions.png
+    .. image:: docs/hermite_functions/equations/Dilated_Hermite_Functions_Of_Generic_X.png
 
     with the Hermite polynomials
 
-    .. image:: docs/hermite_functions/equations/DilatedHermitePolynomials.png
+    .. image:: docs/hermite_functions/equations/Dilated_Hermite_Polynomials_Of_Generic_X.png
 
     For their computation, the function does not rely on recursion, but a direct
     evaluation of the Hermite functions via a complex integral.
@@ -321,7 +312,7 @@ def single_hermite_function(
     .. [1] Bunck B. F., A fast algorithm for evaluation of normalized Hermite
        functions, BIT Numer Math (2009), 49, pp. 281–295, DOI: 10.1007/s10543-009-0216-1
 
-    """
+    """  # noqa: E501
 
     # --- Input validation ---
 
@@ -329,8 +320,7 @@ def single_hermite_function(
 
     # --- Computation ---
 
-    reciprocal_alpha = 1.0 / alpha
-    return sqrt(reciprocal_alpha) * _np_single_hermite_function(
-        x=reciprocal_alpha * x_inter,
+    return pysqrt(alpha) * _np_single_hermite_function(
+        x=alpha * x_inter,
         n=n,
     )
