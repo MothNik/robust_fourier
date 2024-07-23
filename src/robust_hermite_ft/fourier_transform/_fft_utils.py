@@ -210,7 +210,8 @@ def angular_frequency_grid(
 ) -> np.ndarray:
     """
     Compute the angular frequency grid for the discrete Fourier transform.
-    It is given by :math:`\\angular_frequencies = \\frac{2\\cdot\\pi\\cdot k}{n\\cdot d}` where
+    It is given by :math:`\\angular_frequencies = \\frac{2\\cdot\\pi\\cdot k}{n\\cdot d}`
+    where
 
     * :math:`n` is the number of grid points
     * :math:`d` is the grid spacing
@@ -227,7 +228,7 @@ def angular_frequency_grid(
     angular_frequencies : :class:`numpy.ndarray` of shape ``(n,)``
         The angular frequency grid.
 
-    """
+    """  # noqa: E501
 
     return 2 * np.pi * np.fft.fftfreq(n=n, d=d)
 

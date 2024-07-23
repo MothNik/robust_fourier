@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 13-implement-robust-regression-ft
   pull_request:
     branches:
       - main
@@ -38,7 +39,7 @@ jobs:
 
       - name: Run pyright static type check
         run: |
-          pyright
+         pyright ./examples ./src ./tests
 
       - name: Run mypy static type check
         run: |
