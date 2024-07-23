@@ -82,16 +82,17 @@ $\alpha$:
   <img src="docs/hermite_functions/DilatedHermiteFunctions_DifferentScales.png" width="1000px" />
 </p>
 
-The Hermite functions are defined as
+After a slight modification of the definitions in [[1]](#references), the Hermite
+functions can be written as
 
 <p align="left">
-  <img src="docs/hermite_functions/equations/DilatedHermiteFunctions.png" width="500px" />
+  <img src="docs/hermite_functions/equations/Dilated_Hermite_Functions_Of_Generic_X.png" width="500px" />
 </p>
 
 with the Hermite polynomials
 
 <p align="left">
-  <img src="docs/hermite_functions/equations/DilatedHermitePolynomials.png" width="681px" />
+  <img src="docs/hermite_functions/equations/Dilated_Hermite_Polynomials_Of_Generic_X.png" width="681px" />
 </p>
 
 By making use of logarithm tricks, the evaluation that might involve infinitely high
@@ -114,7 +115,7 @@ and the recurrence relation for the Hermite functions
 are used, but not directly. Instead, the latest evaluated Hermite function is kept at a
 value of either -1, 0, or +1 during the recursion and the logarithm of a correction
 factor is tracked and applied when the respective Hermite function is finally evaluated
-and stored. This approach is based on [[1]](#references).
+and stored. This approach is based on [[2]](#references).
 
 The implementation is tested against a symbolic evaluation with `sympy` that uses 200
 digits of precision and it can be shown that even orders as high as 2,000 can still be
@@ -128,9 +129,13 @@ orders of 170 in `float64`-precision.
 
 As a sanity check, their orthogonality is part of the tests together with a test for
 the fact that the absolute values of the Hermite functions for real input cannot exceed
-the value $\frac{1}{\pi^{-\frac{1}{4}}\cdot\sqrt{\alpha}}$.
+the value $\frac{\sqrt{\alpha}}{\pi^{-\frac{1}{4}}}$.
 
 ## References
 
-- [1] Bunck B. F., A fast algorithm for evaluation of normalized Hermite
-  functions, BIT Numer Math (2009), 49, pp. 281–295, DOI: [https://doi.org/10.1007/s10543-009-0216-1](https://doi.org/10.1007/s10543-009-0216-1)
+- [1] Dobróka M., Szegedi H., and Vass P., Inversion-Based Fourier Transform as a New
+  Tool for Noise Rejection, _Fourier Transforms - High-tech Application and Current Trends_
+  (2017), DOI: [http://dx.doi.org/10.5772/66338](http://dx.doi.org/10.5772/66338)
+- [2] Bunck B. F., A fast algorithm for evaluation of normalized Hermite functions,
+  _BIT Numer Math_ (2009), 49, pp. 281–295, DOI:
+  [https://doi.org/10.1007/s10543-009-0216-1](https://doi.org/10.1007/s10543-009-0216-1)
