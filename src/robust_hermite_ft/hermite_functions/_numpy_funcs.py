@@ -59,9 +59,9 @@ def _hermite_function_basis(
     the values in a numerically stable way.
     However, there will still be underflow of the Gaussian part of the Hermite function
     for large values of ``x``. Therefore, a special scaling strategy is employed that
-    keeps the values of the Hermite functions at a scale of roughly 1 during the
-    recursion while tracking a correction term that is added to the exponent of the
-    Gaussian part of the Hermite function.
+    keeps the values of the Hermite functions at a scale of 1 during the recursion while
+    tracking a correction term that is added to the exponent of the Gaussian part of the
+    Hermite function.
 
     """
 
@@ -147,9 +147,6 @@ def _single_hermite_function(
         The points at which the Hermite functions are evaluated.
     n : :class:`int`
         The order of the Hermite functions.
-    eps : :class:`float`, default=1.0e-16
-        The machine precision that is used to determine the number of integration
-        points for the circular integral.
 
     Returns
     -------
