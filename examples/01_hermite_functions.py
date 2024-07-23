@@ -20,7 +20,7 @@ X_TO = 5.0
 NUM_X = 10_001
 
 # the scaling factors alpha to use
-ALPHAS = [0.5, 1.0, 2.0]
+ALPHAS = [2.0, 1.0, 0.5]
 # the orders of the Hermite functions to plot
 ORDERS = 6
 # the offset between the individual Hermite functions

@@ -70,8 +70,9 @@ if __name__ == "__main__":
         )
 
     # the title, grid, labels, and ticks are set
+    psi_label = r"$\psi_{n}^{\left(" + f"{ALPHA:.1f}" + r"\right)}\left(x\right)$"
     ax.set_title(
-        r"Dilated Hermite Functions $\psi_{n}^{\left(\alpha\right)}\left(x\right)$",
+        "Dilated Hermite Functions " + psi_label,
         fontsize=16,
     )
     ax.set_xlabel(
@@ -80,7 +81,7 @@ if __name__ == "__main__":
         labelpad=10,
     )
     ax.set_ylabel(
-        r"$\psi_{n}^{\left(\alpha\right)}\left(x\right)$",
+        psi_label,
         fontsize=16,
         labelpad=10,
     )
