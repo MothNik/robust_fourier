@@ -46,6 +46,15 @@ if __name__ == "__main__":
 
     colors = plt.cm.winter_r(np.linspace(0, 1, ORDERS + 1))  # type: ignore
     for idx_alpha, alpha in enumerate(ALPHAS):
+        # a grid and vertical y-axis line is plotted for orientation
+        ax[idx_alpha].grid(which="major", axis="both")  # type: ignore
+        ax[idx_alpha].axvline(  # type: ignore
+            x=0.0,
+            color="black",
+            linewidth=0.5,
+            zorder=2,
+        )
+
         # the Hermite functions are computed and plotted
         hermite_basis = hermite_function_basis(
             x=x_values, n=ORDERS, alpha=alpha, workers=-1
@@ -57,13 +66,13 @@ if __name__ == "__main__":
                 y=idx_order * OFFSET,
                 color="black",
                 linewidth=0.5,
-                zorder=idx_order * 2,
+                zorder=2 + idx_order * 2,
             )
             ax[idx_alpha].plot(  # type: ignore
                 x_values,
                 hermite_basis[::, idx_order] + idx_order * OFFSET,
                 color=colors[idx_order],
-                zorder=(idx_order + 1) * 2,
+                zorder=2 + (idx_order + 1) * 2,
                 label=f"n = {idx_order}",
             )
 
@@ -78,7 +87,6 @@ if __name__ == "__main__":
             labelpad=10,
         )
         ax[idx_alpha].tick_params(axis="both", which="major", labelsize=14)  # type: ignore  # noqa: E501
-        ax[idx_alpha].grid(which="major", axis="both")  # type: ignore
         ax[idx_alpha].set_xlim(X_FROM, X_TO)  # type: ignore
 
         # for the first plot, a y-label and a legend are added
