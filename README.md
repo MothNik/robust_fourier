@@ -27,19 +27,19 @@ Currently, the package is not yet available on PyPI. To install it, you can clon
 git clone https://github.com/MothNik/robust_hermite_ft.git
 ```
 
-and from within the repositories root directory, install it with
+and from within the repositories root directory, install it for normal use
 
 ```bash
-pip install -e .
+# activate your virtual environment, e.g., source venv/bin/activate
+pip install .
 ```
 
-for normal use or
+or for development with all the development dependencies
 
 ```bash
-pip install -e .["dev"]
+# activate your virtual environment, e.g., source venv/bin/activate
+pip install .["dev"]
 ```
-
-for development which will also install the development dependencies.
 
 ⚠️ **Warning**: This will require a C-compiler to be installed on your system to
 compile the Cython code.
@@ -52,8 +52,10 @@ The following checks for `black`, `isort`, `pyright`, `ruff`, and
 ```bash
 black --check --diff --color ./examples ./src ./tests
 isort --check --diff --color ./examples ./src ./tests
-pyright
+pyright ./examples ./src ./tests
+mypy ./examples ./src ./tests
 ruff check ./examples ./src ./tests
+pycodestyle ./examples ./src ./tests --max-line-length=88
 cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
 ```
 
@@ -76,7 +78,7 @@ transform. However, their evaluation can be a bit tricky.
 
 The module `hermite_functions` offers a numerically stable way to evaluate Hermite
 functions or arbitrary order $n$ and argument - that can be scaled with a factor
-$\alpha$:
+$\alpha$ and shifted by a constant $\mu$:
 
 <p align="center">
   <img src="docs/hermite_functions/DilatedHermiteFunctions_DifferentScales.png" width="1000px" />
@@ -86,13 +88,13 @@ After a slight modification of the definitions in [[1]](#references), the Hermit
 functions can be written as
 
 <p align="left">
-  <img src="docs/hermite_functions/equations/Dilated_Hermite_Functions_Of_Generic_X.png" width="500px" />
+  <img src="docs/hermite_functions/equations/Dilated_Hermite_Functions_Of_Generic_X.png" width="500px", height="91px" />
 </p>
 
 with the Hermite polynomials
 
 <p align="left">
-  <img src="docs/hermite_functions/equations/Dilated_Hermite_Polynomials_Of_Generic_X.png" width="681px" />
+  <img src="docs/hermite_functions/equations/Dilated_Hermite_Polynomials_Of_Generic_X.png" width="764px", height="65px" />
 </p>
 
 By making use of logarithm tricks, the evaluation that might involve infinitely high
@@ -103,13 +105,13 @@ results.
 For doing so, the relation between the dilated and the non-dilated Hermite functions
 
 <p align="left">
-  <img src="docs/hermite_functions/equations/HermiteFunctions_UndilatedToDilated.png" width="321px" />
+  <img src="docs/hermite_functions/equations/HermiteFunctions_UndilatedToDilated.png" width="366px", height="32px" />
 </p>
 
 and the recurrence relation for the Hermite functions
 
 <p align="left">
-  <img src="docs/hermite_functions/equations/HermiteFunctions_RecurrenceRelation.png" width="699px" />
+  <img src="docs/hermite_functions/equations/HermiteFunctions_RecurrenceRelation.png" width="576px", height="68px" />
 </p>
 
 are used, but not directly. Instead, the latest evaluated Hermite function is kept at a
