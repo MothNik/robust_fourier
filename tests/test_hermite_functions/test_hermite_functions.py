@@ -1,34 +1,34 @@
 """
-This test suite implements the tests for the module :mod:`hermite_functions`.
+This test suite implements the tests for the module :mod:`hermite_functions._func_interface`.
 
-"""
+"""  # noqa: E501
 
 # === Imports ===
 
 import json
 import os
 from dataclasses import dataclass
-from enum import Enum, auto
-from typing import Any, Callable, Dict, Generator, Optional, Tuple, Type, Union
+from typing import Generator, Optional, Type
 
 import numpy as np
 import pytest
 
-from robust_hermite_ft import (
-    hermite_function_basis,
-    single_hermite_function,
-    slow_hermite_function_basis,
-)
+from robust_hermite_ft import hermite_function_basis, single_hermite_function
 from robust_hermite_ft.hermite_functions._func_interface import (
     _get_validated_hermite_function_input,
     _is_data_linked,
 )
 
-from .reference_files.generate_hermfunc_references import (
+from ..reference_files.generate_hermfunc_references import (
     FILE_DIRECTORY,
     METADATA_FILENAME,
     HermiteFunctionsParameters,
     ReferenceHermiteFunctionsMetadata,
+)
+from .utils import (
+    ALL_HERMITE_IMPLEMENTATIONS,
+    HermiteFunctionBasisImplementations,
+    setup_hermite_function_basis_implementations,
 )
 
 # === Constants ===
@@ -53,15 +53,6 @@ CRAMERS_INEQUALITY_FACTOR = np.pi ** (-0.25)
 CRAMERS_INEQUALITY_TOLERANCE = 1e-13
 
 # === Models ===
-
-# an Enum class for the different implementations of the Hermite functions
-
-
-class HermiteFunctionImplementations(str, Enum):
-    CYTHON_SINGLE = auto()
-    CYTHON_PARALLEL = auto()
-    NUMPY_SINGLE = auto()
-    NUMBA_SINGLE = auto()
 
 
 # a dataclass for the reference values of the dilated Hermite functions
@@ -140,264 +131,7 @@ def reference_dilated_hermite_function_basis() -> (
     return reference_iterator()
 
 
-# === Auxiliary Functions ===
-
-# a function to set up the Hermite function implementations
-
-
-def setup_hermite_function_implementations(
-    implementation: HermiteFunctionImplementations,
-) -> Tuple[
-    Union[
-        Callable[
-            [np.ndarray, int, Union[float, int], Union[float, int, None], int],
-            np.ndarray,
-        ],
-        Callable[
-            [np.ndarray, int, Union[float, int], Union[float, int, None], bool],
-            np.ndarray,
-        ],
-    ],
-    Dict[str, Any],
-]:
-    """
-    Sets up the Hermite function implementations by selecting the correct function and
-    its keyword arguments.
-
-    """
-
-    if implementation == HermiteFunctionImplementations.CYTHON_SINGLE:
-        return hermite_function_basis, dict(workers=1)
-
-    elif implementation == HermiteFunctionImplementations.CYTHON_PARALLEL:
-        return hermite_function_basis, dict(workers=-1)
-
-    elif implementation == HermiteFunctionImplementations.NUMPY_SINGLE:
-        return slow_hermite_function_basis, dict(jit=False)
-
-    elif implementation == HermiteFunctionImplementations.NUMBA_SINGLE:
-        return slow_hermite_function_basis, dict(jit=True)
-
-    else:
-        raise AssertionError(f"Unknown implementation: {implementation}")
-
-
 # === Tests ===
-
-
-@pytest.mark.parametrize(
-    "implementation",
-    [
-        HermiteFunctionImplementations.CYTHON_SINGLE,
-        HermiteFunctionImplementations.CYTHON_PARALLEL,
-        HermiteFunctionImplementations.NUMPY_SINGLE,
-        HermiteFunctionImplementations.NUMBA_SINGLE,
-    ],
-)
-@pytest.mark.parametrize(
-    "x, n, alpha, x_center, expected",
-    [
-        (  # Test 0: x is a float
-            1.0,
-            1,
-            1.0,
-            None,
-            None,
-        ),
-        (  # Test 1: x is an integer
-            1.0,
-            1,
-            1.0,
-            None,
-            None,
-        ),
-        (  # Test 2: x is complex
-            1.0 + 1.0j,
-            1,
-            1.0,
-            None,
-            TypeError("Expected 'x' to be a float, int, or an Array-like"),
-        ),
-        (  # Test 3: x is a list
-            [1.0, 2.0, 3.0],
-            1,
-            1.0,
-            None,
-            None,
-        ),
-        (  # Test 4: x is a tuple
-            (1.0, 2.0, 3.0),
-            1,
-            1.0,
-            None,
-            None,
-        ),
-        (  # Test 5: x is a 1D-Array of float32
-            np.array([1.0, 2.0, 3.0], dtype=np.float32),
-            1,
-            1.0,
-            None,
-            None,
-        ),
-        (  # Test 6: x is a 1D-Array of float64
-            np.array([1.0, 2.0, 3.0], dtype=np.float64),
-            1,
-            1.0,
-            None,
-            None,
-        ),
-        (  # Test 7: x is a 2D array
-            np.array([[1.0, 2.0, 3.0]]),
-            1,
-            1.0,
-            None,
-            ValueError("Expected 'x' to be 1-dimensional"),
-        ),
-        (  # Test 8: n is a positive integer
-            1.0,
-            1,
-            1.0,
-            None,
-            None,
-        ),
-        (  # Test 9: n is negative integer
-            1.0,
-            -1,
-            1.0,
-            None,
-            ValueError("Expected 'n' to be a non-negative integer"),
-        ),
-        (  # Test 10: n is a float
-            1.0,
-            1.0,
-            1.0,
-            None,
-            TypeError("Expected 'n' to be an integer"),
-        ),
-        (  # Test 11: alpha is a positive float
-            1.0,
-            1,
-            1.0,
-            None,
-            None,
-        ),
-        (  # Test 12: alpha is a positive integer
-            1.0,
-            1,
-            1,
-            None,
-            None,
-        ),
-        (  # Test 13: alpha is a zero float
-            1.0,
-            1,
-            0.0,
-            None,
-            ValueError("Expected 'alpha' to be a positive number"),
-        ),
-        (  # Test 14: alpha is a zero integer
-            1.0,
-            1,
-            0,
-            None,
-            ValueError("Expected 'alpha' to be a positive number"),
-        ),
-        (  # Test 14: alpha is a negative float
-            1.0,
-            1,
-            -1.0,
-            None,
-            ValueError("Expected 'alpha' to be a positive number"),
-        ),
-        (  # Test 15: alpha is a negative integer
-            1.0,
-            1,
-            -1,
-            None,
-            ValueError("Expected 'alpha' to be a positive number"),
-        ),
-        (  # Test 16: alpha is a complex number
-            1.0,
-            1,
-            1.0 + 1.0j,
-            None,
-            TypeError("Expected 'alpha' to be a float or integer"),
-        ),
-        (  # Test 17: x_center is None
-            1.0,
-            1,
-            1.0,
-            None,
-            None,
-        ),
-        (  # Test 18: x_center is a float
-            1.0,
-            1,
-            1.0,
-            1.0,
-            None,
-        ),
-        (  # Test 19: x_center is an integer
-            1.0,
-            1,
-            1.0,
-            1,
-            None,
-        ),
-        (  # Test 20: x_center is complex
-            1.0,
-            1,
-            1.0,
-            1.0 + 1.0j,
-            TypeError("Expected 'x_center' to be a float, integer, or None"),
-        ),
-    ],
-)
-def test_dilated_hermite_functions_input_validation(
-    x: Any,
-    n: Any,
-    alpha: Any,
-    x_center: Any,
-    expected: Optional[Exception],
-    implementation: HermiteFunctionImplementations,
-) -> None:
-    """
-    This test checks whether the function input validation of the
-    :func:`hermite_function_basis` implementations
-
-    - passes if the input is correct and no exception is raised,
-    - raises an exception if the input is incorrect.
-
-    """
-
-    # the function is parametrized
-    func, kwargs = setup_hermite_function_implementations(implementation=implementation)
-
-    # if an exception should be raised, the function is called and the exception is
-    # checked
-    if isinstance(expected, Exception):
-        with pytest.raises(type(expected), match=str(expected)):
-            func(
-                x=x,  # type: ignore
-                n=n,
-                alpha=alpha,
-                x_center=x_center,
-                **kwargs,
-            )
-
-        return
-
-    # if no exception should be raised, the function is called and if it finishes, the
-    # test is passed
-    func(
-        x=x,  # type: ignore
-        n=n,
-        alpha=alpha,
-        x_center=x_center,
-        **kwargs,
-    )
-
-    return
 
 
 @pytest.mark.parametrize(
@@ -474,20 +208,12 @@ def test_centered_hermite_functions_do_not_modify_x_values(dtype: Type) -> None:
 
 @pytest.mark.parametrize("x_dtype", [np.float32, np.float64])
 @pytest.mark.parametrize("x_center", [-10.0, 0.0, None, 10.0])
-@pytest.mark.parametrize(
-    "implementation",
-    [
-        HermiteFunctionImplementations.CYTHON_SINGLE,
-        HermiteFunctionImplementations.CYTHON_PARALLEL,
-        HermiteFunctionImplementations.NUMPY_SINGLE,
-        HermiteFunctionImplementations.NUMBA_SINGLE,
-    ],
-)
+@pytest.mark.parametrize("implementation", ALL_HERMITE_IMPLEMENTATIONS)
 def test_dilated_hermite_function_basis(
     reference_dilated_hermite_function_basis: Generator[
         ReferenceHermiteFunctionBasis, None, None
     ],
-    implementation: HermiteFunctionImplementations,
+    implementation: HermiteFunctionBasisImplementations,
     x_center: Optional[float],
     x_dtype: Type,
 ) -> None:
@@ -507,7 +233,7 @@ def test_dilated_hermite_function_basis(
     # results
     for reference in reference_dilated_hermite_function_basis:
         # the numerical implementation is parametrized and called
-        func, kwargs = setup_hermite_function_implementations(
+        func, kwargs = setup_hermite_function_basis_implementations(
             implementation=implementation
         )
         x_center_for_shift = x_center if x_center is not None else 0.0
@@ -541,16 +267,16 @@ def test_dilated_hermite_function_basis(
 @pytest.mark.parametrize(
     "implementation",
     [
-        HermiteFunctionImplementations.CYTHON_SINGLE,
-        HermiteFunctionImplementations.CYTHON_PARALLEL,
-        HermiteFunctionImplementations.NUMPY_SINGLE,
-        HermiteFunctionImplementations.NUMBA_SINGLE,
+        HermiteFunctionBasisImplementations.CYTHON_SINGLE,
+        HermiteFunctionBasisImplementations.CYTHON_PARALLEL,
+        HermiteFunctionBasisImplementations.NUMPY_SINGLE,
+        HermiteFunctionBasisImplementations.NUMBA_SINGLE,
     ],
 )
 @pytest.mark.parametrize("alpha", [0.5, 1.0, 2.0])
 def test_dilated_hermite_function_basis_orthonormal_and_bounded(
     alpha: float,
-    implementation: HermiteFunctionImplementations,
+    implementation: HermiteFunctionBasisImplementations,
 ) -> None:
     """
     This test checks whether the dilated Hermite functions generated by the function
@@ -581,7 +307,9 @@ def test_dilated_hermite_function_basis_orthonormal_and_bounded(
     )
 
     # the function is parametrized and called to evaluate the Hermite functions
-    func, kwargs = setup_hermite_function_implementations(implementation=implementation)
+    func, kwargs = setup_hermite_function_basis_implementations(
+        implementation=implementation
+    )
     hermite_basis = func(
         x=x_values,  # type: ignore
         n=n,
