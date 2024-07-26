@@ -13,7 +13,7 @@ runtime.
 # === Imports ===
 
 from math import sqrt as pysqrt
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -22,6 +22,7 @@ from .._utils import _get_num_workers
 from ._numba_funcs import nb_hermite_function_basis as _nb_hermite_function_basis
 from ._numpy_funcs import _hermite_function_basis as _np_hermite_function_basis
 from ._numpy_funcs import _single_hermite_function as _np_single_hermite_function
+from ._validate import _get_validated_hermite_function_input
 
 from ._c_hermite import (  # pyright: ignore[reportMissingImports]; fmt: skip; isort: skip   # noqa: E501
     hermite_function_basis as _c_hermite_function_basis,
@@ -50,65 +51,6 @@ def _is_data_linked(arr, original) -> bool:
         return True
 
     return arr.base is not None
-
-
-def _get_validated_hermite_function_input(
-    x: Union[float, int, ArrayLike],
-    n: int,
-    alpha: Union[float, int] = 1.0,
-    x_center: Union[float, int, None] = None,
-) -> Tuple[np.ndarray, int, float, Optional[float]]:
-    """
-    Validates the input for the Hermite functions and returns the validated input.
-
-    """
-
-    # the input is validated according to the requirements of the higher level caller
-    # functions
-    if not isinstance(x, (float, int, np.ndarray, list, tuple)):
-        raise TypeError(
-            f"Expected 'x' to be a float, int, or an Array-like but got type {type(x)}."
-        )
-
-    if not isinstance(n, int):
-        raise TypeError(f"Expected 'n' to be an integer but got type {type(n)}.")
-
-    if isinstance(alpha, int):
-        alpha = float(alpha)
-
-    if not isinstance(alpha, float):
-        raise TypeError(
-            f"Expected 'alpha' to be a float or integer but got type {type(alpha)}."
-        )
-
-    if x_center is not None:
-        if isinstance(x_center, int):
-            x_center = float(x_center)
-
-        if not isinstance(x_center, float):
-            raise TypeError(
-                f"Expected 'x_center' to be a float, integer, or None but got type "
-                f"{type(x_center)}."
-            )
-
-    # the x-values are converted to a 1D NumPy array for checking
-    x_internal = np.atleast_1d(x)
-    if not x_internal.dtype == np.float64:
-        x_internal = x_internal.astype(np.float64)
-
-    if x_internal.ndim != 1:
-        raise ValueError(
-            f"Expected 'x' to be 1-dimensional but it is {x_internal.ndim}-dimensional."
-        )
-
-    if n < 0:
-        raise ValueError(f"Expected 'n' to be a non-negative integer but got {n}.")
-
-    if alpha <= 0.0:
-        raise ValueError(f"Expected 'alpha' to be a positive number but got {alpha}.")
-
-    # the validated input is returned
-    return x_internal, n, alpha, x_center
 
 
 def _center_x_values(
