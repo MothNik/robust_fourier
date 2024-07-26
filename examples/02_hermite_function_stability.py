@@ -13,6 +13,10 @@ from matplotlib import pyplot as plt
 
 from robust_hermite_ft import hermite_function_basis
 
+plt.style.use(
+    os.path.join(os.path.dirname(__file__), "../docs/robust_hermite_ft.mplstyle")
+)
+
 # === Constants ===
 
 # the x-values to evaluate the Hermite functions
@@ -34,7 +38,6 @@ PLOT_FILEPATH = "../docs/hermite_functions/DilatedHermiteFunctions_Stability.png
 SPECIAL_PLOT_FILEPATH = (
     "../docs/hermite_functions/DilatedHermiteFunctions_Stability_Special.png"
 )
-DPI = 300
 
 # === Main ===
 
@@ -54,53 +57,44 @@ if __name__ == "__main__":
     )
 
     # ... and the individual Hermite functions of interest are plotted
+    ax.axvline(
+        x=0.0,
+        color="black",
+        linewidth=0.5,
+        zorder=2,
+    )
+
     for idx_order, order in enumerate(ORDERS):
         ax.axhline(
             y=idx_order * OFFSET,
             color="black",
             linewidth=0.5,
-            zorder=idx_order * 2,
+            zorder=2 + idx_order * 2,
         )
         ax.plot(
             x_values,
             hermite_basis[::, order] + idx_order * OFFSET,
             label=f"n={order}",
             color=COLORS[idx_order],
-            zorder=2 * idx_order + 1,
+            zorder=2 + 2 * idx_order + 1,
         )
 
     # the title, grid, labels, and ticks are set
     psi_label = r"$\psi_{n}^{\left(" + f"{ALPHA:.1f}" + r"\right)}\left(x\right)$"
-    ax.set_title(
-        "Dilated Hermite Functions " + psi_label,
-        fontsize=16,
-    )
-    ax.set_xlabel(
-        r"$x$",
-        fontsize=16,
-        labelpad=10,
-    )
-    ax.set_ylabel(
-        psi_label,
-        fontsize=16,
-        labelpad=10,
-    )
-    ax.tick_params(axis="both", which="major", labelsize=14)
-    ax.grid(which="major", axis="both")
+    ax.set_title("Dilated Hermite Functions " + psi_label)
+    ax.set_xlabel(r"$x$")
+    ax.set_ylabel(psi_label)
     ax.set_xlim(X_FROM, X_TO)
 
     # finally, a legend is added
     ax.legend(
         ncol=2,
         loc="upper left",
-        fontsize=14,
-        frameon=False,
     )
 
     # the plot is saved
     plt.savefig(
         os.path.join(os.path.dirname(__file__), PLOT_FILEPATH),
-        dpi=DPI,
         bbox_inches="tight",
     )
 
