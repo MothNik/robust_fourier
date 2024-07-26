@@ -24,7 +24,7 @@ X_TO = 5.0
 NUM_X = 10_001
 
 # the scaling factors alpha and centers mu to use
-ALPHAS_AND_MUS = [(0.5, 0.0), (1.0, 0.0), (2.0, 0.0), (2.0, 2.0)]
+ALPHAS_AND_MUS = [(1.0, 0.0), (2.0, 0.0), (2.0, 2.0)]
 # the orders of the Hermite functions to plot
 ORDERS = 6
 # the offset between the individual Hermite functions
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         # for the first plot, a y-label and a legend are added
         if idx_alpha == 0:
             ax[idx_alpha].set_ylabel(  # type: ignore
-                r"$\psi_{n}^{\left(\alpha\right)}\left(x\right)$",
+                r"$\psi_{n}^{\left(\alpha;\mu\right)}\left(x\right)$",
             )
 
     # a colorbar is added for the orders
@@ -102,6 +102,7 @@ if __name__ == "__main__":
         sm,
         ax=ax.ravel().tolist(),  # type: ignore
         label=r"Order $n$",
+        orientation="horizontal",
     )
 
     # the plot is saved ...

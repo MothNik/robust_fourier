@@ -31,7 +31,7 @@ ORDERS = [100, 200, 300, 500, 1_000, 2_000]
 COLORS = ["red", "#FF8000", "#00CCCC", "blue", "purple", "#FF007F"]
 SPECIAL_COLOR = "#00CC00"
 # the offset between the individual Hermite functions
-OFFSET = -0.75
+OFFSET = -0.5
 
 # the path where to store the plot and its resolution
 PLOT_FILEPATH = "../docs/hermite_functions/DilatedHermiteFunctions_Stability.png"
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         )
 
     # the title, grid, labels, and ticks are set
-    psi_label = r"$\psi_{n}^{\left(" + f"{ALPHA:.1f}" + r"\right)}\left(x\right)$"
+    psi_label = r"$\psi_{n}^{\left(" + f"{ALPHA:.1f};0.0" + r"\right)}\left(x\right)$"
     ax.set_title("Dilated Hermite Functions " + psi_label)
     ax.set_xlabel(r"$x$")
     ax.set_ylabel(psi_label)
@@ -89,7 +89,8 @@ if __name__ == "__main__":
     # finally, a legend is added
     ax.legend(
         ncol=2,
-        loc="upper left",
+        loc=8,
+        bbox_to_anchor=(0.175, 0.74),
     )
 
     # the plot is saved
