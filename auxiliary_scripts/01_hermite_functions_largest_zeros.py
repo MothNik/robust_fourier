@@ -73,7 +73,6 @@ For a diagnostic plot that shows the fit quality, please see ``auxiliary_scripts
 
 import numpy as np
 
-
 # === Constants ===
 
 # the specifications of the B-spline for the largest zeros of the Hermite functions
@@ -174,7 +173,10 @@ if __name__ == "__main__":
         ).max()
         s_value /= 10.0**0.25
 
-    print(f"Final number of knots: {len(tck[0])}")
+    print(
+        f"\nFinal number of spline knots: {len(tck[0])} for smoothing value "
+        f"{s_value=:.2e}"
+    )
 
     # the spline coefficients are stored (if enabled)
     if OVERWRITE_SPLINE_SPECS:
@@ -262,6 +264,7 @@ if __name__ == "__main__":
     ax[0].set_ylim(0.0, None)  # type: ignore
     ax[1].set_xlim(orders[0], orders[-1])  # type: ignore
 
+    ax[0].legend()  # type: ignore
     ax[1].legend()  # type: ignore
 
     # the plot is stored (if the spline coefficients were stored)

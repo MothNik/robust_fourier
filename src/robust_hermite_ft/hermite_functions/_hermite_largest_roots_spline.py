@@ -19,7 +19,6 @@ For a diagnostic plot that shows the fit quality, please see ``auxiliary_scripts
 
 import numpy as np
 
-
 # === Constants ===
 
 # the specifications of the B-spline for the largest zeros of the Hermite functions
