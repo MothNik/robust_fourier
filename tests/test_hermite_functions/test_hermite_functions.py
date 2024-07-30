@@ -236,7 +236,7 @@ def test_centered_hermite_functions_do_not_modify_x_values(
         x_values = PandasSeries(x_values.tolist(), dtype=dtype)
     elif array_like_type == PythonArray:
         dtype_str = "f" if dtype == np.float32 else "d"
-        x_values = PythonArray(dtype_str, x_values.tolist())
+        x_values = PythonArray(dtype_str, x_values.tolist())  # type: ignore
 
     # the function is called with the center set
     hermite_function_basis(
