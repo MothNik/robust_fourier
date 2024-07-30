@@ -147,7 +147,11 @@ if __name__ == "__main__":
     ax.set_title("Special Points of the Hermite function " + psi_label)
     ax.set_xlabel("x")
     ax.set_ylabel(psi_label)
-    ax.legend(ncol=2)
+    ax.legend(
+        ncol=2,
+        loc=8,
+        bbox_to_anchor=(0.2925, 0.845),
+    )
 
     ax.set_xlim(X_FROM + MU, X_TO + MU)
 
