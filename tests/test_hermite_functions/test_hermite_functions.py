@@ -309,15 +309,7 @@ def test_dilated_hermite_function_basis(
         ), f"For n = {reference.n} and alpha = {reference.alpha}"
 
 
-@pytest.mark.parametrize(
-    "implementation",
-    [
-        HermiteFunctionBasisImplementations.CYTHON_SINGLE,
-        HermiteFunctionBasisImplementations.CYTHON_PARALLEL,
-        HermiteFunctionBasisImplementations.NUMPY_SINGLE,
-        HermiteFunctionBasisImplementations.NUMBA_SINGLE,
-    ],
-)
+@pytest.mark.parametrize("implementation", ALL_HERMITE_IMPLEMENTATIONS)
 @pytest.mark.parametrize("alpha", [0.5, 1.0, 2.0])
 def test_dilated_hermite_function_basis_orthonormal_and_bounded(
     alpha: float,
