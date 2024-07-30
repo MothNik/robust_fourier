@@ -20,7 +20,7 @@ install-dev: upgrade-pip
 .PHONY: install-ci
 install-ci: upgrade-pip
 	@echo Installing the required dependencies for CI ...
-	python -m pip install -upgrade .["git_ci"]
+	python -m pip install --upgrade .["git_ci"]
 
 # === Source File Checks ===
 
