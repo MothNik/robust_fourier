@@ -1,5 +1,6 @@
 """
-This script generates plots of different Hermite functions with different scales.
+This script shows how to generate plots of different Hermite functions with different
+scales and centers.
 
 """
 
@@ -30,8 +31,10 @@ ORDERS = 6
 # the offset between the individual Hermite functions
 OFFSET = -2.0
 
-# the path where to store the plot and its resolution
-PLOT_FILEPATH = "../docs//hermite_functions/DilatedHermiteFunctions_DifferentScales.png"
+# the path where to store the plot (only for developers)
+PLOT_FILEPATH = (
+    "../docs//hermite_functions/01-DilatedHermiteFunctions_DifferentScales.png"
+)
 
 # === Main ===
 
@@ -105,8 +108,15 @@ if __name__ == "__main__":
         orientation="horizontal",
     )
 
+    fig.suptitle(
+        "Dilated Hermite Functions with Different Scales and Centers",
+        fontsize=18,
+        y=1.05,
+    )
+
     # the plot is saved ...
-    plt.savefig(os.path.join(os.path.dirname(__file__), PLOT_FILEPATH))
+    if os.getenv("ROBHERMFT_DEVELOPER", "false").lower() == "true":
+        plt.savefig(os.path.join(os.path.dirname(__file__), PLOT_FILEPATH))
 
     # ... and shown
     plt.show()

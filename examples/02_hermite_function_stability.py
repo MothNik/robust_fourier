@@ -33,18 +33,15 @@ SPECIAL_COLOR = "#00CC00"
 # the offset between the individual Hermite functions
 OFFSET = -0.5
 
-# the path where to store the plot and its resolution
-PLOT_FILEPATH = "../docs/hermite_functions/DilatedHermiteFunctions_Stability.png"
-SPECIAL_PLOT_FILEPATH = (
-    "../docs/hermite_functions/DilatedHermiteFunctions_Stability_Special.png"
-)
+# the path where to store the plot (only for developers)
+PLOT_FILEPATH = "../docs/hermite_functions/02-DilatedHermiteFunctions_Stability.png"
 
 # === Main ===
 
 if __name__ == "__main__":
 
     fig, ax = plt.subplots(
-        figsize=(12, 6),
+        figsize=(12, 8),
     )
 
     # all Hermite basis functions are evaluated ...
@@ -80,8 +77,8 @@ if __name__ == "__main__":
         )
 
     # the title, grid, labels, and ticks are set
-    psi_label = r"$\psi_{n}^{\left(" + f"{ALPHA:.1f};0.0" + r"\right)}\left(x\right)$"
-    ax.set_title("Dilated Hermite Functions " + psi_label)
+    psi_label = r"$\psi_{n}^{\left(" + f"{ALPHA:.0f}; 0" + r"\right)}\left(x\right)$"
+    ax.set_title("Numerical Stability of the Dilated Hermite Functions " + psi_label)
     ax.set_xlabel(r"$x$")
     ax.set_ylabel(psi_label)
     ax.set_xlim(X_FROM, X_TO)
@@ -90,14 +87,15 @@ if __name__ == "__main__":
     ax.legend(
         ncol=2,
         loc=8,
-        bbox_to_anchor=(0.175, 0.74),
+        bbox_to_anchor=(0.175, 0.81),
     )
 
     # the plot is saved
-    plt.savefig(
-        os.path.join(os.path.dirname(__file__), PLOT_FILEPATH),
-        bbox_inches="tight",
-    )
+    if os.getenv("ROBHERMFT_DEVELOPER", "false").lower() == "true":
+        plt.savefig(
+            os.path.join(os.path.dirname(__file__), PLOT_FILEPATH),
+            bbox_inches="tight",
+        )
 
     # the plot is shown
     plt.show()

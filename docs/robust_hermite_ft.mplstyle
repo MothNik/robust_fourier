@@ -2,6 +2,7 @@
 axes.labelsize: 16
 axes.labelpad: 7
 axes.titlesize: 18
+axes.titlepad: 25
 axes.grid: True
 
 # Legend settings

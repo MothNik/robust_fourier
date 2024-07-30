@@ -44,6 +44,13 @@ pip install .["dev"]
 ⚠️ **Warning**: This will require a C-compiler to be installed on your system to
 compile the Cython code.
 
+When working in developer mode, an environment variable has to be added to run certain
+scripts.
+
+```
+ROBHERMFT_DEVELOPER = true
+```
+
 ### 🔎 Code quality
 
 The following checks for `black`, `isort`, `pyright`, `ruff`, and
@@ -81,7 +88,7 @@ functions or arbitrary order $n$ and argument - that can be scaled with a factor
 $\alpha$ and shifted by a constant $\mu$:
 
 <p align="center">
-  <img src="docs/hermite_functions/DilatedHermiteFunctions_DifferentScales.png" width="1000px" />
+  <img src="docs/hermite_functions/01-DilatedHermiteFunctions_DifferentScales.png" width="1000px" />
 </p>
 
 After a slight modification of the definitions in [[1]](#references), the Hermite
@@ -126,12 +133,23 @@ evaluated for this anymore. The factorial for example would already have overflo
 orders of 170 in `float64`-precision.
 
 <p align="center">
-  <img src="docs/hermite_functions/DilatedHermiteFunctions_Stability.png" width="1000px" />
+  <img src="docs/hermite_functions/02-DilatedHermiteFunctions_Stability.png" width="1000px" />
 </p>
 
 As a sanity check, their orthogonality is part of the tests together with a test for
 the fact that the absolute values of the Hermite functions for real input cannot exceed
 the value $\frac{\sqrt{\alpha}}{\pi^{-\frac{1}{4}}}$.
+
+On top of that `robust_hermite_ft` comes with utility functions to approximate some
+special points of the Hermite functions, namely the x-positions of their
+
+- largest root (= outermost zero),
+- largest maximum in the outermost oscillation, and
+- the point where they numerically fade to zero.
+
+<p align="center">
+  <img src="docs/hermite_functions/04-HermiteFunctions_SpecialPoints.png" width="1000px" />
+</p>
 
 ## References
 
