@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 14-add-makefile
   pull_request:
     branches:
       - main
@@ -23,42 +24,44 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install Make
+        run: sudo apt-get install make
+
       - name: Install dependencies and Build package
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install .["git_ci"]
+          make install-ci
 
       - name: Run format check
         run: |
-          black --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
+          make black-check
 
       - name: Run import sort check
         run: |
-          isort --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
+          make isort-check
 
       - name: Run pyright static type check
         run: |
-          pyright ./auxiliary_scripts ./examples ./src ./tests
+          make pyright-check
 
       - name: Run mypy static type check
         run: |
-          mypy ./auxiliary_scripts ./examples ./src ./tests
-
-      - name: Run ruff lint check
-        run: |
-          ruff check ./auxiliary_scripts ./examples ./src ./tests
+          make mypy-check
 
       - name: Run pycodestyle check
         run: |
-          pycodestyle ./auxiliary_scripts ./examples ./src ./tests --max-line-length=88 --ignore=E203,W503
+          make pycodestyle-check
+
+      - name: Run ruff lint check
+        run: |
+          make ruff-check
 
       - name: Run Cython check
         run: |
-          cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
+          make cython-check
 
       - name: Run tests
         run: |
-          pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=xml -x --no-jit
+          make test-xml
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v4.0.1
