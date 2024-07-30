@@ -176,7 +176,9 @@ def find_hermite_functions_largest_extremum_x(n: int) -> float:
     # NOTE: the fadeout point is way too conservative and therefore the bracketing is
     #       done with a smaller range
     x_values_initial = np.linspace(
-        start=x_largest_zero, stop=x_largest_zero + 0.2 * (x_fadeout - x_largest_zero), num=NUM_EVAL,
+        start=x_largest_zero,
+        stop=x_largest_zero + 0.2 * (x_fadeout - x_largest_zero),
+        num=NUM_EVAL,
     )
     hermite_derivative_values = _hermite_func_first_derivative(
         x=x_values_initial,
