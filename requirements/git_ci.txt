@@ -3,6 +3,7 @@ coverage
 cython>=3.0.10
 cython-lint>=0.16.0
 isort[colors]>=5.13.0
+matplotlib
 mypy>=1.11.0
 numba>=0.55.0
 pycodestyle>=2.12.0

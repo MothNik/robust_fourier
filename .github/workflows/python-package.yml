@@ -47,24 +47,13 @@ jobs:
             exit 1
           fi
 
+      - name: Run mypy static type check
+        run: |
+          mypy ./auxiliary_scripts ./examples ./src ./tests
+
       - name: Run pyright static type check
         run: |
           pyright ./auxiliary_scripts ./examples ./src ./tests
-          PYRIGHT_OUTPUT=$(pyright ./auxiliary_scripts ./examples ./src ./tests)
-           echo "$PYRIGHT_OUTPUT"
-           if ! echo "$PYRIGHT_OUTPUT" | grep -q "0 errors"; then
-             echo "Pyright check failed"
-             exit 1
-           fi
-
-      - name: Run mypy static type check
-        run: |
-          MYPY_OUTPUT=$(mypy ./auxiliary_scripts ./examples ./src ./tests)
-          echo "$MYPY_OUTPUT"
-          if ! echo "$MYPY_OUTPUT" | grep -q "Success"; then
-            echo "Mypy check failed"
-            exit 1
-          fi
 
       - name: Run ruff lint check
         run: |
