@@ -92,15 +92,15 @@
         }
     },
     "computation_time_mapping": {
-        "ref_hermite_functions_order_250_alpha_0-point-5.npy": 2363.9345559999997,
-        "ref_hermite_functions_order_250_alpha_1-point-0.npy": 1824.2659699,
-        "ref_hermite_functions_order_250_alpha_2-point-0.npy": 1820.5607071999993,
-        "ref_hermite_functions_order_000_alpha_0-point-5.npy": 4.27243129999988,
-        "ref_hermite_functions_order_000_alpha_1-point-0.npy": 4.246022000000266,
-        "ref_hermite_functions_order_000_alpha_2-point-0.npy": 4.032393599999523,
-        "ref_hermite_functions_order_001_alpha_0-point-5.npy": 4.100682700000107,
-        "ref_hermite_functions_order_001_alpha_1-point-0.npy": 4.3022603999997955,
-        "ref_hermite_functions_order_001_alpha_2-point-0.npy": 4.553623600000719
+        "ref_hermite_functions_order_250_alpha_0-point-5.npy": 1865.3461492,
+        "ref_hermite_functions_order_250_alpha_1-point-0.npy": 1409.7497346000002,
+        "ref_hermite_functions_order_250_alpha_2-point-0.npy": 1404.8454167,
+        "ref_hermite_functions_order_000_alpha_0-point-5.npy": 3.0256173999996463,
+        "ref_hermite_functions_order_000_alpha_1-point-0.npy": 3.125232999999753,
+        "ref_hermite_functions_order_000_alpha_2-point-0.npy": 3.247388800000408,
+        "ref_hermite_functions_order_001_alpha_0-point-5.npy": 3.2019123000000036,
+        "ref_hermite_functions_order_001_alpha_1-point-0.npy": 3.172190500000397,
+        "ref_hermite_functions_order_001_alpha_2-point-0.npy": 3.225925100000495
     },
     "num_digits": 200,
     "x_values": [

@@ -30,19 +30,27 @@ jobs:
 
       - name: Run format check
         run: |
-          black --check --diff --color ./examples ./src ./tests
+          black --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
 
-      - name: Run Import sort check
+      - name: Run import sort check
         run: |
-          isort --check --diff --color ./examples ./src ./tests
+          isort --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
 
-      - name: Run static type check
+      - name: Run pyright static type check
         run: |
-          pyright
+          pyright ./auxiliary_scripts ./examples ./src ./tests
 
-      - name: Run Python lint check
+      - name: Run mypy static type check
         run: |
-          ruff check ./examples ./src ./tests
+          mypy ./auxiliary_scripts ./examples ./src ./tests
+
+      - name: Run ruff lint check
+        run: |
+          ruff check ./auxiliary_scripts ./examples ./src ./tests
+
+      - name: Run pycodestyle check
+        run: |
+          pycodestyle ./auxiliary_scripts ./examples ./src ./tests --max-line-length=88 --ignore=E203,W503
 
       - name: Run Cython check
         run: |
