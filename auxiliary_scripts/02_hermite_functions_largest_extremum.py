@@ -270,7 +270,7 @@ if (
         progress_bar = tqdm(total=len(orders), desc="Computing outermost extrema")
         for idx, n in enumerate(orders):
             outerm_extremum_x_positions[idx] = (
-                find_hermite_functions_largest_extremum_x(n=int(n))
+                find_hermite_functions_largest_extremum_x(n=n)
             )
             progress_bar.update(1)
 

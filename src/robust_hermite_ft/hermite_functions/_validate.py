@@ -17,28 +17,55 @@ from typing import Optional, Tuple, Union
 import numpy as np
 from numpy.typing import ArrayLike
 
+# === Types ===
+
+# a float or integer
+RealScalar = Union[float, int, np.floating, np.integer]
+_real_scalar_types_no_pyfloat = (int, np.floating, np.integer)
+
 # === Constants ===
 
 # the required dtype for the x-values
 _X_DTYPE = np.float64
 
+# === Exceptions ===
+
+
+class _GivesNoRealArrayError(Exception):
+    """
+    Exception raised when the input does not result in a real-valued NumPy array.
+
+    """
+
+    pass
+
+
 # === Functions ===
 
 
-def _get_validated_x_values(x: Union[float, int, ArrayLike]) -> np.ndarray:
+def _get_validated_x_values(x: Union[RealScalar, ArrayLike]) -> np.ndarray:
     """
     Validates the input for the x-values and returns the validated input.
 
     """
 
-    if not isinstance(x, (float, int, np.ndarray, list, tuple)):
+    # the x-values are converted to a 1D NumPy array for checking
+    try:
+        x_internal = np.atleast_1d(x)
+        if not np.isreal(x_internal).all():
+            raise _GivesNoRealArrayError()
+
+    except _GivesNoRealArrayError:
+        x_type_str = f"{type(x)}"
+        if hasattr(x, "dtype"):  # pragma: no cover
+            x_type_str += f" with dtype {x.dtype}"  # type: ignore
+
         raise TypeError(
-            f"Expected 'x' to be a float, int, or an Array-like but got type {type(x)}."
+            f"Expected 'x' to be a real scalar or a real-value Array-like but got type "
+            f"{x_type_str}."
         )
 
-    # the x-values are converted to a 1D NumPy array for checking
-    # (if required, the dtype is converted to the target dtype)
-    x_internal = np.atleast_1d(x)
+    # if required, the dtype is converted to the target dtype
     if not x_internal.dtype == _X_DTYPE:
         x_internal = x_internal.astype(_X_DTYPE)
 
@@ -50,12 +77,16 @@ def _get_validated_x_values(x: Union[float, int, ArrayLike]) -> np.ndarray:
     return x_internal
 
 
-def _get_validated_order(n: int) -> int:
+def _get_validated_order(n: Union[int, np.integer]) -> int:
     """
     Validates the input for the order of the Hermite function and returns the validated
     input.
 
     """
+
+    # NumPy integers need to be converted to Python integers
+    if isinstance(n, np.integer):
+        n = int(n)
 
     if not isinstance(n, int):
         raise TypeError(f"Expected 'n' to be an integer but got type {type(n)}.")
@@ -66,14 +97,15 @@ def _get_validated_order(n: int) -> int:
     return n
 
 
-def _get_validated_alpha(alpha: Union[float, int]) -> float:
+def _get_validated_alpha(alpha: RealScalar) -> float:
     """
     Validates the input for the scaling factor of the Hermite function and returns the
     validated input.
 
     """
 
-    if isinstance(alpha, int):
+    # integers and NumPy scalars need to be converted to Python floats
+    if isinstance(alpha, _real_scalar_types_no_pyfloat):
         alpha = float(alpha)
 
     if not isinstance(alpha, float):
@@ -87,7 +119,7 @@ def _get_validated_alpha(alpha: Union[float, int]) -> float:
     return alpha
 
 
-def _get_validated_x_center(x_center: Union[float, int, None]) -> Optional[float]:
+def _get_validated_x_center(x_center: Optional[RealScalar]) -> Optional[float]:
     """
     Validates the input for the center of the Hermite function and returns the validated
     input.
@@ -95,7 +127,8 @@ def _get_validated_x_center(x_center: Union[float, int, None]) -> Optional[float
     """
 
     if x_center is not None:
-        if isinstance(x_center, int):
+        # integers and NumPy scalars need to be converted to Python floats
+        if isinstance(x_center, _real_scalar_types_no_pyfloat):
             x_center = float(x_center)
 
         if not isinstance(x_center, float):
@@ -108,10 +141,10 @@ def _get_validated_x_center(x_center: Union[float, int, None]) -> Optional[float
 
 
 def _get_validated_hermite_function_input(
-    x: Union[float, int, ArrayLike],
+    x: Union[RealScalar, ArrayLike],
     n: int,
-    alpha: Union[float, int] = 1.0,
-    x_center: Union[float, int, None] = None,
+    alpha: RealScalar,
+    x_center: Optional[RealScalar],
 ) -> Tuple[np.ndarray, int, float, Optional[float]]:
     """
     Validates the input for the Hermite functions and returns the validated input.

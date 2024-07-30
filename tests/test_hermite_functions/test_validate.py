@@ -5,10 +5,12 @@ This test suite implements the tests for the module :mod:`hermite_functions._val
 
 # === Imports ===
 
+from array import array as PythonArray
 from typing import Any, Optional
 
 import numpy as np
 import pytest
+from pandas import Series as PandasSeries
 
 from .utils import (
     ALL_HERMITE_IMPLEMENTATIONS,
@@ -23,154 +25,245 @@ from .utils import (
 @pytest.mark.parametrize(
     "x, n, alpha, x_center, expected",
     [
-        (  # Test 0: x is a float
+        (  # Test 0: x is a Python float
             1.0,
             1,
             1.0,
             None,
             None,
         ),
-        (  # Test 1: x is an integer
+        (  # Test 1: x is a Python integer
             1.0,
             1,
             1.0,
             None,
             None,
         ),
-        (  # Test 2: x is complex
+        (  # Test 2: x is a NumPy float
+            np.float32(1.0),
+            1,
+            1.0,
+            None,
+            None,
+        ),
+        (  # Test 3: x is a NumPy integer
+            np.int32(1),
+            1,
+            1.0,
+            None,
+            None,
+        ),
+        (  # Test 4: x is complex
             1.0 + 1.0j,
             1,
             1.0,
             None,
-            TypeError("Expected 'x' to be a float, int, or an Array-like"),
+            TypeError("Expected 'x' to be a real scalar or a real-value Array-like"),
         ),
-        (  # Test 3: x is a list
+        (  # Test 5: x is a list
             [1.0, 2.0, 3.0],
             1,
             1.0,
             None,
             None,
         ),
-        (  # Test 4: x is a tuple
+        (  # Test 6: x is a tuple
             (1.0, 2.0, 3.0),
             1,
             1.0,
             None,
             None,
         ),
-        (  # Test 5: x is a 1D-Array of float32
+        (  # Test 7: x is a 1D-Array of float32
             np.array([1.0, 2.0, 3.0], dtype=np.float32),
             1,
             1.0,
             None,
             None,
         ),
-        (  # Test 6: x is a 1D-Array of float64
+        (  # Test 8: x is a 1D-Array of float64
             np.array([1.0, 2.0, 3.0], dtype=np.float64),
             1,
             1.0,
             None,
             None,
         ),
-        (  # Test 7: x is a 2D array
+        (  # Test 9: x is a Pandas Series of float64
+            PandasSeries([1.0, 2.0, 3.0], dtype=np.float64),
+            1,
+            1.0,
+            None,
+            None,
+        ),
+        (  # Test 10: x is a Pandas Series of float32
+            PandasSeries([1.0, 2.0, 3.0], dtype=np.float32),
+            1,
+            1.0,
+            None,
+            None,
+        ),
+        (  # Test 11: x is a Python array of float64
+            PythonArray("d", [1.0, 2.0, 3.0]),
+            1,
+            1.0,
+            None,
+            None,
+        ),
+        (  # Test 12: x is a Python array of float32
+            PythonArray("f", [1.0, 2.0, 3.0]),
+            1,
+            1.0,
+            None,
+            None,
+        ),
+        (  # Test 13: x is a 2D array
             np.array([[1.0, 2.0, 3.0]]),
             1,
             1.0,
             None,
             ValueError("Expected 'x' to be 1-dimensional"),
         ),
-        (  # Test 8: n is a positive integer
+        (  # Test 14: x is a 2D list
+            [[1.0, 2.0, 3.0]],
+            1,
+            1.0,
+            None,
+            ValueError("Expected 'x' to be 1-dimensional"),
+        ),
+        (  # Test 15: x is a 2D tuple
+            ((1.0, 2.0, 3.0),),
+            1,
+            1.0,
+            None,
+            ValueError("Expected 'x' to be 1-dimensional"),
+        ),
+        (  # Test 16: n is a positive Python integer
             1.0,
             1,
             1.0,
             None,
             None,
         ),
-        (  # Test 9: n is negative integer
+        (  # Test 17: n is positive NumPy integer
+            1.0,
+            np.int32(1),
+            1.0,
+            None,
+            None,
+        ),
+        (  # Test 18: n is negative integer
             1.0,
             -1,
             1.0,
             None,
             ValueError("Expected 'n' to be a non-negative integer"),
         ),
-        (  # Test 10: n is a float
+        (  # Test 19: n is a float
             1.0,
             1.0,
             1.0,
             None,
             TypeError("Expected 'n' to be an integer"),
         ),
-        (  # Test 11: alpha is a positive float
+        (  # Test 20: alpha is a positive Python float
             1.0,
             1,
             1.0,
             None,
             None,
         ),
-        (  # Test 12: alpha is a positive integer
+        (  # Test 21: alpha is a positive NumPy float
+            1.0,
+            1,
+            np.float32(1.0),
+            None,
+            None,
+        ),
+        (  # Test 22: alpha is a positive Python integer
             1.0,
             1,
             1,
             None,
             None,
         ),
-        (  # Test 13: alpha is a zero float
+        (  # Test 23: alpha is a positive NumPy integer
+            1.0,
+            1,
+            np.int32(1),
+            None,
+            None,
+        ),
+        (  # Test 24: alpha is a zero float
             1.0,
             1,
             0.0,
             None,
             ValueError("Expected 'alpha' to be a positive number"),
         ),
-        (  # Test 14: alpha is a zero integer
+        (  # Test 25: alpha is a zero integer
             1.0,
             1,
             0,
             None,
             ValueError("Expected 'alpha' to be a positive number"),
         ),
-        (  # Test 14: alpha is a negative float
+        (  # Test 26: alpha is a negative float
             1.0,
             1,
             -1.0,
             None,
             ValueError("Expected 'alpha' to be a positive number"),
         ),
-        (  # Test 15: alpha is a negative integer
+        (  # Test 27: alpha is a negative integer
             1.0,
             1,
             -1,
             None,
             ValueError("Expected 'alpha' to be a positive number"),
         ),
-        (  # Test 16: alpha is a complex number
+        (  # Test 28: alpha is a complex number
             1.0,
             1,
             1.0 + 1.0j,
             None,
             TypeError("Expected 'alpha' to be a float or integer"),
         ),
-        (  # Test 17: x_center is None
+        (  # Test 29: x_center is None
             1.0,
             1,
             1.0,
             None,
             None,
         ),
-        (  # Test 18: x_center is a float
+        (  # Test 30: x_center is a Python float
             1.0,
             1,
             1.0,
             1.0,
             None,
         ),
-        (  # Test 19: x_center is an integer
+        (  # Test 31: x_center is a NumPy float
+            1.0,
+            1,
+            1.0,
+            np.float32(1.0),
+            None,
+        ),
+        (  # Test 32: x_center is a Python integer
             1.0,
             1,
             1.0,
             1,
             None,
         ),
-        (  # Test 20: x_center is complex
+        (  # Test 33: x_center is a Numpy integer
+            1.0,
+            1,
+            1.0,
+            np.int32(1),
+            None,
+        ),
+        (  # Test 34: x_center is complex
             1.0,
             1,
             1.0,

@@ -22,7 +22,7 @@ from .._utils import _get_num_workers
 from ._numba_funcs import nb_hermite_function_basis as _nb_hermite_function_basis
 from ._numpy_funcs import _hermite_function_basis as _np_hermite_function_basis
 from ._numpy_funcs import _single_hermite_function as _np_single_hermite_function
-from ._validate import _get_validated_hermite_function_input
+from ._validate import RealScalar, _get_validated_hermite_function_input
 
 from ._c_hermite import (  # pyright: ignore[reportMissingImports]; fmt: skip; isort: skip   # noqa: E501
     hermite_function_basis as _c_hermite_function_basis,
@@ -31,10 +31,14 @@ from ._c_hermite import (  # pyright: ignore[reportMissingImports]; fmt: skip; i
 # === Auxiliary Functions ===
 
 
-def _is_data_linked(arr, original) -> bool:
+def _is_data_linked(
+    arr: np.ndarray,
+    original: Union[RealScalar, ArrayLike],
+) -> bool:
     """
     Strictly checks for ``arr`` not sharing any data with ``original``, under the
-    assumption that ``arr = atleast_1d(original)``.
+    assumption that ``arr = atleast_1d(original)`` followed by a potential type
+    conversion.
     If ``arr`` is a view of ``original``, this function returns ``False``.
 
     Was copied from the SciPy utility function ``scipy.linalg._misc._datacopied``, but
@@ -48,7 +52,7 @@ def _is_data_linked(arr, original) -> bool:
     if arr is original:
         return True
     if not isinstance(original, np.ndarray) and hasattr(original, "__array__"):
-        return True
+        return original.__array__().dtype is arr.dtype  # type: ignore
 
     return arr.base is not None
 
@@ -82,10 +86,10 @@ def _center_x_values(
 
 
 def hermite_function_basis(
-    x: Union[float, int, ArrayLike],
+    x: Union[RealScalar, ArrayLike],
     n: int,
-    alpha: Union[float, int] = 1.0,
-    x_center: Union[float, int, None] = None,
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
     workers: int = 1,
 ) -> np.ndarray:
     """
@@ -194,10 +198,10 @@ def hermite_function_basis(
 
 
 def slow_hermite_function_basis(
-    x: Union[float, int, ArrayLike],
+    x: Union[RealScalar, ArrayLike],
     n: int,
-    alpha: Union[float, int] = 1.0,
-    x_center: Union[float, int, None] = None,
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
     jit: bool = False,
 ) -> np.ndarray:
     """
@@ -302,10 +306,10 @@ def slow_hermite_function_basis(
 
 
 def single_hermite_function(
-    x: Union[float, int, ArrayLike],
+    x: Union[RealScalar, ArrayLike],
     n: int,
-    alpha: Union[float, int] = 1.0,
-    x_center: Union[float, int, None] = None,
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
 ) -> np.ndarray:
     """
     Computes a single dilated Hermite function of order ``n`` for the given points
