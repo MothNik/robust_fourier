@@ -62,6 +62,7 @@ def hermite_function_basis(
 
 # === Auxiliary Functions ===
 
+
 cdef int _eval_hermite_function_basis(
     double* x,
     int num_x,

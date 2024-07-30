@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - 13-implement-robust-regression-ft
   pull_request:
     branches:
       - main
@@ -47,30 +46,15 @@ jobs:
 
       - name: Run ruff lint check
         run: |
-          RUFF_OUTPUT=$(ruff check ./auxiliary_scripts ./examples ./src ./tests)
-          echo "$RUFF_OUTPUT"
-          if ! echo "$RUFF_OUTPUT" | grep -q "All checks passed!"; then
-            echo "Ruff check failed"
-            exit 1
-          fi
+          ruff check ./auxiliary_scripts ./examples ./src ./tests
 
       - name: Run pycodestyle check
         run: |
-          PYCODESTYLE_OUTPUT=$(pycodestyle ./auxiliary_scripts ./examples ./src ./tests --max-line-length=88)
-          echo "$PYCODESTYLE_OUTPUT"
-          if [ -n "$PYCODESTYLE_OUTPUT" ]; then
-            echo "Pycodestyle check failed"
-            exit 1
-          fi
+          pycodestyle ./auxiliary_scripts ./examples ./src ./tests --max-line-length=88 --ignore=E203,W503
 
       - name: Run Cython check
         run: |
-          CYTHON_LINT_OUTPUT=$(cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx)
-          echo "$CYTHON_LINT_OUTPUT"
-          if [ -n "$CYTHON_LINT_OUTPUT" ]; then
-            echo "Cython lint check failed"
-            exit 1
-          fi
+          cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
 
       - name: Run tests
         run: |
