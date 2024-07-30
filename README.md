@@ -57,12 +57,12 @@ The following checks for `black`, `isort`, `pyright`, `ruff`, and
 `cython-lint` - that are also part of the CI pipeline - can be run with
 
 ```bash
-black --check --diff --color ./examples ./src ./tests
-isort --check --diff --color ./examples ./src ./tests
-pyright ./examples ./src ./tests
-mypy ./examples ./src ./tests
-ruff check ./examples ./src ./tests
-pycodestyle ./examples ./src ./tests --max-line-length=88
+black --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
+isort --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
+pyright ./auxiliary_scripts ./examples ./src ./tests
+mypy ./auxiliary_scripts ./examples ./src ./tests
+ruff check ./auxiliary_scripts ./examples ./src ./tests
+pycodestyle ./auxiliary_scripts ./examples ./src ./tests --max-line-length=88 --ignore=E203,W503
 cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
 ```
 
@@ -72,6 +72,8 @@ To run the tests - almost like in the CI pipeline - you can use
 
 ```bash
 pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=xml -x --no-jit
+# or for a nice HTML coverage report
+# pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=html -x --no-jit
 ```
 
 for parallelized testing whose coverage report will be stored in the folder
