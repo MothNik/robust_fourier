@@ -5,7 +5,8 @@ This test suite implements the tests for the module :mod:`fourier_transform._fft
 
 # === Imports ===
 
-from typing import Literal, Union
+from math import isclose as pyisclose
+from typing import Literal, Optional, Union
 
 import numpy as np
 import pytest
@@ -52,6 +53,100 @@ def gaussian_cft(
 
 
 # === Tests ===
+
+
+@pytest.mark.parametrize(
+    "x, y, x_attribute, delta_x",
+    [
+        (  # Test 0: explicit x
+            np.array([2.0, 4.0, 6.0]),
+            np.array([1.0, 2.0, 3.0]),
+            np.array([2.0, 4.0, 6.0]),
+            2.0,
+        ),
+        (  # Test 1: semi-implicit x
+            np.array([]),
+            np.array([1.0, 2.0, 3.0]),
+            np.array([0.0, 1.0, 2.0]),
+            1.0,
+        ),
+        (  # Test 2: implicit x
+            None,
+            np.array([1.0, 2.0, 3.0]),
+            np.array([0.0, 1.0, 2.0]),
+            1.0,
+        ),
+    ],
+)
+def test_time_space_signal_initialisation_normal_input(
+    x: Optional[np.ndarray],
+    y: np.ndarray,
+    x_attribute: np.ndarray,
+    delta_x: float,
+) -> None:
+    """
+    Tests the initialisation of the dataclass :class:`TimeSpaceSignal` for normal
+    cases.
+
+    """
+
+    # the signal is initialised
+    if x is not None:
+        signal = TimeSpaceSignal(x=x, y=y)
+    else:
+        signal = TimeSpaceSignal(y=y)
+
+    # the x-values are checked ...
+    assert np.array_equal(signal.x, x_attribute), "The x-values are incorrect."
+    # ... followed by the y-values ...
+    assert np.array_equal(signal.y, y), "The y-values are incorrect."
+    # ... and the delta x-value
+    assert pyisclose(
+        a=signal.delta_x,
+        b=delta_x,
+        abs_tol=0.0,
+        rel_tol=1e-15,
+    ), "The delta x-value is incorrect."
+
+
+@pytest.mark.parametrize(
+    "x, error",
+    [
+        (  # Test 0: x is sorted in descending order
+            np.array([2.0, 1.0, 0.0]),
+            ValueError("The grid points are not sorted in strictly ascending order."),
+        ),
+        (  # Test 1: x contains a duplicate entry
+            np.array([0.0, 1.0, 1.0]),
+            ValueError("The grid points are not sorted in strictly ascending order."),
+        ),
+        (  # Test 2: all x-values are the same
+            np.array([1.0, 1.0, 1.0]),
+            ValueError("The grid points are not sorted in strictly ascending order."),
+        ),
+        (  # Test 3: the spacing between x-values is not constant
+            np.array([0.0, 1.0, 3.0, 10.0, 20.0]),
+            ValueError("The grid points are not evenly spaced."),
+        ),
+    ],
+)
+def test_time_space_signal_initialisation_invalid_input(
+    x: np.ndarray,
+    error: Exception,
+) -> None:
+    """
+    Tests the initialisation of the dataclass :class:`TimeSpaceSignal` for invalid
+    inputs by ensuring that the correct exceptions are raised.
+
+    """
+
+    with pytest.raises(type(error), match=str(error)):
+        TimeSpaceSignal(
+            x=x,
+            y=np.random.rand(*x.shape),  # type: ignore
+        )
+
+    return
 
 
 @pytest.mark.parametrize("sigma", [0.5, 1.0, 2.0])

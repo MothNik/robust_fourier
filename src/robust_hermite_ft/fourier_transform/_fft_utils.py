@@ -177,7 +177,9 @@ def grid_spacing(x: np.ndarray) -> float:
     ----------
     x : :class:`numpy.ndarray` of shape ``(n,)``
         The grid points.
-        It has to be evenly spaced and sorted in ascending order.
+        It has to be evenly spaced and sorted in strictly ascending order. Strictly
+        ascending means that the difference between two consecutive grid points is
+        strictly positive.
 
     Returns
     -------
@@ -192,11 +194,12 @@ def grid_spacing(x: np.ndarray) -> float:
     """
 
     delta_x = (x[-1] - x[0]) / (x.size - 1)
-    if delta_x <= 0.0:
-        raise ValueError("The grid points are not sorted in ascending order.")
+    diff_x = np.diff(x)
+    if (diff_x <= 0.0).any():
+        raise ValueError("The grid points are not sorted in strictly ascending order.")
 
     if not np.allclose(
-        np.diff(x),
+        diff_x,
         np.full(shape=(x.size - 1,), fill_value=delta_x),
     ):
         raise ValueError("The grid points are not evenly spaced.")
@@ -347,7 +350,7 @@ def _ft_conversion_factors(
         phi = pysqrt(x.size)
     elif norm_inter == NORM_FORWARD:
         phi = x.size
-    else:
+    else:  # pragma: no cover
         raise ValueError(f"Unknown normalization '{norm}'.")
 
     if to_kind == "continuous":
