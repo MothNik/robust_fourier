@@ -23,9 +23,9 @@ NOTE: THIS SCRIPT CAN ONLY BE RUN IF THE DEVELOPER MODE IS ENABLED BY SETTING TH
 
 # === Imports ===
 
-import subprocess
 import json
 import os
+import subprocess
 from math import sqrt as pysqrt
 
 import numpy as np

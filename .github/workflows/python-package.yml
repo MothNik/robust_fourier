@@ -49,6 +49,7 @@ jobs:
 
       - name: Run pyright static type check
         run: |
+          pyright ./auxiliary_scripts ./examples ./src ./tests
           PYRIGHT_OUTPUT=$(pyright ./auxiliary_scripts ./examples ./src ./tests)
            echo "$PYRIGHT_OUTPUT"
            if ! echo "$PYRIGHT_OUTPUT" | grep -q "0 errors"; then
