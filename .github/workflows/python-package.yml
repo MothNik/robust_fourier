@@ -31,12 +31,7 @@ jobs:
 
       - name: Run format check
         run: |
-          BLACK_OUTPUT=$(black --check --diff --color ./auxiliary_scripts ./examples ./src ./tests)
-          echo "$BLACK_OUTPUT"
-          if echo "$BLACK_OUTPUT" | grep -q "Oh no!"; then
-            echo "Black check failed"
-            exit 1
-          fi
+          black --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
 
       - name: Run import sort check
         run: |
@@ -47,13 +42,13 @@ jobs:
             exit 1
           fi
 
-      - name: Run mypy static type check
-        run: |
-          mypy ./auxiliary_scripts ./examples ./src ./tests
-
       - name: Run pyright static type check
         run: |
           pyright ./auxiliary_scripts ./examples ./src ./tests
+
+      - name: Run mypy static type check
+        run: |
+          mypy ./auxiliary_scripts ./examples ./src ./tests
 
       - name: Run ruff lint check
         run: |
