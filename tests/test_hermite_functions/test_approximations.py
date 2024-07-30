@@ -10,6 +10,7 @@ from typing import Optional
 
 import numpy as np
 import pytest
+from scipy.optimize import minimize_scalar
 
 from robust_hermite_ft.hermite_functions import (
     approximate_hermite_funcs_fadeout_x,
@@ -20,26 +21,56 @@ from robust_hermite_ft.hermite_functions import (
 
 # === Constants ===
 
-# the absolute x-tolerance for testing the largest zero
-LARGEST_ZERO_X_ATOL = 1e-7
+# the absolute and relative x-width for testing the largest zero
+LARGEST_ZERO_X_ABS_WIDTH = 1e-9
+LARGEST_ZERO_X_REL_WIDTH = 1e-9
 
 # the y-tolerance for the fadeout points as a multiple of the machine epsilon
 # NOTE: to avoid numerical issues, the tolerance is slightly increased
 FADEOUT_Y_TOL_EPS_MULTIPLIER = 10.0
 
-# the absolute x-tolerance for testing the largest extrema
-LARGEST_EXTREMUM_X_ATOL = 1e-3
-# the number of points for the extremum test
-NUM_EXTREMUM_POINTS = 1_001
-# the relative y-tolerance for the largest extrema
-# NOTE: this is slightly worse than when the approximations were created
-LARGEST_EXTREMUM_Y_RTOL = 1e-12
+# the width of the x-interval spanned for testing the largest extrema via numerical
+# minimisation
+LARGEST_EXTREMUM_NUMMINIM_X_WIDTH = 1e-3
+# the absolute tolerance of the numerical minimisation for the largest extrema
+LARGEST_EXTREMUM_NUMMINIM_X_ATOL = 1e-13
+# the maximum number of iterations for the numerical minimisation for the largest
+# extrema
+LARGEST_EXTREMUM_NUMMINIM_MAX_ITER = 100_000
+# the relative y-tolerance for testing the largest extrema
+LARGEST_EXTREMUM_Y_RTOL = 1e-10
 
 # the scales alpha to test
 TEST_SCALES_ALPHA = [0.05, 0.5, 1.0, 2.0, 20.0]
 
 # the centers mu to test
 TEST_X_CENTERS_MU = [-10.0, 0.0, None, 10.0]
+
+# === Auxiliary Functions ===
+
+
+def _hermite_func_largest_extremum_objective(
+    x: float,
+    n: int,
+    alpha: float,
+    x_center: Optional[float],
+) -> float:
+    """
+    This function is the objective function for the minimisation of the Hermite function
+    to find the largest extremum by the function :func:`minimize_scalar` from
+    :mod:`scipy.optimize`.
+
+    """
+
+    return -abs(
+        single_hermite_function(
+            x=x,
+            n=n,
+            alpha=alpha,
+            x_center=x_center,
+        )[0]
+    )
+
 
 # === Tests ===
 
@@ -96,11 +127,20 @@ def test_hermite_funcs_largest_zero_approximation(
     )
 
     # then, the sign change at each estimated largest zero is checked
+    x_center_for_ref_tolerance = x_center if x_center is not None else 0.0
     for x_lgz in x_largest_zeros:
+        # NOTE: for the special case that the largest zero is exactly zero, the sign
+        #       change is not checked with a relative width, but with an absolute width
+        # NOTE: ``x_center`` has to be subtracted for the relative width to avoid it
+        #       from getting bigger than it truly is just because of the offset
+        x_reference_distance = max(
+            LARGEST_ZERO_X_ABS_WIDTH / alpha,
+            LARGEST_ZERO_X_REL_WIDTH * (abs(x_lgz) - abs(x_center_for_ref_tolerance)),
+        )
         x_zero_reference = np.array(
             [
-                x_lgz - LARGEST_ZERO_X_ATOL / alpha,
-                x_lgz + LARGEST_ZERO_X_ATOL / alpha,
+                x_lgz - x_reference_distance,
+                x_lgz + x_reference_distance,
             ]
         )
 
@@ -120,7 +160,7 @@ def test_hermite_funcs_largest_zero_approximation(
             hermite_around_zero_values[1]
         ), (
             f"The Hermite function of order {n} with {alpha=} and {x_center=} "
-            f"does not change its sign at the approximated largest zero {x_lgz:.5f}."
+            f"does not change its sign at the approximated largest zero {x_lgz:.10f}."
         )
 
 
@@ -167,7 +207,7 @@ def test_hermite_funcs_fadeout_approximation(
     )
     assert np.abs(hermite_fadeout_values <= y_fadeout_tolerance).all(), (
         f"The Hermite function of order {n} with {alpha=} and {x_center=} "
-        f"does not fade out at the approximated fadeout points."
+        f"does not fade out at the approximated fadeout point {x_fadeouts:.10f}."
     )
 
 
@@ -202,10 +242,9 @@ def test_hermite_funcs_largest_extrema_approximation(
     This test checks the approximation of the largest extrema of the Hermite functions
     via :func:`approximate_hermite_funcs_largest_extrema_x`.
 
-    It does so by spanning an interval in the close neighborhood of the estimated
-    largest extrema and checking that no other point in this interval has a larger
-    absolute value (with a certain tolerance) while some points have a smaller absolute
-    value.
+    It does so by spanning an interval around the estimated largest extrema and checking
+    that ``scipy.optimize.minimize_scalar`` does not find a minimum or maximum within
+    this interval that is stronger than the estimated extremum (with a small tolerance).
 
     """
 
@@ -223,55 +262,40 @@ def test_hermite_funcs_largest_extrema_approximation(
         f"but got {x_largest_extrema.size}."
     )
 
-    # then, the absolute values of the Hermite functions are checked around the
-    # estimated largest extrema
-    for x_lge in x_largest_extrema:
-        # the Hermite function is evaluated at the estimated largest extremum ...
-        x_extremum_reference = np.linspace(
-            start=x_lge - LARGEST_EXTREMUM_X_ATOL / alpha,
-            stop=x_lge + LARGEST_EXTREMUM_X_ATOL / alpha,
-            num=NUM_EXTREMUM_POINTS,
+    # the Hermite function is evaluated at the estimated largest extrema because they
+    # will be compared to the results of the numerical minimisation
+    hermite_extrema_values = single_hermite_function(
+        x=x_largest_extrema,
+        n=n,
+        alpha=alpha,
+        x_center=x_center,
+    )
+
+    # then, the largest extrema are checked
+    for x_lge, herm_lge in zip(x_largest_extrema, hermite_extrema_values):
+        # the interval around the extremum is spanned
+        x_lower_bound = x_lge - LARGEST_EXTREMUM_NUMMINIM_X_WIDTH / alpha
+        x_upper_bound = x_lge + LARGEST_EXTREMUM_NUMMINIM_X_WIDTH / alpha
+
+        # the objective function for the extremum is minimised
+        reference_result = minimize_scalar(
+            _hermite_func_largest_extremum_objective,
+            bounds=(x_lower_bound, x_upper_bound),
+            args=(n, alpha, x_center),
+            method="bounded",
+            options=dict(
+                xatol=LARGEST_EXTREMUM_NUMMINIM_X_ATOL / alpha,
+                maxiter=LARGEST_EXTREMUM_NUMMINIM_MAX_ITER,
+            ),
         )
 
-        # ... and within the neighborhood of the extremum
-        largest_extremum_absolute_value = np.abs(
-            single_hermite_function(
-                x=x_lge,
-                n=n,
-                alpha=alpha,
-                x_center=x_center,
-            )
-        )[0]
-        hermite_around_extremum_absolute_values = np.abs(
-            single_hermite_function(
-                x=x_extremum_reference,
-                n=n,
-                alpha=alpha,
-                x_center=x_center,
-            )
-        )
-
-        # the points are checked for the absence of larger absolute values ...
-        # NOTE: for this the tolerance has to be scaled with the maximum absolute value
-        #       value at the extremum to account for the scaling of the Hermite
-        #       functions
-        y_tolerance = LARGEST_EXTREMUM_Y_RTOL * largest_extremum_absolute_value
-        any_higher_values_present = np.any(
-            hermite_around_extremum_absolute_values
-            > largest_extremum_absolute_value + y_tolerance
-        )
-        assert not any_higher_values_present, (
+        # the resulting extremum values is checked against the Hermite function
+        # values at the estimated extremum (with the numerical minimisation as reference
+        # for the tolerance)
+        tolerance = LARGEST_EXTREMUM_Y_RTOL * np.abs(reference_result.fun)
+        extremum_y_difference = abs(herm_lge) - abs(reference_result.fun)
+        assert extremum_y_difference <= tolerance, (
             f"The Hermite function of order {n} with {alpha=} and {x_center=} "
-            f"has larger absolute values than the largest extremum {x_lge:.5f}."
-        )
-
-        # ... and the presence of smaller absolute values
-        any_lower_values_present = np.any(
-            hermite_around_extremum_absolute_values
-            < largest_extremum_absolute_value - y_tolerance
-        )
-        assert any_lower_values_present, (
-            f"The Hermite function of order {n} with {alpha=} and {x_center=} "
-            f"does not have smaller absolute values than the largest extremum "
-            f"{x_lge:.5f}."
+            f"does not have the largest extremum at the approximated position "
+            f"{x_lge:.10f}, but at {reference_result.x:.10f}."
         )
