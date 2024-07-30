@@ -53,7 +53,10 @@ DYNAMIC_WORKERS = "__dynamic__"
         ),
     ],
 )
-def test_get_num_workers(workers: int, expected: Union[int, DynamicWorkers, Exception]):
+def test_get_num_workers(
+    workers: int,
+    expected: Union[int, DynamicWorkers, Exception],
+) -> None:
     """
     Tests that the function :func:`_get_num_workers` returns the expected number of
     workers or raises the expected exception.

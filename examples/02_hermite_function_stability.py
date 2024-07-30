@@ -13,6 +13,10 @@ from matplotlib import pyplot as plt
 
 from robust_hermite_ft import hermite_function_basis
 
+plt.style.use(
+    os.path.join(os.path.dirname(__file__), "../docs/robust_hermite_ft.mplstyle")
+)
+
 # === Constants ===
 
 # the x-values to evaluate the Hermite functions
@@ -27,21 +31,17 @@ ORDERS = [100, 200, 300, 500, 1_000, 2_000]
 COLORS = ["red", "#FF8000", "#00CCCC", "blue", "purple", "#FF007F"]
 SPECIAL_COLOR = "#00CC00"
 # the offset between the individual Hermite functions
-OFFSET = -0.75
+OFFSET = -0.5
 
-# the path where to store the plot and its resolution
-PLOT_FILEPATH = "../docs/hermite_functions/DilatedHermiteFunctions_Stability.png"
-SPECIAL_PLOT_FILEPATH = (
-    "../docs/hermite_functions/DilatedHermiteFunctions_Stability_Special.png"
-)
-DPI = 300
+# the path where to store the plot (only for developers)
+PLOT_FILEPATH = "../docs/hermite_functions/02-DilatedHermiteFunctions_Stability.png"
 
 # === Main ===
 
 if __name__ == "__main__":
 
     fig, ax = plt.subplots(
-        figsize=(12, 6),
+        figsize=(12, 8),
     )
 
     # all Hermite basis functions are evaluated ...
@@ -54,54 +54,48 @@ if __name__ == "__main__":
     )
 
     # ... and the individual Hermite functions of interest are plotted
+    ax.axvline(
+        x=0.0,
+        color="black",
+        linewidth=0.5,
+        zorder=2,
+    )
+
     for idx_order, order in enumerate(ORDERS):
         ax.axhline(
             y=idx_order * OFFSET,
             color="black",
             linewidth=0.5,
-            zorder=idx_order * 2,
+            zorder=2 + idx_order * 2,
         )
         ax.plot(
             x_values,
             hermite_basis[::, order] + idx_order * OFFSET,
             label=f"n={order}",
             color=COLORS[idx_order],
-            zorder=2 * idx_order + 1,
+            zorder=2 + 2 * idx_order + 1,
         )
 
     # the title, grid, labels, and ticks are set
-    ax.set_title(
-        r"Dilated Hermite Functions $\psi_{n}^{\left(\alpha\right)}\left(x\right)$",
-        fontsize=16,
-    )
-    ax.set_xlabel(
-        r"$x$",
-        fontsize=16,
-        labelpad=10,
-    )
-    ax.set_ylabel(
-        r"$\psi_{n}^{\left(\alpha\right)}\left(x\right)$",
-        fontsize=16,
-        labelpad=10,
-    )
-    ax.tick_params(axis="both", which="major", labelsize=14)
-    ax.grid(which="major", axis="both")
+    psi_label = r"$\psi_{n}^{\left(" + f"{ALPHA:.0f}; 0" + r"\right)}\left(x\right)$"
+    ax.set_title("Numerical Stability of the Dilated Hermite Functions " + psi_label)
+    ax.set_xlabel(r"$x$")
+    ax.set_ylabel(psi_label)
     ax.set_xlim(X_FROM, X_TO)
 
     # finally, a legend is added
     ax.legend(
         ncol=2,
-        loc="upper left",
-        fontsize=14,
-        frameon=False,
+        loc=8,
+        bbox_to_anchor=(0.175, 0.81),
     )
 
     # the plot is saved
-    plt.savefig(
-        os.path.join(os.path.dirname(__file__), PLOT_FILEPATH),
-        dpi=DPI,
-        bbox_inches="tight",
-    )
+    if os.getenv("ROBHERMFT_DEVELOPER", "false").lower() == "true":
+        plt.savefig(
+            os.path.join(os.path.dirname(__file__), PLOT_FILEPATH),
+            bbox_inches="tight",
+        )
 
     # the plot is shown
     plt.show()
