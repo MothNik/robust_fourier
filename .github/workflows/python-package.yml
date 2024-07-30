@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 13-implement-robust-regression-ft
   pull_request:
     branches:
       - main
@@ -30,31 +31,66 @@ jobs:
 
       - name: Run format check
         run: |
-          black --check --diff --color ./examples ./src ./tests
+          BLACK_OUTPUT=$(black --check --diff --color ./auxiliary_scripts ./examples ./src ./tests)
+          echo "$BLACK_OUTPUT"
+          if echo "$BLACK_OUTPUT" | grep -q "Oh no!"; then
+            echo "Black check failed"
+            exit 1
+          fi
 
       - name: Run import sort check
         run: |
-          isort --check --diff --color ./examples ./src ./tests
+          ISORT_OUTPUT=$(isort --check --diff --color ./auxiliary_scripts ./examples ./src ./tests)
+          if [ -n "$ISORT_OUTPUT" ]; then
+            echo "$ISORT_OUTPUT"
+            echo "Isort check failed"
+            exit 1
+          fi
 
       - name: Run pyright static type check
         run: |
-         pyright ./examples ./src ./tests
+          PYRIGHT_OUTPUT=$(pyright ./auxiliary_scripts ./examples ./src ./tests)
+           echo "$PYRIGHT_OUTPUT"
+           if ! echo "$PYRIGHT_OUTPUT" | grep -q "0 errors"; then
+             echo "Pyright check failed"
+             exit 1
+           fi
 
       - name: Run mypy static type check
         run: |
-          mypy ./examples ./src ./tests
+          MYPY_OUTPUT=$(mypy ./auxiliary_scripts ./examples ./src ./tests)
+          echo "$MYPY_OUTPUT"
+          if ! echo "$MYPY_OUTPUT" | grep -q "Success"; then
+            echo "Mypy check failed"
+            exit 1
+          fi
 
       - name: Run ruff lint check
         run: |
-          ruff check ./examples ./src ./tests
+          RUFF_OUTPUT=$(ruff check ./auxiliary_scripts ./examples ./src ./tests)
+          echo "$RUFF_OUTPUT"
+          if ! echo "$RUFF_OUTPUT" | grep -q "All checks passed!"; then
+            echo "Ruff check failed"
+            exit 1
+          fi
 
       - name: Run pycodestyle check
         run: |
-          pycodestyle ./examples ./src ./tests --max-line-length=88
+          PYCODESTYLE_OUTPUT=$(pycodestyle ./auxiliary_scripts ./examples ./src ./tests --max-line-length=88)
+          echo "$PYCODESTYLE_OUTPUT"
+          if [ -n "$PYCODESTYLE_OUTPUT" ]; then
+            echo "Pycodestyle check failed"
+            exit 1
+          fi
 
       - name: Run Cython check
         run: |
-          cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
+          CYTHON_LINT_OUTPUT=$(cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx)
+          echo "$CYTHON_LINT_OUTPUT"
+          if [ -n "$CYTHON_LINT_OUTPUT" ]; then
+            echo "Cython lint check failed"
+            exit 1
+          fi
 
       - name: Run tests
         run: |

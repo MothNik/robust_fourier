@@ -23,9 +23,9 @@ NOTE: THIS SCRIPT CAN ONLY BE RUN IF THE DEVELOPER MODE IS ENABLED BY SETTING TH
 
 # === Imports ===
 
+import subprocess
 import json
 import os
-import subprocess
 from math import sqrt as pysqrt
 
 import numpy as np
@@ -90,7 +90,7 @@ HERMITE_LARGEST_EXTREMA_SPLINE_TCK = (
     {degree},
 )
 
-"""  # noqa: E501
+"""
 
 # whether to overwrite the spline coefficients file
 OVERWRITE_SPLINE_SPECS = True
@@ -176,9 +176,7 @@ def find_hermite_functions_largest_extremum_x(n: int) -> float:
     # NOTE: the fadeout point is way too conservative and therefore the bracketing is
     #       done with a smaller range
     x_values_initial = np.linspace(
-        start=x_largest_zero,
-        stop=x_largest_zero + 0.2 * (x_fadeout - x_largest_zero),
-        num=NUM_EVAL,
+        start=x_largest_zero, stop=x_largest_zero + 0.2 * (x_fadeout - x_largest_zero), num=NUM_EVAL,
     )
     hermite_derivative_values = _hermite_func_first_derivative(
         x=x_values_initial,
@@ -288,6 +286,8 @@ if (
     max_abs_rel_error = np.inf
     s_value = 1e-10
     weights = np.reciprocal(outerm_extremum_x_positions)  # all > 0
+    # tck = None
+    # outerm_extremum_x_positions_approx = None
     while max_abs_rel_error > X_MAX_RTOL and s_value > 1e-30:
         tck = splrep(
             x=orders,
@@ -296,13 +296,16 @@ if (
             k=SPLINE_DEGREE,
             s=s_value,
         )
-        outerm_extremum_positions_approx = splev(x=orders, tck=tck)
+        outerm_extremum_x_positions_approx = splev(x=orders, tck=tck)
 
         max_abs_error = np.abs(
-            (outerm_extremum_x_positions - outerm_extremum_positions_approx) * weights
+            (outerm_extremum_x_positions - outerm_extremum_x_positions_approx) * weights
         ).max()
         s_value /= 10.0**0.25
 
+    assert (
+        tck is not None and outerm_extremum_x_positions_approx is not None
+    ), "No spline was fitted, please re-adjust the tolerances and smoothing values."
     print(
         f"\nFinal number of spline knots: {len(tck[0])} for smoothing value "
         f"{s_value=:.2e}"
@@ -347,7 +350,7 @@ if (
     )
     ax[0].plot(  # type: ignore
         orders,
-        outerm_extremum_positions_approx,
+        outerm_extremum_x_positions_approx,
         color="#00CCCC",
         label="Spline Approximation",
     )
@@ -357,7 +360,7 @@ if (
         orders,
         100.0
         * weights
-        * (outerm_extremum_x_positions - outerm_extremum_positions_approx),
+        * (outerm_extremum_x_positions - outerm_extremum_x_positions_approx),
         color="#00CCCC",
         zorder=2,
         label="Difference",

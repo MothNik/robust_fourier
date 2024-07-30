@@ -168,6 +168,8 @@ if (
     max_abs_rel_error = np.inf
     s_value = 1e-10
     weights = np.reciprocal(outerm_root_x_positions)  # all > 0
+    tck = None
+    outerm_root_x_positions_approx = None
     while max_abs_rel_error > X_MAX_RTOL and s_value > 1e-30:
         tck = splrep(
             x=orders,
@@ -183,6 +185,9 @@ if (
         ).max()
         s_value /= 10.0**0.25
 
+    assert (
+        tck is not None and outerm_root_x_positions_approx is not None
+    ), "No spline was fitted, please re-adjust the tolerances and smoothing values."
     print(
         f"\nFinal number of spline knots: {len(tck[0])} for smoothing value "
         f"{s_value=:.2e}"
