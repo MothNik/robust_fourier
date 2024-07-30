@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - 14-add-makefile
   pull_request:
     branches:
       - main

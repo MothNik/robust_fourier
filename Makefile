@@ -12,6 +12,11 @@ upgrade-pip:
 	python -m pip install --upgrade pip setuptools wheel
 
 # Installing the required dependencies and building the package
+.PHONY: install
+install: upgrade-pip
+	@echo Installing the required dependencies and building the package ...
+	python -m pip install --upgrade .
+
 .PHONY: install-dev
 install-dev: upgrade-pip
 	@echo Installing the required dependencies and building the package ...

@@ -27,18 +27,24 @@ Currently, the package is not yet available on PyPI. To install it, you can clon
 git clone https://github.com/MothNik/robust_hermite_ft.git
 ```
 
-and from within the repositories root directory, install it for normal use
+For the following commands, a Makefile is provided to simplify the process. Its use is
+optional, but recommended.<br>
+From within the repositories root directory, the package can be installed for normal use
 
 ```bash
 # activate your virtual environment, e.g., source venv/bin/activate
-pip install .
+make install
+# equivalent to
+pip install --upgrade .
 ```
 
-or for development with all the development dependencies
+or for development (with all the development dependencies)
 
 ```bash
 # activate your virtual environment, e.g., source venv/bin/activate
-pip install .["dev"]
+make install-dev
+# equivalent to
+pip install --upgrade .["dev"]
 ```
 
 ⚠️ **Warning**: This will require a C-compiler to be installed on your system to
@@ -57,6 +63,15 @@ The following checks for `black`, `isort`, `pyright`, `ruff`, and
 `cython-lint` - that are also part of the CI pipeline - can be run with
 
 ```bash
+make black-check
+make isort-check
+make mypy-check
+make pyright-check
+make pycodestyle-check
+make ruff-check
+make cython-check
+
+# equivalent to
 black --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
 isort --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
 pyright ./auxiliary_scripts ./examples ./src ./tests
@@ -71,13 +86,16 @@ cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
 To run the tests - almost like in the CI pipeline - you can use
 
 ```bash
+make test-xml  # for an XML report
+make test-html  # for an HTML report
+
+# equivalent to
 pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=xml -x --no-jit
-# or for a nice HTML coverage report
-# pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=html -x --no-jit
+pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=html -x --no-jit
 ```
 
-for parallelized testing whose coverage report will be stored in the folder
-`./htmlcov`.
+for parallelized testing whose coverage report will be stored in the file
+``./coverage.xml`` or in the folder ``./htmlcov``, respectively.
 
 ## 〰️ Hermite functions
 
