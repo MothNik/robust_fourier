@@ -23,9 +23,9 @@ NOTE: THIS SCRIPT CAN ONLY BE RUN IF THE DEVELOPER MODE IS ENABLED BY SETTING TH
 
 # === Imports ===
 
-import subprocess
 import json
 import os
+import subprocess
 from math import sqrt as pysqrt
 
 import numpy as np
@@ -288,8 +288,8 @@ if (
     max_abs_rel_error = np.inf
     s_value = 1e-10
     weights = np.reciprocal(outerm_extremum_x_positions)  # all > 0
-    tck = None
-    outerm_extremum_x_positions_approx = None
+    # tck = None
+    # outerm_extremum_x_positions_approx = None
     while max_abs_rel_error > X_MAX_RTOL and s_value > 1e-30:
         tck = splrep(
             x=orders,
@@ -392,7 +392,7 @@ if (
         zorder=3,
     )
 
-    ax[0].set_ylabel("Largest Extremum Position")  # type: ignore
+    ax[0].set_ylabel("Largest Extremum Position")
     ax[1].set_ylabel(r"Approximation Error $\left(\%\right)$")  # type: ignore
     ax[1].set_xlabel("Hermite Function Order")  # type: ignore
 
