@@ -35,12 +35,7 @@ jobs:
 
       - name: Run import sort check
         run: |
-          ISORT_OUTPUT=$(isort --check --diff --color ./auxiliary_scripts ./examples ./src ./tests)
-          if [ -n "$ISORT_OUTPUT" ]; then
-            echo "$ISORT_OUTPUT"
-            echo "Isort check failed"
-            exit 1
-          fi
+          isort --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
 
       - name: Run pyright static type check
         run: |
