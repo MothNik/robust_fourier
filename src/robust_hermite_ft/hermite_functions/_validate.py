@@ -74,6 +74,12 @@ def _get_validated_x_values(x: Union[RealScalar, ArrayLike]) -> np.ndarray:
             f"Expected 'x' to be 1-dimensional but it is {x_internal.ndim}-dimensional."
         )
 
+    if x_internal.size < 1:
+        raise ValueError(
+            f"Expected 'x' to have at least one element but got {x_internal.size} "
+            "elements."
+        )
+
     return x_internal
 
 

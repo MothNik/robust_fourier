@@ -103,6 +103,7 @@ def hermite_function_basis(
     x : :class:`float` or :class:`int` or Array-like of shape (m,)
         The points at which the dilated Hermite functions are evaluated.
         Internally, it will be promoted to ``np.float64``.
+        It has to contain at least one element.
     n : :class:`int`
         The order of the dilated Hermite functions.
         It must be a non-negative integer ``>= 0``.
@@ -216,6 +217,7 @@ def slow_hermite_function_basis(
     x : :class:`float` or :class:`int` or Array-like of shape (m,)
         The points at which the dilated Hermite functions are evaluated.
         Internally, it will be promoted to ``np.float64``.
+        It has to contain at least one element.
     n : :class:`int`
         The order of the dilated Hermite functions.
         It must be a non-negative integer ``>= 0``.
@@ -321,6 +323,7 @@ def single_hermite_function(
     x : :class:`float` or :class:`int` or Array-like of shape (m,)
         The points at which the dilated Hermite function is evaluated.
         Internally, it will be promoted to ``np.float64``.
+        It has to contain at least one element.
     n : :class:`int`
         The order of the dilated Hermite function.
         It must be a non-negative integer ``>= 0``.
