@@ -16,7 +16,7 @@ from math import sqrt as pysqrt
 from typing import Optional, Union
 
 import numpy as np
-from numpy.typing import ArrayLike
+from numpy.typing import ArrayLike, NDArray
 
 from .._utils import _get_num_workers
 from ._numba_funcs import nb_hermite_function_basis as _nb_hermite_function_basis
@@ -58,10 +58,10 @@ def _is_data_linked(
 
 
 def _center_x_values(
-    x_internal: np.ndarray,
+    x_internal: NDArray[np.float64],
     x: Union[float, int, ArrayLike],
     x_center: Optional[float],
-) -> np.ndarray:
+) -> NDArray[np.float64]:
     """
     Centers the given x-values around the given center value by handling potential
     copies and the special case where the center is the origin (0).
@@ -91,7 +91,7 @@ def hermite_function_basis(
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
     workers: int = 1,
-) -> np.ndarray:
+) -> NDArray[np.float64]:
     """
     Computes the basis of dilated Hermite functions up to order ``n`` for the given
     points ``x``. It makes use of a recursion formula to compute all Hermite basis
@@ -125,7 +125,7 @@ def hermite_function_basis(
 
     Returns
     -------
-    hermite_function_basis : :class:`numpy.ndarray` of shape (m, n + 1)
+    hermite_function_basis : :class:`numpy.ndarray` of shape (m, n + 1) of dtype ``np.float64``
         The values of the dilated Hermite functions at the points ``x``.
         It will always be 2D even if ``x`` is a scalar.
 
@@ -203,7 +203,7 @@ def slow_hermite_function_basis(
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
     jit: bool = False,
-) -> np.ndarray:
+) -> NDArray[np.float64]:
     """
     DEPRECATED: ONLY KEPT FOR COMPARISON PURPOSES
 
@@ -235,7 +235,7 @@ def slow_hermite_function_basis(
 
     Returns
     -------
-    hermite_function_basis : :class:`numpy.ndarray` of shape (m, n + 1)
+    hermite_function_basis : :class:`numpy.ndarray` of shape (m, n + 1) of dtype ``np.float64``
         The values of the dilated Hermite functions at the points ``x``.
         It will always be 2D even if ``x`` is a scalar.
 
@@ -310,7 +310,7 @@ def single_hermite_function(
     n: int,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
-) -> np.ndarray:
+) -> NDArray[np.float64]:
     """
     Computes a single dilated Hermite function of order ``n`` for the given points
     ``x``. It offers a fast alternative for the computation of only a single high order
@@ -335,7 +335,7 @@ def single_hermite_function(
 
     Returns
     -------
-    hermite_function : :class:`numpy.ndarray` of shape (m,)
+    hermite_function : :class:`numpy.ndarray` of shape (m,) of dtype ``np.float64``
         The values of the dilated Hermite function at the points ``x``.
         It will always be 1D even if ``x`` is a scalar.
 
