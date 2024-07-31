@@ -44,13 +44,13 @@ isort-check:
 # pyright static type checking
 .PHONY: pyright-check
 pyright-check:
-	@echo Checking static types with 'pyright' ...
+	@echo Checking types statically with 'pyright' ...
 	pyright $(SRC_DIRS)
 
 # mypy static type checking
 .PHONY: mypy-check
 mypy-check:
-	@echo Checking static types with 'mypy' ...
+	@echo Checking types statically with 'mypy' ...
 	mypy $(SRC_DIRS)
 
 # pycodestyle style checking
@@ -70,6 +70,10 @@ ruff-check:
 cython-check:
 	@echo Checking Cython code with 'cython-lint' ...
 	cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
+
+# All checks combined
+.PHONY: check
+check: black-check isort-check pyright-check mypy-check pycodestyle-check ruff-check cython-check
 
 # === Test Commands ===
 
