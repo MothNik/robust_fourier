@@ -19,9 +19,12 @@ from numpy.typing import ArrayLike
 
 # === Types ===
 
-# a float or integer
+# a Python or NumPy float or integer
 RealScalar = Union[float, int, np.floating, np.integer]
 _real_scalar_types_no_pyfloat = (int, np.floating, np.integer)
+
+# a Python or NumPy integer
+IntScalar = Union[int, np.integer]
 
 # === Constants ===
 
@@ -83,7 +86,7 @@ def _get_validated_x_values(x: Union[RealScalar, ArrayLike]) -> np.ndarray:
     return x_internal
 
 
-def _get_validated_order(n: Union[int, np.integer]) -> int:
+def _get_validated_order(n: IntScalar) -> int:
     """
     Validates the input for the order of the Hermite function and returns the validated
     input.
@@ -148,7 +151,7 @@ def _get_validated_x_center(x_center: Optional[RealScalar]) -> Optional[float]:
 
 def _get_validated_hermite_function_input(
     x: Union[RealScalar, ArrayLike],
-    n: int,
+    n: IntScalar,
     alpha: RealScalar,
     x_center: Optional[RealScalar],
 ) -> Tuple[np.ndarray, int, float, Optional[float]]:

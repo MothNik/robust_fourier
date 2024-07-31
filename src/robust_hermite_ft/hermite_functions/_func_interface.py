@@ -22,7 +22,12 @@ from .._utils import _get_num_workers
 from ._numba_funcs import nb_hermite_function_basis as _nb_hermite_function_basis
 from ._numpy_funcs import _hermite_function_basis as _np_hermite_function_basis
 from ._numpy_funcs import _single_hermite_function as _np_single_hermite_function
-from ._validate import RealScalar, _get_validated_hermite_function_input
+from ._validate import (
+    RealScalar,
+    IntScalar,
+    _get_validated_hermite_function_input,
+    _get_validated_x_values,
+)
 
 from ._c_hermite import (  # pyright: ignore[reportMissingImports]; fmt: skip; isort: skip   # noqa: E501
     hermite_function_basis as _c_hermite_function_basis,
@@ -87,10 +92,11 @@ def _center_x_values(
 
 def hermite_function_basis(
     x: Union[RealScalar, ArrayLike],
-    n: int,
+    n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
     workers: int = 1,
+    validate_parameters: bool = True,
 ) -> NDArray[np.float64]:
     """
     Computes the basis of dilated Hermite functions up to order ``n`` for the given
@@ -123,6 +129,11 @@ def hermite_function_basis(
         threads available in the whole system).
         Values that exceed the number of available threads are silently clipped to the
         maximum number available.
+    validate_parameters : :class:`bool`, default=``True``
+        Whether to validate all the input parameters (``True``) or only ``x``
+        (``False``).
+        Disabling the input checks is not recommended and was only implemented for
+        internal use.
 
     Returns
     -------
@@ -165,17 +176,21 @@ def hermite_function_basis(
 
     # --- Input validation ---
 
-    (
-        x_internal,
-        n,
-        alpha,
-        x_center,
-    ) = _get_validated_hermite_function_input(
-        x=x,
-        n=n,
-        alpha=alpha,
-        x_center=x_center,
-    )
+    if validate_parameters:
+        (
+            x_internal,
+            n,
+            alpha,
+            x_center,
+        ) = _get_validated_hermite_function_input(
+            x=x,
+            n=n,
+            alpha=alpha,
+            x_center=x_center,
+        )
+
+    else:
+        x_internal = _get_validated_x_values(x=x)
 
     # the number of workers is determined
     workers = _get_num_workers(workers)
@@ -186,7 +201,7 @@ def hermite_function_basis(
     x_internal = _center_x_values(
         x_internal=x_internal,
         x=x,
-        x_center=x_center,
+        x_center=x_center,  # type: ignore
     )
 
     # the computation is done in serial and parallel fashion using the
@@ -200,10 +215,11 @@ def hermite_function_basis(
 
 def slow_hermite_function_basis(
     x: Union[RealScalar, ArrayLike],
-    n: int,
+    n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
     jit: bool = False,
+    validate_parameters: bool = True,
 ) -> NDArray[np.float64]:
     """
     DEPRECATED: ONLY KEPT FOR COMPARISON PURPOSES
@@ -234,6 +250,11 @@ def slow_hermite_function_basis(
         NumPy-based implementation (``False``).
         If Numba is not available, the function silently falls back to the NumPy-based
         implementation.
+    validate_parameters : :class:`bool`, default=``True``
+        Whether to validate all the input parameters (``True``) or only ``x``
+        (``False``).
+        Disabling the input checks is not recommended and was only implemented for
+        internal use.
 
     Returns
     -------
@@ -276,17 +297,21 @@ def slow_hermite_function_basis(
 
     # --- Input validation ---
 
-    (
-        x_internal,
-        n,
-        alpha,
-        x_center,
-    ) = _get_validated_hermite_function_input(
-        x=x,
-        n=n,
-        alpha=alpha,
-        x_center=x_center,
-    )
+    if validate_parameters:
+        (
+            x_internal,
+            n,
+            alpha,
+            x_center,
+        ) = _get_validated_hermite_function_input(
+            x=x,
+            n=n,
+            alpha=alpha,
+            x_center=x_center,
+        )
+
+    else:
+        x_internal = _get_validated_x_values(x=x)
 
     # --- Computation ---
 
@@ -297,7 +322,7 @@ def slow_hermite_function_basis(
     x_internal = _center_x_values(
         x_internal=x_internal,
         x=x,
-        x_center=x_center,
+        x_center=x_center,  # type: ignore
     )
 
     func = _nb_hermite_function_basis if jit else _np_hermite_function_basis
@@ -309,9 +334,10 @@ def slow_hermite_function_basis(
 
 def single_hermite_function(
     x: Union[RealScalar, ArrayLike],
-    n: int,
+    n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
+    validate_parameters: bool = True,
 ) -> NDArray[np.float64]:
     """
     Computes a single dilated Hermite function of order ``n`` for the given points
@@ -335,6 +361,11 @@ def single_hermite_function(
         The center of the dilated Hermite function.
         If ``None`` or ``0``, the function is centered at the origin.
         Otherwise, the center is shifted to the given value.
+    validate_parameters : :class:`bool`, default=``True``
+        Whether to validate all the input parameters (``True``) or only ``x``
+        (``False``).
+        Disabling the input checks is not recommended and was only implemented for
+        internal use.
 
     Returns
     -------
@@ -377,17 +408,21 @@ def single_hermite_function(
 
     # --- Input validation ---
 
-    (
-        x_internal,
-        n,
-        alpha,
-        x_center,
-    ) = _get_validated_hermite_function_input(
-        x=x,
-        n=n,
-        alpha=alpha,
-        x_center=x_center,
-    )
+    if validate_parameters:
+        (
+            x_internal,
+            n,
+            alpha,
+            x_center,
+        ) = _get_validated_hermite_function_input(
+            x=x,
+            n=n,
+            alpha=alpha,
+            x_center=x_center,
+        )
+
+    else:
+        x_internal = _get_validated_x_values(x=x)
 
     # --- Computation ---
 
@@ -395,10 +430,10 @@ def single_hermite_function(
     x_internal = _center_x_values(
         x_internal=x_internal,
         x=x,
-        x_center=x_center,
+        x_center=x_center,  # type: ignore
     )
 
     return pysqrt(alpha) * _np_single_hermite_function(
         x=alpha * x_internal,
-        n=n,
+        n=n,  # type: ignore
     )
