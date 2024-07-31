@@ -71,6 +71,9 @@ make pycodestyle-check
 make ruff-check
 make cython-check
 
+# or for all at once
+make check
+
 # equivalent to
 black --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
 isort --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
