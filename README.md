@@ -89,8 +89,8 @@ cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
 To run the tests - almost like in the CI pipeline - you can use
 
 ```bash
-make test-xml  # for an XML report
-make test-html  # for an HTML report
+make test-xmlcov  # for an XML report
+make test-htmlcov  # for an HTML report
 
 # equivalent to
 pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=xml -x --no-jit

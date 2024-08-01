@@ -19,7 +19,7 @@ install: upgrade-pip
 
 .PHONY: install-dev
 install-dev: upgrade-pip
-	@echo Installing the required dependencies and building the package ...
+	@echo Installing the required dependencies and building the package for development ...
 	python -m pip install --upgrade .["dev"]
 
 .PHONY: install-ci
@@ -81,15 +81,15 @@ check: black-check isort-check pyright-check mypy-check pycodestyle-check ruff-c
 .PHONY: test
 test:
 	@echo Running specific test with pytest ...
-	pytest -k "$(TEST)"
+	pytest -k "$(TEST)" -x
 
 # Running the tests
-.PHONY: test-html
-test-html:
-	@echo Running the tests ...
+.PHONY: test-htmlcov
+test-htmlcov:
+	@echo Running the tests with HTML coverage report ...
 	pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=html -x --no-jit
 
-.PHONY: test-xml
-test-xml:
-	@echo Running the tests ...
+.PHONY: test-xmlcov
+test-xmlcov:
+	@echo Running the tests with XML coverage report ...
 	pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=xml -x --no-jit
