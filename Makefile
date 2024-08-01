@@ -77,6 +77,12 @@ check: black-check isort-check pyright-check mypy-check pycodestyle-check ruff-c
 
 # === Test Commands ===
 
+# Running a single test
+.PHONY: test
+test:
+	@echo Running specific test with pytest ...
+	pytest -k "$(TEST)"
+
 # Running the tests
 .PHONY: test-html
 test-html:

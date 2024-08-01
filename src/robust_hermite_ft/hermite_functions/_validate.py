@@ -128,7 +128,7 @@ def _get_validated_alpha(alpha: RealScalar) -> float:
     return alpha
 
 
-def _get_validated_x_center(x_center: Optional[RealScalar]) -> Optional[float]:
+def _get_validated_x_center(x_center: Optional[RealScalar]) -> float:
     """
     Validates the input for the center of the Hermite function and returns the validated
     input.
@@ -146,6 +146,9 @@ def _get_validated_x_center(x_center: Optional[RealScalar]) -> Optional[float]:
                 f"{type(x_center)}."
             )
 
+    else:
+        x_center = 0.0
+
     return x_center
 
 
@@ -154,7 +157,7 @@ def _get_validated_hermite_function_input(
     n: IntScalar,
     alpha: RealScalar,
     x_center: Optional[RealScalar],
-) -> Tuple[np.ndarray, int, float, Optional[float]]:
+) -> Tuple[np.ndarray, int, float, float]:
     """
     Validates the input for the Hermite functions and returns the validated input.
 

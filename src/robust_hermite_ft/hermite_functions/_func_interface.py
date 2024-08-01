@@ -23,8 +23,8 @@ from ._numba_funcs import nb_hermite_function_basis as _nb_hermite_function_basi
 from ._numpy_funcs import _hermite_function_basis as _np_hermite_function_basis
 from ._numpy_funcs import _single_hermite_function as _np_single_hermite_function
 from ._validate import (
-    RealScalar,
     IntScalar,
+    RealScalar,
     _get_validated_hermite_function_input,
     _get_validated_x_values,
 )
@@ -65,7 +65,7 @@ def _is_data_linked(
 def _center_x_values(
     x_internal: NDArray[np.float64],
     x: Union[float, int, ArrayLike],
-    x_center: Optional[float],
+    x_center: float,
 ) -> NDArray[np.float64]:
     """
     Centers the given x-values around the given center value by handling potential
