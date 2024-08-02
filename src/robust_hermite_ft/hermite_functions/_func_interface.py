@@ -74,7 +74,7 @@ def _center_x_values(
     """
 
     # when the x-values are centered around the origin, the x-values are not modified
-    if x_center is None or x_center == 0.0:
+    if x_center == 0.0:
         return x_internal
 
     # if x is a view of the original x-Array, a copy is made to avoid modifying
@@ -310,7 +310,7 @@ def slow_hermite_function_basis(
             x_center=x_center,
         )
 
-    else:
+    else:  # pragma: no cover
         x_internal = _get_validated_x_values(x=x)
 
     # --- Computation ---
@@ -421,7 +421,7 @@ def single_hermite_function(
             x_center=x_center,
         )
 
-    else:
+    else:  # pragma: no cover
         x_internal = _get_validated_x_values(x=x)
 
     # --- Computation ---

@@ -15,7 +15,7 @@ namely
 
 from math import log as pylog
 from math import sqrt as pysqrt
-from typing import Optional, Union
+from typing import Optional
 
 import numpy as np
 from scipy.interpolate import splev
@@ -29,6 +29,8 @@ from ._hermite_largest_roots_spline import (
     HERMITE_LARGEST_ZEROS_SPLINE_TCK,
 )
 from ._validate import (
+    IntScalar,
+    RealScalar,
     _get_validated_alpha,
     _get_validated_order,
     _get_validated_x_center,
@@ -45,7 +47,7 @@ _LOG_DOUBLE_EPS = pylog(np.finfo(np.float64).eps)
 def _apply_centering_and_scaling(
     values: np.ndarray,
     alpha: float,
-    x_center: Optional[float],
+    x_center: float,
 ) -> np.ndarray:
     """
     Applies centering and scaling to the given values.
@@ -57,7 +59,7 @@ def _apply_centering_and_scaling(
         values /= alpha
 
     # the centering is applied (if required)
-    if x_center is not None and x_center != 0.0:
+    if x_center != 0.0:
         values += x_center
 
     return values
@@ -67,9 +69,9 @@ def _apply_centering_and_scaling(
 
 
 def hermite_funcs_largest_zeros_x(
-    n: int,
-    alpha: Union[float, int] = 1.0,
-    x_center: Union[float, int, None] = None,
+    n: IntScalar,
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
 ) -> np.ndarray:
     """
     Approximates the x-position of the largest zero (= outermost root) of the Hermite
@@ -164,9 +166,9 @@ def hermite_funcs_largest_zeros_x(
 
 
 def hermite_funcs_largest_extrema_x(
-    n: int,
-    alpha: Union[float, int] = 1.0,
-    x_center: Union[float, int, None] = None,
+    n: IntScalar,
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
 ) -> np.ndarray:
     """
     Approximates the x-position of the maximum of the Hermite functions in their
@@ -254,9 +256,9 @@ def hermite_funcs_largest_extrema_x(
 
 
 def hermite_funcs_fadeout_x(
-    n: int,
-    alpha: Union[float, int] = 1.0,
-    x_center: Union[float, int, None] = None,
+    n: IntScalar,
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
 ) -> np.ndarray:
     """
     Approximates the x-position at which the outermost tail of the dilated Hermite
