@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 from scipy.optimize import minimize_scalar
 
-from robust_hermite_ft.hermite_functions import (
+from robust_hermite_ft import (
     approximate_hermite_funcs_fadeout_x,
     approximate_hermite_funcs_largest_extrema_x,
     approximate_hermite_funcs_largest_zeros_x,

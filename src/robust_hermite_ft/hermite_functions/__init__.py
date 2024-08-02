@@ -30,6 +30,7 @@ from ._approximations import (  # noqa: F401
 from ._approximations import (  # noqa: F401
     hermite_funcs_largest_zeros_x as approximate_hermite_funcs_largest_zeros_x,
 )
+from ._class_interface import HermiteFunctionBasis  # noqa: F401
 from ._func_interface import (  # noqa: F401
     hermite_function_basis,
     single_hermite_function,
