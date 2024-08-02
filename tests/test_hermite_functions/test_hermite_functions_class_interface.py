@@ -6,11 +6,11 @@ This test suite implements the tests for the module :mod:`hermite_functions._cla
 # === Imports ===
 
 from dataclasses import dataclass
-from typing import Any, List, Literal, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Type, Union
 
 import numpy as np
 import pytest
-from numpy.typing import ArrayLike
+from numpy.typing import ArrayLike, NDArray
 
 from robust_hermite_ft import HermiteFunctionBasis, approximate_hermite_funcs_fadeout_x
 from robust_hermite_ft.fourier_transform import (
@@ -24,12 +24,23 @@ from robust_hermite_ft.hermite_functions._class_interface import (
     _get_validated_time_space_symmetry,
 )
 
+# === Types ===
+
+# the methods for the Hermite function computations of the class for the tests
+HermiteFunctionMethod = Literal["__call__", "eval"]
+
 # === Constants ===
 
 # the common scaling factors alpha for the tests
 ALPHA_VALUES = [0.5, 1.0, 2.0]
 # the common time/space x-centers for the tests
 TIME_SPACE_X_CENTER_VALUES = [-10.0, 0.0, None, 10.0]
+# the common methods for the Hermite function computations by the class for the tests
+HERMITE_FUNCTION_COMPUTATION_METHODS = [
+    "__call__",  # calling the instance directly
+    "eval",  # calling the static method ``eval``
+]
+
 # the orders n for the Hermite functions for the Fourier transform tests
 # NOTE: it's important that at least one even and one odd order is included
 FOURIER_TRANSFORM_TEST_ORDERS = [100, 101, 102]
@@ -55,8 +66,8 @@ assert any(
 @dataclass
 class HermiteOutputFormat:
     """
-    Defines the format of the output of the ``__call__`` method of the class
-    :class:`HermiteFunctionBasis` for both the time/space and frequency domain.
+    Defines the format of the output of the ``__call__``  or ``eval`` method of the
+    class :class:`HermiteFunctionBasis` for both the time/space and frequency domain.
 
     """
 
@@ -72,8 +83,8 @@ class HermiteOutputFormat:
 @dataclass
 class HermiteFunctionOutputFormatTestSpecs:
     """
-    Defines the test specifications for the output format of the ``__call__`` method of
-    the class :class:`HermiteFunctionBasis`.
+    Defines the test specifications for the output format of the ``__call__`` or
+    ``eval`` method of the class :class:`HermiteFunctionBasis`.
 
     """
 
@@ -88,6 +99,46 @@ class HermiteFunctionOutputFormatTestSpecs:
 
     # the expected output format
     expected_output_format: HermiteOutputFormat
+
+
+# === Auxiliary Functions ===
+
+
+def setup_hermite_basis_evaluator(
+    method: HermiteFunctionMethod,
+    n: int,
+    alpha: float,
+    time_space_x_center: Optional[float],
+    time_space_symmetry: Optional[Literal["none", "even", "odd"]],
+) -> Tuple[Callable[..., NDArray[Union[np.float64, np.complex128]]], Dict[str, Any]]:
+    """
+    Sets up the Hermite function evaluator function and its keyword arguments based on
+    the given method.
+
+    """
+
+    if method == "__call__":
+        hermite_basis = HermiteFunctionBasis(
+            n=n,
+            alpha=alpha,
+            time_space_x_center=time_space_x_center,
+            time_space_symmetry=time_space_symmetry,
+        )
+        kwargs: Dict[str, Any] = dict()
+
+        return hermite_basis.__call__, kwargs
+
+    if method == "eval":
+        kwargs = dict(
+            n=n,
+            alpha=alpha,
+            time_space_x_center=time_space_x_center,
+            time_space_symmetry=time_space_symmetry,
+        )
+
+        return HermiteFunctionBasis.eval, kwargs
+
+    raise ValueError(f"Unknown method '{method}'.")
 
 
 # === Tests ===
@@ -310,30 +361,49 @@ def test_hermite_function_class_raises_error_when_no_available_functions(
     return
 
 
-def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call() -> None:
+@pytest.mark.parametrize("method", HERMITE_FUNCTION_COMPUTATION_METHODS)
+def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
+    method: HermiteFunctionMethod,
+) -> None:
     """
     This test checks whether the class :class:`HermiteFunctionBasis` raises an error
     when either both ``x`` and ``omega`` or neither of them are provided for the
-    ``__call__`` method.
+    ``__call__`` or ``eval`` method.
 
     """
 
     reference_exception = ValueError(
         "Either 'x' or 'omega' must be given but not both or none of them."
     )
-    hermite_basis = HermiteFunctionBasis(n=1, alpha=1.0)
+    # the Hermite function evaluator is set up
+    hermite_basis_evaluator, kwargs = setup_hermite_basis_evaluator(
+        method=method,
+        n=1,
+        alpha=1.0,
+        time_space_x_center=None,
+        time_space_symmetry=None,
+    )
 
     # Test 0: neither ``x`` nor ``omega`` are provided
     with pytest.raises(type(reference_exception), match=str(reference_exception)):
-        hermite_basis(x=None, omega=None)
+        hermite_basis_evaluator(
+            x=None,
+            omega=None,
+            **kwargs,
+        )
 
     # Test 1: both ``x`` and ``omega`` are provided
     with pytest.raises(type(reference_exception), match=str(reference_exception)):
-        hermite_basis(x=1.0, omega=1.0)
+        hermite_basis_evaluator(
+            x=1.0,
+            omega=1.0,
+            **kwargs,
+        )
 
     return
 
 
+@pytest.mark.parametrize("method", HERMITE_FUNCTION_COMPUTATION_METHODS)
 @pytest.mark.parametrize(
     "test_specification",
     [
@@ -693,37 +763,38 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call() -> No
 )
 def test_hermite_function_class_output_format(
     test_specification: HermiteFunctionOutputFormatTestSpecs,
+    method: HermiteFunctionMethod,
 ) -> None:
     """
-    This test checks whether the output format of the ``__call__`` method of the class
-    :class:`HermiteFunctionBasis` is correct.
+    This test checks whether the output format of the ``__call__`` and ``eval`` method
+    of the class :class:`HermiteFunctionBasis` is correct.
 
     """
 
-    # the class instance is initialised
-    hermite_basis = HermiteFunctionBasis(
+    # the Hermite function evaluator is set up
+    hermite_basis_evaluator, kwargs = setup_hermite_basis_evaluator(
+        method=method,
         n=test_specification.n,
         alpha=test_specification.alpha,
         time_space_x_center=test_specification.time_space_x_center,
         time_space_symmetry=test_specification.time_space_symmetry,
     )
 
-    # the output is computed (twice in a loop to also test the property setters; this
-    # loop is also used to test both scalar and Array inputs)
+    # the output is computed (twice in a loop to test both scalar and Array inputs)
     x_or_omega_specs: List[Tuple[Union[float, ArrayLike], int]] = [
         (0.0, 1),  # value, expected number of rows
         (np.array([-1.0, 0.0, 1.0]), 3),
     ]
     for x_or_omega_val, expected_num_rows in x_or_omega_specs:
         # first, the output for the time/space domain is computed and checked
-        time_space_output = hermite_basis(x=x_or_omega_val)
+        time_space_output = hermite_basis_evaluator(
+            x=x_or_omega_val,  # type: ignore
+            **kwargs,  # type: ignore
+        )
 
         assert time_space_output.shape == (
             expected_num_rows,
             test_specification.expected_output_format.num_columns,
-        )
-        assert (
-            len(hermite_basis) == test_specification.expected_output_format.num_columns
         )
         assert (
             time_space_output.dtype
@@ -731,30 +802,24 @@ def test_hermite_function_class_output_format(
         )
 
         # then, the output for the frequency domain is computed and checked
-        frequency_output = hermite_basis(omega=x_or_omega_val)
+        frequency_output = hermite_basis_evaluator(
+            omega=x_or_omega_val,  # type: ignore
+            **kwargs,  # type: ignore
+        )
 
         assert frequency_output.shape == (
             expected_num_rows,
             test_specification.expected_output_format.num_columns,
         )
         assert (
-            len(hermite_basis) == test_specification.expected_output_format.num_columns
-        )
-        assert (
             frequency_output.dtype
             == test_specification.expected_output_format.frequency_dtype
         )
 
-        # the property setters are used to overwrite the properties with the same
-        # values as they have already
-        hermite_basis.n = test_specification.n
-        hermite_basis.alpha = test_specification.alpha
-        hermite_basis.time_space_x_center = test_specification.time_space_x_center  # type: ignore  # noqa: E501
-        hermite_basis.time_space_symmetry = test_specification.time_space_symmetry  # type: ignore  # noqa: E501
-
     return
 
 
+@pytest.mark.parametrize("method", HERMITE_FUNCTION_COMPUTATION_METHODS)
 @pytest.mark.parametrize("time_space_x_center", TIME_SPACE_X_CENTER_VALUES)
 @pytest.mark.parametrize("alpha", ALPHA_VALUES)
 @pytest.mark.parametrize("n", FOURIER_TRANSFORM_TEST_ORDERS)
@@ -762,11 +827,12 @@ def test_hermite_function_continuous_fourier_transform(
     n: int,
     alpha: float,
     time_space_x_center: Optional[float],
+    method: HermiteFunctionMethod,
 ) -> None:
     """
     This test checks whether the Continuous Fourier transform of the Hermite functions
-    computed by the ``__call__`` method of the class :class:`HermiteFunctionBasis` is
-    correct.
+    computed by the ``__call__`` and ``eval`` method of the class
+    :class:`HermiteFunctionBasis` is correct.
 
     For this test, the analytical Continuous Fourier transform is computed and compared
     to the Continuous Fourier transform obtained from a numerical Discrete Fourier
@@ -804,8 +870,9 @@ def test_hermite_function_continuous_fourier_transform(
 
     # the test is carried out for the four different time/space symmetries
     for time_space_symmetry in [None, "none", "even", "odd"]:
-        # the class instance is initialised
-        hermite_basis = HermiteFunctionBasis(
+        # the Hermite function evaluator is set up
+        hermite_basis_evaluator, kwargs = setup_hermite_basis_evaluator(
+            method=method,
             n=n,
             alpha=alpha,
             time_space_x_center=time_space_x_center,
@@ -813,18 +880,14 @@ def test_hermite_function_continuous_fourier_transform(
         )
 
         # then, the Hermite functions for the time/space domain are computed ...
-        time_space_hermite_funcs = hermite_basis(x=x_values)
+        time_space_hermite_funcs = hermite_basis_evaluator(x=x_values, **kwargs)
         # ... followed by their analytical Continuous Fourier transforms
-        cft_analytical = hermite_basis(omega=omega_values)
+        cft_analytical = hermite_basis_evaluator(omega=omega_values, **kwargs)
 
         # now, the numerical Continuous Fourier transform is computed for each order
         # (column) of the time/space Hermite functions and compared to the analytical
         # counterpart
-        assert len(hermite_basis) == time_space_hermite_funcs.shape[1], (
-            "Internal error caused by '__len__' method not working correctly - "
-            "Cancelling test to avoid false positive conclusions."
-        )
-        for iter_j in range(0, len(hermite_basis)):
+        for iter_j in range(0, time_space_hermite_funcs.shape[1]):
             # the numerical Continuous Fourier transform is computed from the numerical
             # Discrete Fourier transform
             signal = TimeSpaceSignal(

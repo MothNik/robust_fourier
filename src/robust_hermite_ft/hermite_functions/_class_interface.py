@@ -62,6 +62,200 @@ def _get_validated_time_space_symmetry(
     )
 
 
+def _validate_parameter_combination(
+    n: int,
+    alpha: float,
+    time_space_x_center: float,
+    time_space_symmetry: Literal["even", "odd", "none"],
+) -> None:
+    """
+    Validates the parameter combination for the Hermite functions.
+
+    Parameters
+    ----------
+    n : :class:`int`
+        The order of the Hermite functions.
+    alpha : :class:`float`
+        The scaling factor of the independent variables.
+    time_space_x_center : :class:`float`
+        The center of the Hermite functions in the time/space domain.
+    time_space_symmetry : ``"even"`` or ``"odd"`` or ``"none"``
+        The symmetry to be assumed for the time space domain.
+
+    Raises
+    ------
+    ValueError
+        If there are no Hermite functions to compute (``n = 0`` and
+        ``time_space_symmetry = "odd"``).
+
+    """
+
+    # if the order is 0 and the symmetry is odd, there are no Hermite functions to
+    # compute, so an error is raised
+    if n == 0 and time_space_symmetry == "odd":
+        raise ValueError(
+            "There are no Hermite functions to compute with 'n = 0' and "
+            "'time_space_symmetry = 'odd''."
+        )
+
+
+def _get_num_effective_n(
+    n: int,
+    time_space_symmetry: Literal["even", "odd", "none"],
+) -> int:
+    """
+    Computes the number of orders to consider based on the order and the symmetry.
+
+    Parameters
+    ----------
+    n : :class:`int`
+        The order of the Hermite functions.
+    time_space_symmetry : ``"even"`` or ``"odd"`` or ``"none"``
+        The symmetry to be assumed for the time space domain.
+
+    Returns
+    -------
+    num_n : :class:`int`
+        The number of orders to consider.
+
+    """
+
+    # Case 1: no symmetry
+    # in this case, all orders are considered
+    if time_space_symmetry == "none":
+        return n + 1
+
+    # Case 2: even symmetry
+    # in this case, only the even orders are considered, i.e., the number of orders
+    # is halved and rounded up
+    if time_space_symmetry == "even":
+        # NOTE: the following is a numerically safe integer ceiling division
+        return -(-(n + 1) // 2)
+
+    # Case 3: odd symmetry
+    # in this case, only the odd orders are considered, i.e., the number of orders
+    # is halved and rounded down
+    return (n + 1) // 2
+
+
+def _get_time_domain_hermite_prefactors(
+    num_effective_n: int,
+    time_space_symmetry: Literal["even", "odd", "none"],
+) -> NDArray[Union[np.float64, np.complex128]]:
+    """
+    Computes the prefactors for the Hermite functions in the time/space domain
+    depending on the symmetry.
+
+    The pre-factors are given by ``(0 + 1j) ** i`` for ``i in range(0, n + 1)`` where
+    ``j``.
+    However, his evaluation via a power is expensive and on top of that numerically
+    inaccurate, so the pre-factors are directly specified.
+
+    Parameters
+    ----------
+    num_effective_n : :class:`int`
+        The number of orders to consider as computed by :func:`_get_num_effective_n`.
+    time_space_symmetry : ``"even"`` or ``"odd"`` or ``"none"``
+        The symmetry to be assumed for the time space domain.
+
+    Returns
+    -------
+    pre_factors : :class:`numpy.ndarray` of shape (1, num_effective_n) of dtype ``np.float64`` or ``np.complex128``
+        The pre-factors for the Hermite functions in the time/space domain.
+        It is stored as a row-vector to leverage NumPy's broadcasting for a direct
+        multiplication with the Hermite functions.
+
+    """  # noqa: E501
+
+    # Case 1: no symmetry
+    # in this case, all pre-factors that repeat every 4th order are computed
+    if time_space_symmetry == "none":
+        base_pre_factors = [
+            1.0,
+            complex(0.0, 1.0),
+            -1.0,
+            complex(0.0, -1.0),
+        ]
+        num_full_reps, rest = divmod(num_effective_n, 4)
+        dtype = np.complex128
+
+    # Case 2: even symmetry
+    # in this case, only the even orders are considered and the pre-factors are
+    # just [1, -1] that repeat every 2nd even order
+    elif time_space_symmetry == "even":
+        base_pre_factors = [1.0, -1.0]
+        num_full_reps, rest = divmod(num_effective_n, 2)
+        dtype = np.float64  # type: ignore
+
+    # Case 3: odd symmetry
+    # in this case, only the odd orders are considered and the pre-factors are
+    # [1j, -1j] that repeat every 2nd odd order
+    else:
+        base_pre_factors = [complex(0.0, 1.0), complex(0.0, -1.0)]
+        num_full_reps, rest = divmod(num_effective_n, 2)
+        dtype = np.complex128
+
+    # the pre-factors are "computed" by repeating the base pre-factors
+    # NOTE: the following is a row vector to leverage NumPy's broadcasting and
+    #       multiply every row of the Hermite functions with the respective
+    #       pre-factors
+    return np.array(
+        [base_pre_factors * num_full_reps + base_pre_factors[0:rest]],
+        dtype=dtype,
+    )
+
+
+def _get_frequency_domain_shift_prefactors(
+    omega: Union[RealScalar, ArrayLike],
+    time_space_x_center: RealScalar,
+) -> Optional[NDArray[np.complex128]]:
+    """
+    Computes the prefactors for the Hermite functions in the frequency domain
+    depending on the shift.
+
+    The pre-factors are given by ``exp(-1j * omega * time_space_x_center)`` where ``j``
+    is the imaginary unit.
+
+    Parameters
+    ----------
+    omega : :class:`float` or :class:`int` or Array-like of shape (m,)
+        The angular frequency values at which the Hermite functions are evaluated.
+    time_space_x_center : :class:`float` or :class:`int`
+        The center of the Hermite functions in the time/space domain.
+
+    Returns
+    -------
+    pre_factors : :class:`numpy.ndarray` of shape (m, 1) of dtype ``np.complex128`` or ``None``
+        The pre-factors for the Hermite functions in the frequency domain.
+        If the center is 0, the pre-factors are just 1 and ``None`` is returned to
+        avoid unnecessary computations.
+        Otherwise, the pre-factors are computed and returned. They are stored as a
+        column-vector to leverage NumPy's broadcasting for a direct multiplication with
+        the Hermite functions.
+
+    """  # noqa: E501
+
+    # if there is no shift, the pre-factors are just 1, so it is returned as None
+    # to avoid unnecessary computations
+    if time_space_x_center == 0.0:
+        return None
+
+    # otherwise, the shift characteristics of the Fourier transform are applied
+    omega_internal = np.atleast_1d(omega)
+    # NOTE: the following is a column vector to leverage NumPy's broadcasting and
+    #       multiply every column of the Hermite functions with the respective
+    #       pre-factors
+    result = np.empty(
+        shape=(omega_internal.size, 1),
+        dtype=np.complex128,
+    )
+
+    return np.exp(
+        complex(0.0, -1.0) * omega_internal[::, np.newaxis] * time_space_x_center,
+        out=result,
+    )
+
+
 # === Classes ===
 
 
@@ -258,139 +452,29 @@ class HermiteFunctionBasis:
         """
         Validates the current parameter combination of the class.
 
-        Raises
-        ------
-        ValueError
-            If there are no Hermite functions to compute (``n = 0`` and
-            ``time_space_symmetry = "odd"``).
-
         """
 
-        # if the order is 0 and the symmetry is odd, there are no Hermite functions to
-        # compute, so an error is raised
-        if self._n == 0 and self._time_space_symmetry == "odd":
-            raise ValueError(
-                "There are no Hermite functions to compute with 'n = 0' and "
-                "'time_space_symmetry = 'odd''."
-            )
+        _validate_parameter_combination(
+            n=self._n,
+            alpha=self._alpha,
+            time_space_x_center=self._time_space_x_center,
+            time_space_symmetry=self._time_space_symmetry,
+        )
 
         # if the validation is successful, the flag is set to True
         self._is_fully_validated = True
 
-    def _get_time_domain_hermite_prefactors(
-        self,
-    ) -> NDArray[Union[np.float64, np.complex128]]:
-        """
-        Computes the prefactors for the Hermite functions in the time/space domain
-        depending on the symmetry.
+    # --- Public Methods ---
 
-        The pre-factors are given by ``(0 + 1j) ** i`` for ``i in range(0, n + 1)``,
-        but this evaluation is expensive and even numerically inaccurate, so the
-        pre-factors are directly specified.
-
-        """
-
-        # Case 1: no symmetry
-        # in this case, all pre-factors that repeat every 4th order are computed
-        if self._time_space_symmetry == "none":
-            base_pre_factors = [
-                1.0,
-                complex(0.0, 1.0),
-                -1.0,
-                complex(0.0, -1.0),
-            ]
-            num_full_reps, rest = divmod(self.__len__(), 4)
-            dtype = np.complex128
-
-        # Case 2: even symmetry
-        # in this case, only the even orders are considered and the pre-factors are
-        # just [1, -1] that repeat every 2nd even order
-        elif self._time_space_symmetry == "even":
-            base_pre_factors = [1.0, -1.0]
-            num_full_reps, rest = divmod(self.__len__(), 2)
-            dtype = np.float64  # type: ignore
-
-        # Case 3: odd symmetry
-        # in this case, only the odd orders are considered and the pre-factors are
-        # [1j, -1j] that repeat every 2nd odd order
-        else:
-            base_pre_factors = [complex(0.0, 1.0), complex(0.0, -1.0)]
-            num_full_reps, rest = divmod(self.__len__(), 2)
-            dtype = np.complex128
-
-        # the pre-factors are "computed" by repeating the base pre-factors
-        # NOTE: the following is a row vector to leverage NumPy's broadcasting and
-        #       multiply every row of the Hermite functions with the respective
-        #       pre-factors
-        return np.array(
-            [base_pre_factors * num_full_reps + base_pre_factors[0:rest]],
-            dtype=dtype,
-        )
-
-    def _get_frequency_domain_shift_prefactors(
-        self,
-        omega: Union[RealScalar, ArrayLike],
-    ) -> Optional[NDArray[np.complex128]]:
-        """
-        Computes the prefactors for the Hermite functions in the frequency domain
-        depending on the shift.
-
-        The pre-factors are given by ``exp(-1j * omega * time_space_x_center)``.
-
-        """
-
-        # if there is no shift, the pre-factors are just 1, so it is returned as None
-        # to avoid unnecessary computations
-        if self._time_space_x_center == 0.0:
-            return None
-
-        # otherwise, the shift characteristics of the Fourier transform are applied
-        omega_internal = np.atleast_1d(omega)
-        # NOTE: the following is a column vector to leverage NumPy's broadcasting and
-        #       multiply every column of the Hermite functions with the respective
-        #       pre-factors
-        result = np.empty(
-            shape=(omega_internal.size, 1),
-            dtype=np.complex128,
-        )
-
-        return np.exp(
-            complex(0.0, -1.0)
-            * omega_internal[::, np.newaxis]
-            * self._time_space_x_center,
-            out=result,
-        )
-
-    # --- Magic Methods ---
-
-    def __len__(self):
-        """
-        Returns the number of Hermite basis functions that will be computed with the
-        given parameters, i.e., the order and the symmetry.
-
-        """
-
-        # Case 1: no symmetry
-        # in this case, all orders are considered
-        if self._time_space_symmetry == "none":
-            return self._n + 1
-
-        # Case 2: even symmetry
-        # in this case, only the even orders are considered, i.e., the number of orders
-        # is halved and rounded up
-        if self._time_space_symmetry == "even":
-            # NOTE: the following is a numerically safe integer ceiling division
-            return -(-(self._n + 1) // 2)
-
-        # Case 3: odd symmetry
-        # in this case, only the odd orders are considered, i.e., the number of orders
-        # is halved and rounded down
-        return (self._n + 1) // 2
-
-    def __call__(
-        self,
+    @staticmethod
+    def eval(
         x: Union[RealScalar, ArrayLike, None] = None,
         omega: Union[RealScalar, ArrayLike, None] = None,
+        n: IntScalar = 10,
+        alpha: RealScalar = 1.0,
+        time_space_x_center: Optional[RealScalar] = None,
+        time_space_symmetry: Optional[Literal["even", "odd", "none"]] = None,
+        validate_parameters: bool = True,
     ) -> NDArray[Union[np.float64, np.complex128]]:
         """
         Evaluates the Hermite functions at the given points in the specified domain.
@@ -404,13 +488,41 @@ class HermiteFunctionBasis:
             evaluated in the time/space domain.
             Conversely, if the angular frequency value(s) ``omega`` is/are given, the
             Hermite functions are evaluated in the frequency domain.
+        n : :class:`int`, default=``10``
+            The order of the dilated Hermite functions.
+            It must be a non-negative integer ``>= 0``.
+        alpha : :class:`float` or :class:`int`, default=``1.0``
+            The scaling factor of the independent variables.
+            It must be a positive number ``> 0``.
+            Please refer to the Notes of the class docstring for further details.
+        time_space_x_center : :class:`float` or :class:`int` or ``None``, default=``None``
+            The center of the Hermite functions in the time/space domain.
+            If ``None`` or ``0``, the functions are centered at the time/space domain's
+            origin (``x = 0``).
+            Otherwise, the center is shifted to the given value
+            (``x = time_space_x_center``).
+        time_space_symmetry : ``"even"`` or ``"odd"`` or ``"none"`` or ``None``, default=``None``
+            The symmetry to be assumed for the time space domain with respect to
+            ``time_space_x_center``.
+            If ``"none"`` or ``None``, no symmetry is assumed.
+            For ``"even"`` symmetry (axis-mirrored at a y-axis located at
+            ``time_space_x_center``), only the even orders are considered while for
+            ``"odd"`` symmetry (point-mirrored at ``time_space_x_center``; rotational
+            symmetry), only the odd orders are considered.
+            Please refer to the Notes of the class docstring for further details.
+        validate_parameters : :class:`bool`, default=``True``
+            Whether to validate ``n``, ``alpha``, ``time_space_x_center``, and
+            ``time_space_symmetry`` before computing the Hermite functions.
+            Disabling the checks is highly discouraged and was only implemented for
+            internal purposes.
 
         Returns
         -------
         hermite_function_basis : :class:`numpy.ndarray` of shape (m, n_new) of dtype ``np.float64`` or ``np.complex128``
-            The values of the dilated Hermite functions at the points ``x``.
+            The values of the dilated Hermite functions at the points ``x`` or
+            ``omega``.
             Please refer to the Notes for its data type and shape.
-            It will always be 2D even if ``x`` is a scalar.
+            It will always be 2D even if ``x``/``omega`` is a scalar.
 
         Raises
         ------
@@ -442,12 +554,23 @@ class HermiteFunctionBasis:
 
         # === Input Validation ===
 
-        # first, the current parameter combination of the class is validated in a lazy
-        # fashion, i.e., if it has not been done yet
-        if not self._is_fully_validated:
-            self._validate_parameter_combination()
+        # if required, the input parameters are validated
+        if validate_parameters:
+            n = _get_validated_order(n=n)
+            alpha = _get_validated_alpha(alpha=alpha)
+            time_space_x_center = _get_validated_x_center(x_center=time_space_x_center)
+            time_space_symmetry = _get_validated_time_space_symmetry(
+                time_space_symmetry=time_space_symmetry
+            )
+            _validate_parameter_combination(
+                n=n,
+                alpha=alpha,
+                time_space_x_center=time_space_x_center,
+                time_space_symmetry=time_space_symmetry,
+            )
 
-        # if both x and omega are given or neither of them is given, an error is raised
+        # independent of whether the validation is disabled, an error is raised if both
+        # x and omega are given or neither of them is given
         x_is_given = x is not None
         omega_is_given = omega is not None
         if x_is_given == omega_is_given:
@@ -457,23 +580,22 @@ class HermiteFunctionBasis:
 
         # === Computation of the Hermite Functions ===
 
-        # the independent variable, the scaling factor, and the center are determined
-        # based on the domain
+        # the independent variable, the scaling factor, and the center (not necessarily
+        # identical to the ``time_space_x_center``) are determined based on the domain
         if x_is_given:
             independent_variable = x
-            alpha_internal = self._alpha
-            center_internal = self._time_space_x_center
+            center_internal = time_space_x_center
         else:
             independent_variable = omega
-            alpha_internal = 1.0 / self._alpha
+            alpha = 1.0 / alpha
             center_internal = 0.0
 
         # the Hermite function basis is computed with skipped parameter validation
         # because this was already done within the constructor
         hermite_basis = hermite_function_basis(
             x=independent_variable,  # type: ignore
-            n=self._n,
-            alpha=alpha_internal,
+            n=n,
+            alpha=alpha,
             x_center=center_internal,
             validate_parameters=False,
         )
@@ -484,16 +606,17 @@ class HermiteFunctionBasis:
         # the symmetry in the time/space domain
         # slicing is only necessary for even and odd symmetry and always has step size
         # 2; the only difference is the start index
-        if self._time_space_symmetry == "even":
+        if time_space_symmetry == "even":
             hermite_basis = hermite_basis[::, 0:None:2]
-        elif self._time_space_symmetry == "odd":
+        elif time_space_symmetry == "odd":
             hermite_basis = hermite_basis[::, 1:None:2]
 
         # for the frequency domain, the respective pre-factors to account for the shift
         # are applied
         if omega_is_given:
-            fourier_prefactors = self._get_frequency_domain_shift_prefactors(
+            fourier_prefactors = _get_frequency_domain_shift_prefactors(
                 omega=omega,  # type: ignore
+                time_space_x_center=time_space_x_center,  # type: ignore
             )
             # NOTE: the factors are a column vector to leverage NumPy's broadcasting and
             #       multiply every column of the Hermite functions with the respective
@@ -505,7 +628,13 @@ class HermiteFunctionBasis:
 
         # for the time/space domain, the respective pre-factors to account for the
         # inverse Fourier transform and the symmetry are applied
-        time_space_prefactors = self._get_time_domain_hermite_prefactors()
+        time_space_prefactors = _get_time_domain_hermite_prefactors(
+            num_effective_n=_get_num_effective_n(
+                n=n,  # type: ignore
+                time_space_symmetry=time_space_symmetry,  # type: ignore
+            ),
+            time_space_symmetry=time_space_symmetry,  # type: ignore
+        )
         # NOTE: the factors are a row vector to leverage NumPy's broadcasting and
         #       multiply every row of the Hermite functions with the respective
         #       pre-factors
@@ -515,3 +644,45 @@ class HermiteFunctionBasis:
             hermite_basis = hermite_basis * time_space_prefactors  # type: ignore
 
         return hermite_basis
+
+    # --- Magic Methods ---
+
+    def __len__(self):
+        """
+        Returns the number of Hermite basis functions that will be computed with the
+        given parameters, i.e., the order and the symmetry.
+
+        """
+
+        return _get_num_effective_n(
+            n=self._n,
+            time_space_symmetry=self._time_space_symmetry,
+        )
+
+    def __call__(
+        self,
+        x: Union[RealScalar, ArrayLike, None] = None,
+        omega: Union[RealScalar, ArrayLike, None] = None,
+    ) -> NDArray[Union[np.float64, np.complex128]]:
+        """
+        Evaluates the Hermite functions at the given points in the specified domain.
+        Please refer to the docstring of the static method :func:`eval` for further
+        details.
+
+        """  # noqa: E501
+
+        # first, the current parameter combination of the class is validated in a lazy
+        # fashion, i.e., if it has not been done yet
+        if not self._is_fully_validated:
+            self._validate_parameter_combination()
+
+        # the Hermite functions are computed with skipped parameter validation
+        return self.eval(
+            x=x,
+            omega=omega,
+            n=self._n,
+            alpha=self._alpha,
+            time_space_x_center=self._time_space_x_center,
+            time_space_symmetry=self._time_space_symmetry,
+            validate_parameters=False,
+        )
