@@ -138,18 +138,19 @@ def _get_num_effective_n(
     return (n + 1) // 2
 
 
-def _get_time_domain_hermite_prefactors(
+def _get_frequency_domain_hermite_complex_prefactors(
     num_effective_n: int,
     time_space_symmetry: Literal["even", "odd", "none"],
 ) -> NDArray[Union[np.float64, np.complex128]]:
     """
-    Computes the prefactors for the Hermite functions in the time/space domain
+    Computes the prefactors for the Hermite functions in the frequency domain
     depending on the symmetry.
 
-    The pre-factors are given by ``(0 + 1j) ** i`` for ``i in range(0, n + 1)`` where
+    The pre-factors are given by ``(0 - 1j) ** i`` for ``i in range(0, n + 1)`` where
     ``j``.
     However, his evaluation via a power is expensive and on top of that numerically
-    inaccurate, so the pre-factors are directly specified.
+    inaccurate, so the pre-factors are directly specified from the repeating sequence
+    ``[1, -j, -1, j]``.
 
     Parameters
     ----------
@@ -161,7 +162,7 @@ def _get_time_domain_hermite_prefactors(
     Returns
     -------
     pre_factors : :class:`numpy.ndarray` of shape (1, num_effective_n) of dtype ``np.float64`` or ``np.complex128``
-        The pre-factors for the Hermite functions in the time/space domain.
+        The pre-factors for the Hermite functions in the frequency domain.
         It is stored as a row-vector to leverage NumPy's broadcasting for a direct
         multiplication with the Hermite functions.
 
@@ -171,10 +172,10 @@ def _get_time_domain_hermite_prefactors(
     # in this case, all pre-factors that repeat every 4th order are computed
     if time_space_symmetry == "none":
         base_pre_factors = [
-            1.0,
-            complex(0.0, 1.0),
-            -1.0,
+            +1.0,
             complex(0.0, -1.0),
+            -1.0,
+            complex(0.0, +1.0),
         ]
         num_full_reps, rest = divmod(num_effective_n, 4)
         dtype = np.complex128
@@ -183,7 +184,7 @@ def _get_time_domain_hermite_prefactors(
     # in this case, only the even orders are considered and the pre-factors are
     # just [1, -1] that repeat every 2nd even order
     elif time_space_symmetry == "even":
-        base_pre_factors = [1.0, -1.0]
+        base_pre_factors = [+1.0, -1.0]
         num_full_reps, rest = divmod(num_effective_n, 2)
         dtype = np.float64  # type: ignore
 
@@ -191,7 +192,7 @@ def _get_time_domain_hermite_prefactors(
     # in this case, only the odd orders are considered and the pre-factors are
     # [1j, -1j] that repeat every 2nd odd order
     else:
-        base_pre_factors = [complex(0.0, 1.0), complex(0.0, -1.0)]
+        base_pre_factors = [complex(0.0, -1.0), complex(0.0, +1.0)]
         num_full_reps, rest = divmod(num_effective_n, 2)
         dtype = np.complex128
 
@@ -334,47 +335,66 @@ class HermiteFunctionBasis:
     - time/space is given by the independent variable ``x`` and
     - the angular frequency is given by the independent variable ``omega``.
 
-    In the frequency domain, the Hermite functions are in principle all real-valued and
-    the scaling factor ``alpha`` is applied to the independent variable ``omega`` as
-    ``alpha * omega``, i.e., larger values of ``alpha`` will result in a contraction of
-    the Hermite functions closer to the origin. A nonzero center ``x_center`` in the
-    time/space domain will result in a phase shift of the Hermite functions in the
-    frequency domain and thus make them complex-valued.
 
-    For the time/space domain on the other hand, the scaling factor ``alpha`` is applied
-    to the independent variable ``x`` as ``x / alpha``. Thus, larger values of ``alpha``
-    will expand the Hermite functions further away from the origin. In this domain,
-    all Hermite functions of even order ``n`` (0, 2, 4, ...) are real-valued while all
-    Hermite functions of odd order ``n`` (1, 3, 5, ...) are imaginary-valued. A nonzero
-    center applied as ``(x - x_center) / alpha`` will not change this real/imaginary
-    nature of the Hermite functions but only shift them in the time/space domain.
+    In the time/space domain, the Hermite functions are all real-valued by the
+    definitions chosen here. They can be shifted left or right by specifying a center
+    ``time_space_x_center`` which will only change the position of the Hermite functions
+    but not their real-valued nature. Furthermore, The scaling factor ``alpha`` is
+    applied to the independent variable ``x`` as ``x / alpha``, i.e., larger values of
+    ``alpha`` will expand the Hermite functions further away from the origin.
+
+    All in all, their definition is given by
+
+    .. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg
+
+    with the Hermite polynomials
+
+    .. image:: docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg
+
+    For the frequency domain on the other hand, the scaling factor ``alpha`` is applied
+    to the independent variable ``omega`` as ``alpha * omega``. Thus, larger values of
+    ``alpha`` will result in a contraction of the Hermite functions closer to the
+    origin. In this domain, all Hermite functions of even order ``n`` (0, 2, 4, ...) are
+    real-valued while all Hermite functions of odd order ``n`` (1, 3, 5, ...) are
+    imaginary-valued. A nonzero center ``time_space_x_center`` in the time/space domain
+    will result in a phase shift of the Hermite functions in the frequency domain.
+    Consequently, the Hermite functions of all orders will be complex-valued due to
+    shifts in the time/space domain.
+
+    Based on the calculus rules of the Fourier transform, the Hermite functions in the
+    frequency domain can be expressed as
+
+    .. image:: docs/hermite_functions/equations/HF-07-Hermite_Functions_Frequency_Domain_pt_1.svg
+
+    .. image:: docs/hermite_functions/equations/HF-08-Hermite_Functions_Frequency_Domain_pt_2.svg
 
     Moreover, the symmetry in the time/space domain can be taken into account by
     specifying the ``time_space_symmetry`` parameter. If it is ``"even"``/``"odd"`` only
     the even/odd orders of the Hermite functions have to considered independent of the
     domain.
     Even symmetry means that the Hermite functions are axis-mirrored at a y-axis located
-    at the center ``x_center`` in the time/space domain, while odd symmetry means that
-    they are point-mirrored at the ``x_center`` in the time/space domain (rotational
-    symmetry).
+    at the center ``time_space_x_center`` in the time/space domain, while odd symmetry
+    means that they are point-mirrored at the ``time_space_x_center`` in the time/space
+    domain (rotational symmetry).
     This fact will not reduce the computation time of the Hermite functions themselves
     at all. However, it will save a lot of irrelevant computations down the line, e.g.,
-    for regression procedures.
+    for regression procedures. Furthermore, this can affect the complex-valued nature of
+    the Hermite functions in the frequency domain.
 
+    To sum is up, the time/space domain is defined to be always real-valued, thereby
+    leading to the following patterns:
 
-    To sum is up, the time/space domain is only sensitive to the symmetry and not
-    affected by a shift, thereby leading to the following patterns:
+    - time/space domain → always real-valued
 
-    - time/space domain → no symmetry: real/imaginary-valued
-    - time/space domain → even symmetry: real-valued
-    - time/space domain → odd symmetry: imaginary-valued
+    On the other hand, the frequency domain is sensitive to both a shift and to the
+    symmetry in the time/space domain, thereby leading to the following patterns:
 
-    On the other hand, the frequency domain is only sensitive to a shift and not to the
-    symmetry, thereby leading to the following patterns:
-
-    - frequency domain → time/space not shifted: real-valued
-    - frequency domain → time/space shifted: complex-valued
-
+    - frequency domain → time/space not shifted and not symmetric: complex-valued
+    - frequency domain → time/space shifted and not symmetric: complex-valued
+    - frequency domain → time/space not shifted and even symmetric: real-valued
+    - frequency domain → time/space shifted and even symmetric: complex-valued
+    - frequency domain → time/space not shifted and odd symmetric: imaginary-valued
+    - frequency domain → time/space shifted and odd symmetric: complex-valued
 
     """  # noqa: E501
 
@@ -537,18 +557,18 @@ class HermiteFunctionBasis:
 
         The shape and data types for the time/space domain are as follows:
 
-        - no symmetry → (m, n + 1) of dtype ``np.complex128``
+        - no symmetry → (m, n + 1) of dtype ``np.float64``
         - even symmetry → (m, ceil((n + 1) / 2)) of dtype ``np.float64``
-        - odd symmetry → (m, floor((n + 1) / 2)) of dtype ``np.complex128``
+        - odd symmetry → (m, floor((n + 1) / 2)) of dtype ``np.float64``
 
         The shape and data types for the frequency domain are as follows:
 
-        - not shifted, no symmetry → (m, n + 1) of dtype ``np.float64``
-        - shifted, no symmetry → (m, n + 1) of dtype ``np.complex128``
-        - not shifted, even symmetry → (m, ceil((n + 1) / 2)) of dtype ``np.float64``
-        - shifted, even symmetry → (m, ceil((n + 1) / 2)) of dtype ``np.complex128``
-        - not shifted, odd symmetry → (m, floor((n + 1) / 2)) of dtype ``np.complex128``
-        - shifted, odd symmetry → (m, floor((n + 1) / 2)) of dtype ``np.complex128``
+        - time/space not shifted, no symmetry → (m, n + 1) of dtype ``np.complex128``
+        - time/space shifted, no symmetry → (m, n + 1) of dtype ``np.complex128``
+        - time/space not shifted, even symmetry → (m, ceil((n + 1) / 2)) of dtype ``np.float64``
+        - time/space shifted, even symmetry → (m, ceil((n + 1) / 2)) of dtype ``np.complex128``
+        - time/space not shifted, odd symmetry → (m, floor((n + 1) / 2)) of dtype ``np.complex128``
+        - time/space shifted, odd symmetry → (m, floor((n + 1) / 2)) of dtype ``np.complex128``
 
         """  # noqa: E501
 
@@ -572,8 +592,7 @@ class HermiteFunctionBasis:
         # independent of whether the validation is disabled, an error is raised if both
         # x and omega are given or neither of them is given
         x_is_given = x is not None
-        omega_is_given = omega is not None
-        if x_is_given == omega_is_given:
+        if x_is_given == (omega is not None):
             raise ValueError(
                 "Either 'x' or 'omega' must be given but not both or none of them."
             )
@@ -611,24 +630,27 @@ class HermiteFunctionBasis:
         elif time_space_symmetry == "odd":
             hermite_basis = hermite_basis[::, 1:None:2]
 
-        # for the frequency domain, the respective pre-factors to account for the shift
-        # are applied
-        if omega_is_given:
-            fourier_prefactors = _get_frequency_domain_shift_prefactors(
-                omega=omega,  # type: ignore
-                time_space_x_center=time_space_x_center,  # type: ignore
-            )
-            # NOTE: the factors are a column vector to leverage NumPy's broadcasting and
-            #       multiply every column of the Hermite functions with the respective
-            #       pre-factors
-            if fourier_prefactors is not None:
-                hermite_basis = hermite_basis * fourier_prefactors  # type: ignore
-
+        # for the time/space domain, there is nothing more to be done because the
+        # definition of the Hermite functions was chosen to make them obey the most
+        # basic definition of Hermite functions without any modifications
+        if x_is_given:
             return hermite_basis
 
-        # for the time/space domain, the respective pre-factors to account for the
-        # inverse Fourier transform and the symmetry are applied
-        time_space_prefactors = _get_time_domain_hermite_prefactors(
+        # for the frequency domain, the respective pre-factors to account for the shift
+        # are applied
+        fourier_prefactors = _get_frequency_domain_shift_prefactors(
+            omega=omega,  # type: ignore
+            time_space_x_center=time_space_x_center,  # type: ignore
+        )
+        # NOTE: the factors are a column vector to leverage NumPy's broadcasting and
+        #       multiply every column of the Hermite functions with the respective
+        #       pre-factors
+        if fourier_prefactors is not None:
+            hermite_basis = hermite_basis * fourier_prefactors  # type: ignore
+
+        # besides, the respective pre-factors to account for the Fourier transform and
+        # the symmetry are applied
+        fourier_prefactors = _get_frequency_domain_hermite_complex_prefactors(
             num_effective_n=_get_num_effective_n(
                 n=n,  # type: ignore
                 time_space_symmetry=time_space_symmetry,  # type: ignore
@@ -638,10 +660,10 @@ class HermiteFunctionBasis:
         # NOTE: the factors are a row vector to leverage NumPy's broadcasting and
         #       multiply every row of the Hermite functions with the respective
         #       pre-factors
-        if time_space_prefactors.dtype == hermite_basis.dtype:
-            hermite_basis *= time_space_prefactors  # type: ignore
+        if fourier_prefactors.dtype == hermite_basis.dtype:  # type: ignore
+            hermite_basis *= fourier_prefactors  # type: ignore
         else:
-            hermite_basis = hermite_basis * time_space_prefactors  # type: ignore
+            hermite_basis = hermite_basis * fourier_prefactors  # type: ignore
 
         return hermite_basis
 

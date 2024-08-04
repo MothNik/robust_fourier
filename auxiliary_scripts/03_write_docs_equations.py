@@ -54,10 +54,10 @@ EQUATION_SPECIFICATIONS = {
             "/HF-01-Hermite_Functions_TimeSpace_Domain.svg"
         ),
         latex_expression=(
-            r"$\psi_{n}^{\left(\alpha;\mu\right)}\left(x\right)=\frac{exp\left("
-            r"-\frac{1}{2}\cdot\left(\frac{x-\mu}{\alpha}\right)^{2}\right)}"
-            r"{\sqrt[4]{\pi\cdot\alpha^{2}}\cdot\sqrt{n!\cdot\left("
-            r"\frac{2}{\alpha^{2}}\right)^{n}}}"
+            r"$\psi_{n}^{\left(\alpha;\mu\right)}\left(x\right)=\frac{"
+            r"exp\left(-\frac{1}{2}\cdot\left(\frac{x-\mu}{\alpha}\right)^{2}\right)}"
+            r"{\sqrt[4]{\pi\cdot\alpha^{2}}\cdot\sqrt{n!\cdot"
+            r"\left(\frac{2}{\alpha^{2}}\right)^{n}}}"
             r"\cdot H_{n}^{\left(\alpha;\mu\right)}\left(x\right)$"
         ),
     ),
@@ -67,10 +67,10 @@ EQUATION_SPECIFICATIONS = {
             "/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg"
         ),
         latex_expression=(
-            r"$H_{n}^{\left(\alpha;\mu\right)}\left(x\right)=(-1)^{n}\cdot exp"
-            r"\left(\left(\frac{x-\mu}{\alpha}\right)^{2}\right)\cdot\left("
-            r"\frac{d}{dx}\right)^n\cdot exp\left(-\left("
-            r"\frac{x-\mu}{\alpha}\right)^{2}\right)$"
+            r"$H_{n}^{\left(\alpha;\mu\right)}\left(x\right)=(-1)^{n}\cdot "
+            r"exp\left(\left(\frac{x-\mu}{\alpha}\right)^{2}\right)\cdot"
+            r"\left(\frac{d}{dx}\right)^n\cdot "
+            r"exp\left(-\left(\frac{x-\mu}{\alpha}\right)^{2}\right)$"
         ),
     ),
     "hermite_functions_dilated_to_undilated": EquationSpecification(
@@ -109,8 +109,33 @@ EQUATION_SPECIFICATIONS = {
             "/HF-06-Hermite_Polynomials_Basic_Definition.svg"
         ),
         latex_expression=(
-            r"$H_{n}\left(x\right)=(-1)^{n}\cdot exp\left(x^{2}\right)\cdot\left("
-            r"\frac{d}{dx}\right)^{n}\cdot exp\left(-x^{2}\right)$"
+            r"$H_{n}\left(x\right)=(-1)^{n}\cdot exp\left(x^{2}\right)\cdot"
+            r"\left(\frac{d}{dx}\right)^{n}\cdot exp\left(-x^{2}\right)$"
+        ),
+    ),
+    "hermite_functions_frequency_domain_part_one": EquationSpecification(
+        image_path=(
+            "../docs/hermite_functions/equations"
+            "/HF-07-Hermite_Functions_Frequency_Domain_pt_1.svg"
+        ),
+        latex_expression=(
+            r"$\Psi_{n}^{\left(\alpha;\mu\right)}\left(\omega\right)="
+            r"\left(-j\right)^{n}\cdot exp\left(-j\cdot\mu\cdot\omega\right)\cdot"
+            r"\psi_{n}^{\left(\frac{1}{\alpha};\mu=0\right)}\left(\omega\right)$"
+        ),
+    ),
+    "hermite_functions_frequency_domain_part_two": EquationSpecification(
+        image_path=(
+            "../docs/hermite_functions/equations"
+            "/HF-08-Hermite_Functions_Frequency_Domain_pt_2.svg"
+        ),
+        latex_expression=(
+            r"$\Psi_{n}^{\left(\alpha;\mu\right)}\left(\omega\right)="
+            r"\left(-j\right)^{n}\cdot\frac{exp\left(-\frac{1}{2}\cdot"
+            r"\left(\alpha\cdot\omega\right)^{2}-j\cdot\mu\cdot\omega\right)}"
+            r"{\sqrt[4]{\frac{\pi}{\alpha^{2}}}\cdot\sqrt{n!\cdot\left("
+            r"2\cdot\alpha^{2}\right)^{n}}}"
+            r"\cdot H_{n}^{\left(\frac{1}{\alpha};\mu=0\right)}\left(\omega\right)$"
         ),
     ),
 }
