@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2024-08-04T18:12:49.166854</dc:date>
+    <dc:date>2024-08-04T18:34:02.190028</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -25,9 +25,8 @@
 L 163.95 34.95 
 L 163.95 0 
 L 0 0 
-L 0 34.95 
 z
-" style="fill: none"/>
+" style="fill: #ffffff"/>
   </g>
   <g id="text_1">
    <!-- $\psi_{n}^{\left(\alpha;\mu\right)}\left(x\right)=\frac{1}{\sqrt{\alpha}}\cdot\psi_{n}\left(\frac{x-\mu}{\alpha}\right)$ -->

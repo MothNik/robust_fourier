@@ -47,7 +47,7 @@ REFERENCE_DATA_FILE_PATH = "./files/01-01_hermite_functions_largest_zeros.npy"
 OVERWRITE_REFERENCE_DATA = False
 
 # the path where the diagnostic plot is stored (relative to the current file)
-DIAGNOSTIC_PLOT_FILE_PATH = "./files/01-02_hermite_functions_largest_zeros.png"
+DIAGNOSTIC_PLOT_FILE_PATH = "./files/01-02_hermite_functions_largest_zeros.svg"
 
 # the path where to store the spline specifications (relative to the current file)
 SPLINE_SPECS_FILE_PATH = (

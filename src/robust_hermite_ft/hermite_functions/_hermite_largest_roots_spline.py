@@ -12,7 +12,7 @@ have an absolute tolerance of roughly ``1e-8``, so the approximation error is li
 by this reference value and not by the spline itself.
 
 For a diagnostic plot that shows the fit quality, please see
-``auxiliary_scripts/./files/01-02_hermite_functions_largest_zeros.png``.
+``auxiliary_scripts/./files/01-02_hermite_functions_largest_zeros.svg``.
 
 """  # noqa: E501
 

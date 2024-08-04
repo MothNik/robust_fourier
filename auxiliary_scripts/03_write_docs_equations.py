@@ -51,7 +51,7 @@ EQUATION_SPECIFICATIONS = {
     "hermite_functions_time_space_domain": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"
-            "/HF-01-Hermite_Functions_TimeSpace_Domain.png"
+            "/HF-01-Hermite_Functions_TimeSpace_Domain.svg"
         ),
         latex_expression=(
             r"$\psi_{n}^{\left(\alpha;\mu\right)}\left(x\right)=\frac{exp\left("
@@ -64,7 +64,7 @@ EQUATION_SPECIFICATIONS = {
     "hermite_polynomials_time_space_domain": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"
-            "/HF-02-Hermite_Polynomials_TimeSpace_Domain.png"
+            "/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg"
         ),
         latex_expression=(
             r"$H_{n}^{\left(\alpha;\mu\right)}\left(x\right)=(-1)^{n}\cdot exp"
@@ -76,7 +76,7 @@ EQUATION_SPECIFICATIONS = {
     "hermite_functions_dilated_to_undilated": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"
-            "/HF-03-Hermite_Functions_Dilated_to_Undilated.png"
+            "/HF-03-Hermite_Functions_Dilated_to_Undilated.svg"
         ),
         latex_expression=(
             r"$\psi_{n}^{\left(\alpha;\mu\right)}\left(x\right)=\frac{1}{\sqrt{\alpha}}"
@@ -86,19 +86,39 @@ EQUATION_SPECIFICATIONS = {
     "hermite_functions_recurrence_relation": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"
-            "/HF-04-Hermite_Functions_Recurrence_Relation.png"
+            "/HF-04-Hermite_Functions_Recurrence_Relation.svg"
         ),
         latex_expression=(
             r"$\psi_{n+1}\left(x\right)=\sqrt{\frac{2}{n+1}}\cdot x\cdot\psi_{n}"
             r"\left(x\right)-\sqrt{\frac{n}{n+1}}\cdot\psi_{n-1}\left(x\right)$"
         ),
     ),
+    "hermite_function_basic_definition": EquationSpecification(
+        image_path=(
+            "../docs/hermite_functions/equations"
+            "/HF-05-Hermite_Functions_Basic_Definition.svg"
+        ),
+        latex_expression=(
+            r"$\psi_{n}\left(x\right)=\frac{exp\left(-\frac{1}{2}\cdot x^{2}\right)}"
+            r"{\sqrt[4]{\pi}\cdot\sqrt{n!\cdot 2^{n}}}\cdot H_{n}\left(x\right)$"
+        ),
+    ),
+    "hermite_polynomial_basic_definition": EquationSpecification(
+        image_path=(
+            "../docs/hermite_functions/equations"
+            "/HF-06-Hermite_Polynomials_Basic_Definition.svg"
+        ),
+        latex_expression=(
+            r"$H_{n}\left(x\right)=(-1)^{n}\cdot exp\left(x^{2}\right)\cdot\left("
+            r"\frac{d}{dx}\right)^{n}\cdot exp\left(-x^{2}\right)$"
+        ),
+    ),
 }
 
 # the fontsize of the equations
-FONTSIZE: float = 6
+FONTSIZE: float = 15
 # the resolution of the images in dots per inch
-DPI: int = 300
+DPI: int = 100
 
 # whether to show only the preview of the specified equations
 # if None, all equations will be generated and saved
@@ -158,7 +178,7 @@ def latex2image(
         image_path,
         bbox_inches="tight",
         dpi=dpi,
-        transparent=True,
+        transparent=False,
     )
 
     return

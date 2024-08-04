@@ -25,9 +25,9 @@ def _hermite_function_basis(
     Evaluates the complete basis of Hermite functions that are given by the product of a
     scaled Gaussian with a Hermite polynomial and can be written as follows:
 
-    .. image:: docs/hermite_functions/equations/HermiteFunctions.png
+    .. image:: docs/hermite_functions/equations/HF-05-Hermite_Functions_Basic_Definition.svg
 
-    .. image:: docs/hermite_functions/equations/HermitePolynomials.png
+    .. image:: docs/hermite_functions/equations/HF-06-Hermite_Polynomials_Basic_Definition.svg
 
     Please refer to the Notes section for further details.
 
@@ -63,7 +63,7 @@ def _hermite_function_basis(
     tracking a correction term that is added to the exponent of the Gaussian part of the
     Hermite function.
 
-    """
+    """  # noqa: E501
 
     # the recurrence relation here is started from the virtual -1-th order Hermite
     # function which is defined as h_{-1} = 0
@@ -137,9 +137,9 @@ def _single_hermite_function(
 
     The Hermite functions are defined as
 
-    .. image:: docs/hermite_functions/equations/HermiteFunctions.png
+    .. image:: docs/hermite_functions/equations/HF-05-Hermite_Functions_Basic_Definition.svg
 
-    .. image:: docs/hermite_functions/equations/HermitePolynomials.png
+    .. image:: docs/hermite_functions/equations/HF-06-Hermite_Polynomials_Basic_Definition.svg
 
     Parameters
     ----------
@@ -160,7 +160,7 @@ def _single_hermite_function(
     .. [1] Bunck B. F., A fast algorithm for evaluation of normalized Hermite
        functions, BIT Numer Math (2009), 49, pp. 281–295, DOI: 10.1007/s10543-009-0216-1
 
-    """
+    """  # noqa: E501
 
     # for the special case of n = 0, the Hermite function is just the Gaussian
     if n == 0:

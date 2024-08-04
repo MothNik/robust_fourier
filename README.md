@@ -111,7 +111,7 @@ functions or arbitrary order $n$ and argument - that can be scaled with a factor
 $\alpha$ and shifted by a constant $\mu$:
 
 <p align="center">
-  <img src="docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.png" width="1000px" />
+  <img src="docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.svg" width="1000px" />
 </p>
 
 After a slight modification of the definitions in [[1]](#references), the Hermite
@@ -156,7 +156,7 @@ evaluated for this anymore. The factorial for example would already have overflo
 orders of 170 in `float64`-precision.
 
 <p align="center">
-  <img src="docs/hermite_functions/EX-02-DilatedHermiteFunctions_Stability.png" width="1000px" />
+  <img src="docs/hermite_functions/EX-02-DilatedHermiteFunctions_Stability.svg" width="1000px" />
 </p>
 
 As a sanity check, their orthogonality is part of the tests together with a test for
@@ -171,7 +171,7 @@ special points of the Hermite functions, namely the x-positions of their
 - the point where they numerically fade to zero.
 
 <p align="center">
-  <img src="docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.png" width="1000px" />
+  <img src="docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.svg" width="1000px" />
 </p>
 
 ## References

@@ -39,7 +39,7 @@ MU = 150.0
 ORDER = 25
 
 # the path where to store the plot (only for developers)
-PLOT_FILEPATH = "../docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.png"
+PLOT_FILEPATH = "../docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.svg"
 
 # === Main ===
 
