@@ -33,13 +33,13 @@ X_TO = 320.0
 NUM_X = 50_001
 
 # the scaling factor alpha and center mu to use
-ALPHA = 0.05
+ALPHA = 20.0
 MU = 150.0
 # the order of the Hermite function to evaluate
 ORDER = 25
 
 # the path where to store the plot (only for developers)
-PLOT_FILEPATH = "../docs/hermite_functions/04-HermiteFunctions_SpecialPoints.png"
+PLOT_FILEPATH = "../docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.png"
 
 # === Main ===
 
@@ -141,7 +141,7 @@ if __name__ == "__main__":
         r"$\psi_{"
         + f"{ORDER}"
         + r"}^{\left("
-        + f"{ALPHA:.1f}; {MU:.0f}"
+        + f"{ALPHA:.0f}; {MU:.0f}"
         + r"\right)}\left(x\right)$"
     )
     ax.set_title("Special Points of the Hermite function " + psi_label)

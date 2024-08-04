@@ -98,7 +98,7 @@ pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=html -x --no-jit
 ```
 
 for parallelized testing whose coverage report will be stored in the file
-``./coverage.xml`` or in the folder ``./htmlcov``, respectively.
+`./coverage.xml` or in the folder `./htmlcov`, respectively.
 
 ## 〰️ Hermite functions
 
@@ -111,20 +111,20 @@ functions or arbitrary order $n$ and argument - that can be scaled with a factor
 $\alpha$ and shifted by a constant $\mu$:
 
 <p align="center">
-  <img src="docs/hermite_functions/01-DilatedHermiteFunctions_DifferentScales.png" width="1000px" />
+  <img src="docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.png" width="1000px" />
 </p>
 
 After a slight modification of the definitions in [[1]](#references), the Hermite
 functions can be written as
 
 <p align="left">
-  <img src="docs/hermite_functions/equations/Dilated_Hermite_Functions_Of_Generic_X.png" width="500px", height="91px" />
+  <img src="docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.png" />
 </p>
 
 with the Hermite polynomials
 
 <p align="left">
-  <img src="docs/hermite_functions/equations/Dilated_Hermite_Polynomials_Of_Generic_X.png" width="764px", height="65px" />
+  <img src="docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.png" />
 </p>
 
 By making use of logarithm tricks, the evaluation that might involve infinitely high
@@ -135,13 +135,13 @@ results.
 For doing so, the relation between the dilated and the non-dilated Hermite functions
 
 <p align="left">
-  <img src="docs/hermite_functions/equations/HermiteFunctions_UndilatedToDilated.png" width="366px", height="32px" />
+  <img src="docs/hermite_functions/equations/HF-03-Hermite_Functions_Dilated_to_Undilated.png" />
 </p>
 
 and the recurrence relation for the Hermite functions
 
 <p align="left">
-  <img src="docs/hermite_functions/equations/HermiteFunctions_RecurrenceRelation.png" width="576px", height="68px" />
+  <img src="docs/hermite_functions/equations/HF-04-Hermite_Functions_Recurrence_Relation.png" />
 </p>
 
 are used, but not directly. Instead, the latest evaluated Hermite function is kept at a
@@ -156,12 +156,12 @@ evaluated for this anymore. The factorial for example would already have overflo
 orders of 170 in `float64`-precision.
 
 <p align="center">
-  <img src="docs/hermite_functions/02-DilatedHermiteFunctions_Stability.png" width="1000px" />
+  <img src="docs/hermite_functions/EX-02-DilatedHermiteFunctions_Stability.png" width="1000px" />
 </p>
 
 As a sanity check, their orthogonality is part of the tests together with a test for
 the fact that the absolute values of the Hermite functions for real input cannot exceed
-the value $\frac{\sqrt{\alpha}}{\pi^{-\frac{1}{4}}}$.
+the value $\frac{1}{\sqrt[4]{\pi\cdot\alpha^{2}}}$.
 
 On top of that `robust_hermite_ft` comes with utility functions to approximate some
 special points of the Hermite functions, namely the x-positions of their
@@ -171,7 +171,7 @@ special points of the Hermite functions, namely the x-positions of their
 - the point where they numerically fade to zero.
 
 <p align="center">
-  <img src="docs/hermite_functions/04-HermiteFunctions_SpecialPoints.png" width="1000px" />
+  <img src="docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.png" width="1000px" />
 </p>
 
 ## References

@@ -93,3 +93,12 @@ test-htmlcov:
 test-xmlcov:
 	@echo Running the tests with XML coverage report ...
 	pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=xml -x --no-jit
+
+
+# === Documentation ===
+
+# Updating the LaTeX equations
+.PHONY: update-equations
+update-equations:
+	@echo Updating the LaTeX equations ...
+	python ./auxiliary_scripts/03_write_docs_equations.py

@@ -409,3 +409,10 @@ if (
         fig.savefig(diagnostic_plot_file_path)
 
     plt.show()
+
+
+elif __name__ == "__main__":
+    print(
+        "This script can only be run if the developer mode is enabled by setting the "
+        "environment variable 'ROBHERMFT_DEVELOPER' to 'true'."
+    )

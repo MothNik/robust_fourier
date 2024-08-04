@@ -34,7 +34,7 @@ SPECIAL_COLOR = "#00CC00"
 OFFSET = -0.5
 
 # the path where to store the plot (only for developers)
-PLOT_FILEPATH = "../docs/hermite_functions/02-DilatedHermiteFunctions_Stability.png"
+PLOT_FILEPATH = "../docs/hermite_functions/EX-02-DilatedHermiteFunctions_Stability.png"
 
 # === Main ===
 
