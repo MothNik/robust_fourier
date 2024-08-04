@@ -186,7 +186,7 @@ written as
 
 which is relatively similar to the Hermite functions in the time/space domain, but
 
-- $x$ is replaced by by the angular frequency $\omega = 2\pi\cdot f$,
+- $x$ is replaced by the angular frequency $\omega = 2\pi\cdot f$,
 - the scaling factor $\alpha$ is inverted,
 - there is an imaginary prefactor $\left(-j\right)^{n}$, and
 - there is another exponential prefactor $e^{-j\cdot\mu\cdot\omega}$ to account for the
