@@ -116,7 +116,7 @@ EQUATION_SPECIFICATIONS = {
 }
 
 # the fontsize of the equations
-FONTSIZE: float = 15
+FONTSIZE: float = 22
 # the resolution of the images in dots per inch
 DPI: int = 100
 

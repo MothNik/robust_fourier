@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="592.65pt" height="47.15pt" viewBox="0 0 592.65 47.15" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="523.26pt" height="43.22pt" viewBox="0 0 523.26 43.22" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2024-08-04T18:44:00.838796</dc:date>
+    <dc:date>2024-08-04T18:48:09.592136</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -21,16 +21,16 @@
  </defs>
  <g id="figure_1">
   <g id="patch_1">
-   <path d="M -0 47.15 
-L 592.65 47.15 
-L 592.65 0 
-L -0 0 
+   <path d="M 0 43.22 
+L 523.26 43.22 
+L 523.26 0 
+L 0 0 
 z
 " style="fill: #ffffff"/>
   </g>
   <g id="text_1">
    <!-- $H_{n}^{\left(\alpha;\mu\right)}\left(x\right)=(-1)^{n}\cdot exp\left(\left(\frac{x-\mu}{\alpha}\right)^{2}\right)\cdot\left(\frac{d}{dx}\right)^n\cdot exp\left(-\left(\frac{x-\mu}{\alpha}\right)^{2}\right)$ -->
-   <g transform="translate(7.2 28.95) scale(0.25 -0.25)">
+   <g transform="translate(7.2 26.34) scale(0.22 -0.22)">
     <defs>
      <path id="Cmmi10-48" d="M 300 0 
 Q 238 0 238 84 
