@@ -174,7 +174,40 @@ special points of the Hermite functions, namely the x-positions of their
   <img src="docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.svg" width="1000px" />
 </p>
 
-## References
+## 📈📉 Fourier transform
+
+When the previous definition of the Hermite function is (arbitrarily) defined to be the
+representation of the basis in the time/space domain, their Fourier transform can be
+written as
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-07-Hermite_Functions_Frequency_Domain_pt_1.svg" />
+</p>
+
+which is relatively similar to the Hermite functions in the time/space domain, but
+
+- $x$ is replaced by by the angular frequency $\omega = 2\pi\cdot f$,
+- the scaling factor $\alpha$ is inverted,
+- there is an imaginary prefactor $\left(-j\right)^{n}$, and
+- there is another exponential prefactor $e^{-j\cdot\mu\cdot\omega}$ to account for the
+  shift $\mu$ in the time/space domain (while there is no shift itself in the frequency
+  domain).
+
+Writing all the terms explicitly gives
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-08-Hermite_Functions_Frequency_Domain_pt_2.svg" />
+</p>
+
+This relationship can be proven by comparing the results of the analytical and the
+numerical Fourier transform of the Hermite functions - a quality control that is also
+part of the test suite.
+
+<p align="center">
+  <img src="docs/hermite_functions/EX-05-DilatedHermiteFunctions_FourierTransforms.svg" width="1000px" />
+</p>
+
+## 📖 References
 
 - [1] Dobróka M., Szegedi H., and Vass P., Inversion-Based Fourier Transform as a New
   Tool for Noise Rejection, _Fourier Transforms - High-tech Application and Current Trends_

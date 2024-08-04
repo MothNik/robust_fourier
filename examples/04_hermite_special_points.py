@@ -144,7 +144,10 @@ if __name__ == "__main__":
         + f"{ALPHA:.0f}; {MU:.0f}"
         + r"\right)}\left(x\right)$"
     )
-    ax.set_title("Special Points of the Hermite function " + psi_label)
+    ax.set_title(
+        "Special Points of the Hermite function " + psi_label,
+        fontsize=18,
+    )
     ax.set_xlabel("x")
     ax.set_ylabel(psi_label)
     ax.legend(
