@@ -3,21 +3,20 @@ Module :mod:`hermite_functions`
 
 This module provides  implementations of the Hermite functions which are essential for
 the robust Fourier transform.
-The ``n``-th Hermite function is given by
+The ``n``-th dilated and shifted Hermite function is given by
 
-.. image:: docs/hermite_functions/equations/HermiteFunctions.png
+.. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg
 
-where :math:`H_{n}` is the :math:`n`-th Hermite polynomial.
+where :math:`H_{n}` is the :math:`n`-th Hermite polynomial
+
+.. image:: docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg
 
 They have two nice properties:
 - they are orthogonal
 - they are eigenfunctions of the Fourier transform which makes them suitable for the
     robust Fourier transform by Least Squares Fits.
 
-Here, a scaled version of the Hermite functions is used that introduces a scaling
-factor :math:`{\\alpha}`:
-
-"""
+"""  # noqa: E501
 
 # === Imports ===
 

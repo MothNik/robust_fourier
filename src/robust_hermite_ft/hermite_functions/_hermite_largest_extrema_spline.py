@@ -10,7 +10,7 @@ error is ``1.00e-12`` with respect to a numerical optimisation which itself is t
 limiting factor for the accuracy.
 
 For a diagnostic plot that shows the fit quality, please see
-``auxiliary_scripts/./files/02-02_hermite_functions_largest_extrema.png``.
+``auxiliary_scripts/./files/02-02_hermite_functions_largest_extrema.svg``.
 
 """  # noqa: E501
 

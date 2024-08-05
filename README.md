@@ -98,7 +98,7 @@ pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=html -x --no-jit
 ```
 
 for parallelized testing whose coverage report will be stored in the file
-``./coverage.xml`` or in the folder ``./htmlcov``, respectively.
+`./coverage.xml` or in the folder `./htmlcov`, respectively.
 
 ## 〰️ Hermite functions
 
@@ -111,20 +111,20 @@ functions or arbitrary order $n$ and argument - that can be scaled with a factor
 $\alpha$ and shifted by a constant $\mu$:
 
 <p align="center">
-  <img src="docs/hermite_functions/01-DilatedHermiteFunctions_DifferentScales.png" width="1000px" />
+  <img src="docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.svg" width="1000px" />
 </p>
 
 After a slight modification of the definitions in [[1]](#references), the Hermite
 functions can be written as
 
-<p align="left">
-  <img src="docs/hermite_functions/equations/Dilated_Hermite_Functions_Of_Generic_X.png" width="500px", height="91px" />
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg" />
 </p>
 
 with the Hermite polynomials
 
-<p align="left">
-  <img src="docs/hermite_functions/equations/Dilated_Hermite_Polynomials_Of_Generic_X.png" width="764px", height="65px" />
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg" />
 </p>
 
 By making use of logarithm tricks, the evaluation that might involve infinitely high
@@ -134,14 +134,14 @@ results.
 
 For doing so, the relation between the dilated and the non-dilated Hermite functions
 
-<p align="left">
-  <img src="docs/hermite_functions/equations/HermiteFunctions_UndilatedToDilated.png" width="366px", height="32px" />
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-03-Hermite_Functions_Dilated_to_Undilated.svg" />
 </p>
 
 and the recurrence relation for the Hermite functions
 
-<p align="left">
-  <img src="docs/hermite_functions/equations/HermiteFunctions_RecurrenceRelation.png" width="576px", height="68px" />
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-04-Hermite_Functions_Recurrence_Relation.svg" />
 </p>
 
 are used, but not directly. Instead, the latest evaluated Hermite function is kept at a
@@ -156,12 +156,12 @@ evaluated for this anymore. The factorial for example would already have overflo
 orders of 170 in `float64`-precision.
 
 <p align="center">
-  <img src="docs/hermite_functions/02-DilatedHermiteFunctions_Stability.png" width="1000px" />
+  <img src="docs/hermite_functions/EX-02-DilatedHermiteFunctions_Stability.svg" width="1000px" />
 </p>
 
 As a sanity check, their orthogonality is part of the tests together with a test for
 the fact that the absolute values of the Hermite functions for real input cannot exceed
-the value $\frac{\sqrt{\alpha}}{\pi^{-\frac{1}{4}}}$.
+the value $\frac{1}{\sqrt[4]{\pi\cdot\alpha^{2}}}$.
 
 On top of that `robust_hermite_ft` comes with utility functions to approximate some
 special points of the Hermite functions, namely the x-positions of their
@@ -171,10 +171,43 @@ special points of the Hermite functions, namely the x-positions of their
 - the point where they numerically fade to zero.
 
 <p align="center">
-  <img src="docs/hermite_functions/04-HermiteFunctions_SpecialPoints.png" width="1000px" />
+  <img src="docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.svg" width="1000px" />
 </p>
 
-## References
+## 📈📉 Fourier transform
+
+When the previous definition of the Hermite function is (arbitrarily) defined to be the
+representation of the basis in the time/space domain, their Fourier transform can be
+written as
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-07-Hermite_Functions_Frequency_Domain_pt_1.svg" />
+</p>
+
+which is relatively similar to the Hermite functions in the time/space domain, but
+
+- $x$ is replaced by the angular frequency $\omega = 2\pi\cdot f$,
+- the scaling factor $\alpha$ is inverted,
+- there is an imaginary prefactor $\left(-j\right)^{n}$, and
+- there is another exponential prefactor $e^{-j\cdot\mu\cdot\omega}$ to account for the
+  shift $\mu$ in the time/space domain (while there is no shift itself in the frequency
+  domain).
+
+Writing all the terms explicitly gives
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-08-Hermite_Functions_Frequency_Domain_pt_2.svg" />
+</p>
+
+This relationship can be proven by comparing the results of the analytical and the
+numerical Fourier transform of the Hermite functions - a quality control that is also
+part of the test suite.
+
+<p align="center">
+  <img src="docs/hermite_functions/EX-05-DilatedHermiteFunctions_FourierTransforms.svg" width="1000px" />
+</p>
+
+## 📖 References
 
 - [1] Dobróka M., Szegedi H., and Vass P., Inversion-Based Fourier Transform as a New
   Tool for Noise Rejection, _Fourier Transforms - High-tech Application and Current Trends_

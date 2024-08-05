@@ -56,7 +56,7 @@ def _apply_centering_and_scaling(
 
     # the scaling is applied (if required)
     if alpha != 1.0:
-        values /= alpha
+        values *= alpha
 
     # the centering is applied (if required)
     if x_center != 0.0:
@@ -86,7 +86,7 @@ def hermite_funcs_largest_zeros_x(
         order for the spline interpolation (roughly 100 000).
     alpha : :class:`float` or :class:`int`, default=``1.0``
         The scaling factor of the independent variable ``x`` for
-        ``x_scaled = alpha * x``.
+        ``x_scaled = x / alpha``.
         It must be a positive number ``> 0``.
     x_center : :class:`float` or :class:`int` or ``None``, default=``None``
         The center of the dilated Hermite function.
@@ -183,7 +183,7 @@ def hermite_funcs_largest_extrema_x(
         order for the spline interpolation (roughly 100 000).
     alpha : :class:`float` or :class:`int`, default=``1.0``
         The scaling factor of the independent variable ``x`` for
-        ``x_scaled = alpha * x``.
+        ``x_scaled = x / alpha``.
         It must be a positive number ``> 0``.
     x_center : :class:`float` or :class:`int` or ``None``, default=``None``
         The center of the dilated Hermite function.
@@ -273,7 +273,7 @@ def hermite_funcs_fadeout_x(
         It must be a non-negative integer ``>= 0``.
     alpha : :class:`float` or :class:`int`, default=``1.0``
         The scaling factor of the independent variable ``x`` for
-        ``x_scaled = alpha * x``.
+        ``x_scaled = x / alpha``.
         It must be a positive number ``> 0``.
     x_center : :class:`float` or :class:`int` or ``None``, default=``None``
         The center of the dilated Hermite function.

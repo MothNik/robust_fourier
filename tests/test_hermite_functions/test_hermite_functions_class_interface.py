@@ -32,11 +32,11 @@ HermiteFunctionMethod = Literal["__call__", "eval"]
 # === Constants ===
 
 # the common scaling factors alpha for the tests
-ALPHA_VALUES = [0.5, 1.0, 2.0]
+TEST_SCALES_ALPHA = [0.5, 1.0, 2.0]
 # the common time/space x-centers for the tests
-TIME_SPACE_X_CENTER_VALUES = [-10.0, 0.0, None, 10.0]
+TEST_TIME_SPACE_X_CENTERS = [-10.0, 0.0, None, 10.0]
 # the common methods for the Hermite function computations by the class for the tests
-HERMITE_FUNCTION_COMPUTATION_METHODS = [
+TEST_HERMITE_FUNCTION_COMPUTATION_METHODS = [
     "__call__",  # calling the instance directly
     "eval",  # calling the static method ``eval``
 ]
@@ -290,8 +290,8 @@ def test_hermite_function_class_property_getters_setters_and_len() -> None:
     return
 
 
-@pytest.mark.parametrize("time_space_x_center", TIME_SPACE_X_CENTER_VALUES)
-@pytest.mark.parametrize("alpha", ALPHA_VALUES)
+@pytest.mark.parametrize("time_space_x_center", TEST_TIME_SPACE_X_CENTERS)
+@pytest.mark.parametrize("alpha", TEST_SCALES_ALPHA)
 def test_hermite_function_class_raises_error_when_no_available_functions(
     alpha: float,
     time_space_x_center: Optional[float],
@@ -361,7 +361,7 @@ def test_hermite_function_class_raises_error_when_no_available_functions(
     return
 
 
-@pytest.mark.parametrize("method", HERMITE_FUNCTION_COMPUTATION_METHODS)
+@pytest.mark.parametrize("method", TEST_HERMITE_FUNCTION_COMPUTATION_METHODS)
 def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
     method: HermiteFunctionMethod,
 ) -> None:
@@ -403,7 +403,7 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
     return
 
 
-@pytest.mark.parametrize("method", HERMITE_FUNCTION_COMPUTATION_METHODS)
+@pytest.mark.parametrize("method", TEST_HERMITE_FUNCTION_COMPUTATION_METHODS)
 @pytest.mark.parametrize(
     "test_specification",
     [
@@ -414,8 +414,8 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry=None,
             expected_output_format=HermiteOutputFormat(
                 num_columns=11,
-                time_space_dtype=np.complex128,
-                frequency_dtype=np.float64,
+                time_space_dtype=np.float64,
+                frequency_dtype=np.complex128,
             ),
         ),
         HermiteFunctionOutputFormatTestSpecs(  # Test 1: even n, no symmetry, no shift
@@ -425,8 +425,8 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="none",
             expected_output_format=HermiteOutputFormat(
                 num_columns=11,
-                time_space_dtype=np.complex128,
-                frequency_dtype=np.float64,
+                time_space_dtype=np.float64,
+                frequency_dtype=np.complex128,
             ),
         ),
         HermiteFunctionOutputFormatTestSpecs(  # Test 2: even n, even symmetry, no shift
@@ -447,8 +447,8 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="odd",
             expected_output_format=HermiteOutputFormat(
                 num_columns=5,
-                time_space_dtype=np.complex128,
-                frequency_dtype=np.float64,
+                time_space_dtype=np.float64,
+                frequency_dtype=np.complex128,
             ),
         ),
         HermiteFunctionOutputFormatTestSpecs(  # Test 4: odd n, no symmetry, no shift
@@ -458,8 +458,8 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry=None,
             expected_output_format=HermiteOutputFormat(
                 num_columns=12,
-                time_space_dtype=np.complex128,
-                frequency_dtype=np.float64,
+                time_space_dtype=np.float64,
+                frequency_dtype=np.complex128,
             ),
         ),
         HermiteFunctionOutputFormatTestSpecs(  # Test 5: odd n, no symmetry, no shift
@@ -469,8 +469,8 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="none",
             expected_output_format=HermiteOutputFormat(
                 num_columns=12,
-                time_space_dtype=np.complex128,
-                frequency_dtype=np.float64,
+                time_space_dtype=np.float64,
+                frequency_dtype=np.complex128,
             ),
         ),
         HermiteFunctionOutputFormatTestSpecs(  # Test 6: odd n, even symmetry, no shift
@@ -491,8 +491,8 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="odd",
             expected_output_format=HermiteOutputFormat(
                 num_columns=6,
-                time_space_dtype=np.complex128,
-                frequency_dtype=np.float64,
+                time_space_dtype=np.float64,
+                frequency_dtype=np.complex128,
             ),
         ),
         HermiteFunctionOutputFormatTestSpecs(  # Test 8: even n, no symmetry, no shift
@@ -502,8 +502,8 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry=None,
             expected_output_format=HermiteOutputFormat(
                 num_columns=11,
-                time_space_dtype=np.complex128,
-                frequency_dtype=np.float64,
+                time_space_dtype=np.float64,
+                frequency_dtype=np.complex128,
             ),
         ),
         HermiteFunctionOutputFormatTestSpecs(  # Test 9: even n, no symmetry, no shift
@@ -513,8 +513,8 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="none",
             expected_output_format=HermiteOutputFormat(
                 num_columns=11,
-                time_space_dtype=np.complex128,
-                frequency_dtype=np.float64,
+                time_space_dtype=np.float64,
+                frequency_dtype=np.complex128,
             ),
         ),
         HermiteFunctionOutputFormatTestSpecs(  # Test 10: even n, even symmetry, no shift  # noqa: E501
@@ -535,8 +535,8 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="odd",
             expected_output_format=HermiteOutputFormat(
                 num_columns=5,
-                time_space_dtype=np.complex128,
-                frequency_dtype=np.float64,
+                time_space_dtype=np.float64,
+                frequency_dtype=np.complex128,
             ),
         ),
         HermiteFunctionOutputFormatTestSpecs(  # Test 12: odd n, no symmetry, no shift
@@ -546,8 +546,8 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry=None,
             expected_output_format=HermiteOutputFormat(
                 num_columns=12,
-                time_space_dtype=np.complex128,
-                frequency_dtype=np.float64,
+                time_space_dtype=np.float64,
+                frequency_dtype=np.complex128,
             ),
         ),
         HermiteFunctionOutputFormatTestSpecs(  # Test 13: odd n, no symmetry, no shift
@@ -557,8 +557,8 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="none",
             expected_output_format=HermiteOutputFormat(
                 num_columns=12,
-                time_space_dtype=np.complex128,
-                frequency_dtype=np.float64,
+                time_space_dtype=np.float64,
+                frequency_dtype=np.complex128,
             ),
         ),
         HermiteFunctionOutputFormatTestSpecs(  # Test 14: odd n, even symmetry, no shift
@@ -579,8 +579,8 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="odd",
             expected_output_format=HermiteOutputFormat(
                 num_columns=6,
-                time_space_dtype=np.complex128,
-                frequency_dtype=np.float64,
+                time_space_dtype=np.float64,
+                frequency_dtype=np.complex128,
             ),
         ),
         HermiteFunctionOutputFormatTestSpecs(  # Test 16: even n, no symmetry, +shift
@@ -590,7 +590,7 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry=None,
             expected_output_format=HermiteOutputFormat(
                 num_columns=11,
-                time_space_dtype=np.complex128,
+                time_space_dtype=np.float64,
                 frequency_dtype=np.complex128,
             ),
         ),
@@ -601,7 +601,7 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="none",
             expected_output_format=HermiteOutputFormat(
                 num_columns=11,
-                time_space_dtype=np.complex128,
+                time_space_dtype=np.float64,
                 frequency_dtype=np.complex128,
             ),
         ),
@@ -623,7 +623,7 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="odd",
             expected_output_format=HermiteOutputFormat(
                 num_columns=5,
-                time_space_dtype=np.complex128,
+                time_space_dtype=np.float64,
                 frequency_dtype=np.complex128,
             ),
         ),
@@ -634,7 +634,7 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry=None,
             expected_output_format=HermiteOutputFormat(
                 num_columns=12,
-                time_space_dtype=np.complex128,
+                time_space_dtype=np.float64,
                 frequency_dtype=np.complex128,
             ),
         ),
@@ -645,7 +645,7 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="none",
             expected_output_format=HermiteOutputFormat(
                 num_columns=12,
-                time_space_dtype=np.complex128,
+                time_space_dtype=np.float64,
                 frequency_dtype=np.complex128,
             ),
         ),
@@ -667,7 +667,7 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="odd",
             expected_output_format=HermiteOutputFormat(
                 num_columns=6,
-                time_space_dtype=np.complex128,
+                time_space_dtype=np.float64,
                 frequency_dtype=np.complex128,
             ),
         ),
@@ -678,7 +678,7 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry=None,
             expected_output_format=HermiteOutputFormat(
                 num_columns=11,
-                time_space_dtype=np.complex128,
+                time_space_dtype=np.float64,
                 frequency_dtype=np.complex128,
             ),
         ),
@@ -689,7 +689,7 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="none",
             expected_output_format=HermiteOutputFormat(
                 num_columns=11,
-                time_space_dtype=np.complex128,
+                time_space_dtype=np.float64,
                 frequency_dtype=np.complex128,
             ),
         ),
@@ -711,7 +711,7 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="odd",
             expected_output_format=HermiteOutputFormat(
                 num_columns=5,
-                time_space_dtype=np.complex128,
+                time_space_dtype=np.float64,
                 frequency_dtype=np.complex128,
             ),
         ),
@@ -722,7 +722,7 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry=None,
             expected_output_format=HermiteOutputFormat(
                 num_columns=12,
-                time_space_dtype=np.complex128,
+                time_space_dtype=np.float64,
                 frequency_dtype=np.complex128,
             ),
         ),
@@ -733,7 +733,7 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="none",
             expected_output_format=HermiteOutputFormat(
                 num_columns=12,
-                time_space_dtype=np.complex128,
+                time_space_dtype=np.float64,
                 frequency_dtype=np.complex128,
             ),
         ),
@@ -755,7 +755,7 @@ def test_hermite_function_class_raises_error_for_invalid_x_omega_in_call(
             time_space_symmetry="odd",
             expected_output_format=HermiteOutputFormat(
                 num_columns=6,
-                time_space_dtype=np.complex128,
+                time_space_dtype=np.float64,
                 frequency_dtype=np.complex128,
             ),
         ),
@@ -819,9 +819,9 @@ def test_hermite_function_class_output_format(
     return
 
 
-@pytest.mark.parametrize("method", HERMITE_FUNCTION_COMPUTATION_METHODS)
-@pytest.mark.parametrize("time_space_x_center", TIME_SPACE_X_CENTER_VALUES)
-@pytest.mark.parametrize("alpha", ALPHA_VALUES)
+@pytest.mark.parametrize("method", TEST_HERMITE_FUNCTION_COMPUTATION_METHODS)
+@pytest.mark.parametrize("time_space_x_center", TEST_TIME_SPACE_X_CENTERS)
+@pytest.mark.parametrize("alpha", TEST_SCALES_ALPHA)
 @pytest.mark.parametrize("n", FOURIER_TRANSFORM_TEST_ORDERS)
 def test_hermite_function_continuous_fourier_transform(
     n: int,

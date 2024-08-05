@@ -52,7 +52,7 @@ REFERENCE_DATA_FILE_PATH = "./files/02-01_hermite_functions_largest_extrema.npy"
 OVERWRITE_REFERENCE_DATA = False
 
 # the path where the diagnostic plot is stored (relative to the current file)
-DIAGNOSTIC_PLOT_FILE_PATH = "./files/02-02_hermite_functions_largest_extrema.png"
+DIAGNOSTIC_PLOT_FILE_PATH = "./files/02-02_hermite_functions_largest_extrema.svg"
 
 # the path where to store the spline specifications (relative to the current file)
 SPLINE_SPECS_FILE_PATH = (
@@ -409,3 +409,10 @@ if (
         fig.savefig(diagnostic_plot_file_path)
 
     plt.show()
+
+
+elif __name__ == "__main__":
+    print(
+        "This script can only be run if the developer mode is enabled by setting the "
+        "environment variable 'ROBHERMFT_DEVELOPER' to 'true'."
+    )
