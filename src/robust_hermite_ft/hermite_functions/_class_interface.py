@@ -9,7 +9,7 @@ arbitrary points in both the time/space and the frequency domain.
 
 # === Imports ===
 
-from typing import Literal, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
@@ -36,7 +36,7 @@ _time_space_symmetry_aliases: set[Literal["even", "odd", "none"]] = {
 
 
 def _get_validated_time_space_symmetry(
-    time_space_symmetry: Optional[Literal["even", "odd", "none"]]
+    time_space_symmetry: Any,
 ) -> Literal["even", "odd", "none"]:
     """
     Validates the input for the time/space symmetry and returns the validated input.
