@@ -303,7 +303,7 @@ from .utils import (
             1,
             1.0,
             1.0 + 1.0j,
-            TypeError("Expected 'x_center' to be a float, integer, or None"),
+            TypeError("Expected the x-'center' to be a float, integer, or None"),
         ),
     ],
 )

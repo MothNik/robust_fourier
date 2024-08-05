@@ -31,9 +31,9 @@ from ._hermite_largest_roots_spline import (
 from ._validate import (
     IntScalar,
     RealScalar,
-    _get_validated_alpha,
-    _get_validated_order,
-    _get_validated_x_center,
+    get_validated_alpha,
+    get_validated_offset_along_axis,
+    get_validated_order,
 )
 
 # === Constants ===
@@ -121,9 +121,9 @@ def hermite_funcs_largest_zeros_x(
 
     # --- Input Validation ---
 
-    n = _get_validated_order(n=n)
-    alpha = _get_validated_alpha(alpha=alpha)
-    x_center = _get_validated_x_center(x_center=x_center)
+    n = get_validated_order(n=n)
+    alpha = get_validated_alpha(alpha=alpha)
+    x_center = get_validated_offset_along_axis(center=x_center, which_axis="x")
 
     # --- Computation ---
 
@@ -215,9 +215,9 @@ def hermite_funcs_largest_extrema_x(
 
     # --- Input Validation ---
 
-    n = _get_validated_order(n=n)
-    alpha = _get_validated_alpha(alpha=alpha)
-    x_center = _get_validated_x_center(x_center=x_center)
+    n = get_validated_order(n=n)
+    alpha = get_validated_alpha(alpha=alpha)
+    x_center = get_validated_offset_along_axis(center=x_center, which_axis="x")
 
     # --- Computation ---
 
@@ -305,9 +305,9 @@ def hermite_funcs_fadeout_x(
 
     # --- Input Validation ---
 
-    n = _get_validated_order(n=n)
-    alpha = _get_validated_alpha(alpha=alpha)
-    x_center = _get_validated_x_center(x_center=x_center)
+    n = get_validated_order(n=n)
+    alpha = get_validated_alpha(alpha=alpha)
+    x_center = get_validated_offset_along_axis(center=x_center, which_axis="x")
 
     # --- Computation ---
 

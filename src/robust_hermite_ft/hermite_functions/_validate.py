@@ -1,7 +1,7 @@
 """
 Module :mod:`hermite_functions._validate`
 
-This module implements the input validations for the Hermite function parameters
+This module implements the input validations for the Hermite function parameters:
 
 - ``x``: the independent variable
 - ``n``: the order of the Hermite function
@@ -46,7 +46,7 @@ class _GivesNoRealArrayError(Exception):
 # === Functions ===
 
 
-def _get_validated_x_values(x: Union[RealScalar, ArrayLike]) -> np.ndarray:
+def get_validated_x_values(x: Union[RealScalar, ArrayLike]) -> np.ndarray:
     """
     Validates the input for the x-values and returns the validated input.
 
@@ -86,7 +86,7 @@ def _get_validated_x_values(x: Union[RealScalar, ArrayLike]) -> np.ndarray:
     return x_internal
 
 
-def _get_validated_order(n: IntScalar) -> int:
+def get_validated_order(n: IntScalar) -> int:
     """
     Validates the input for the order of the Hermite function and returns the validated
     input.
@@ -106,7 +106,7 @@ def _get_validated_order(n: IntScalar) -> int:
     return n
 
 
-def _get_validated_alpha(alpha: RealScalar) -> float:
+def get_validated_alpha(alpha: RealScalar) -> float:
     """
     Validates the input for the scaling factor of the Hermite function and returns the
     validated input.
@@ -128,31 +128,33 @@ def _get_validated_alpha(alpha: RealScalar) -> float:
     return alpha
 
 
-def _get_validated_x_center(x_center: Optional[RealScalar]) -> float:
+def get_validated_offset_along_axis(
+    center: Optional[RealScalar], which_axis: str
+) -> float:
     """
-    Validates the input for the center of the Hermite function and returns the validated
-    input.
+    Validates the input for the center along the an axis, e.g., the x-center along the
+    x-axis, and returns the validated input.
 
     """
 
-    if x_center is not None:
+    if center is not None:
         # integers and NumPy scalars need to be converted to Python floats
-        if isinstance(x_center, _real_scalar_types_no_pyfloat):
-            x_center = float(x_center)
+        if isinstance(center, _real_scalar_types_no_pyfloat):
+            center = float(center)
 
-        if not isinstance(x_center, float):
+        if not isinstance(center, float):
             raise TypeError(
-                f"Expected 'x_center' to be a float, integer, or None but got type "
-                f"{type(x_center)}."
+                f"Expected the {which_axis}-'center' to be a float, integer, or None "
+                f"but got type {type(center)}."
             )
 
     else:
-        x_center = 0.0
+        center = 0.0
 
-    return x_center
+    return center
 
 
-def _get_validated_hermite_function_input(
+def get_validated_hermite_function_input(
     x: Union[RealScalar, ArrayLike],
     n: IntScalar,
     alpha: RealScalar,
@@ -166,8 +168,8 @@ def _get_validated_hermite_function_input(
     # the input is validated according to the requirements of the higher level caller
     # functions
     return (
-        _get_validated_x_values(x),
-        _get_validated_order(n),
-        _get_validated_alpha(alpha),
-        _get_validated_x_center(x_center),
+        get_validated_x_values(x),
+        get_validated_order(n),
+        get_validated_alpha(alpha),
+        get_validated_offset_along_axis(x_center, which_axis="x"),
     )

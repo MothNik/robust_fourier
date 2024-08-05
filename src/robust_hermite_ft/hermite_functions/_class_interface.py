@@ -18,9 +18,9 @@ from ._func_interface import hermite_function_basis
 from ._validate import (
     IntScalar,
     RealScalar,
-    _get_validated_alpha,
-    _get_validated_order,
-    _get_validated_x_center,
+    get_validated_alpha,
+    get_validated_offset_along_axis,
+    get_validated_order,
 )
 
 # === Constants ====
@@ -301,7 +301,7 @@ class HermiteFunctionBasis:
     alpha : :class:`float`
         The scaling factor of the independent variables.
     time_space_x_center : :class:`float`
-        The center of the Hermite functions in the time/space domain.
+        The x-center of the Hermite functions in the time/space domain.
     time_space_symmetry : ``"even"`` or ``"odd"`` or ``"none"``
         The symmetry to be assumed for the time space domain.
 
@@ -407,10 +407,11 @@ class HermiteFunctionBasis:
         time_space_x_center: Optional[RealScalar] = None,
         time_space_symmetry: Optional[Literal["even", "odd", "none"]] = None,
     ):
-        self._n: int = _get_validated_order(n=n)
-        self._alpha: float = _get_validated_alpha(alpha=alpha)
-        self._time_space_x_center: float = _get_validated_x_center(
-            x_center=time_space_x_center
+        self._n: int = get_validated_order(n=n)
+        self._alpha: float = get_validated_alpha(alpha=alpha)
+        self._time_space_x_center: float = get_validated_offset_along_axis(
+            center=time_space_x_center,
+            which_axis="x",
         )
         self._time_space_symmetry: Literal["even", "odd", "none"] = (
             _get_validated_time_space_symmetry(time_space_symmetry=time_space_symmetry)
@@ -429,7 +430,7 @@ class HermiteFunctionBasis:
 
     @n.setter
     def n(self, value: IntScalar) -> None:
-        self._n = _get_validated_order(n=value)
+        self._n = get_validated_order(n=value)
         self._is_fully_validated = False
 
     @property
@@ -438,7 +439,7 @@ class HermiteFunctionBasis:
 
     @alpha.setter
     def alpha(self, value: RealScalar) -> None:
-        self._alpha = _get_validated_alpha(alpha=value)
+        self._alpha = get_validated_alpha(alpha=value)
 
     @property
     def time_space_x_center(self) -> float:
@@ -446,7 +447,10 @@ class HermiteFunctionBasis:
 
     @time_space_x_center.setter
     def time_space_x_center(self, value: Optional[RealScalar]) -> None:
-        self._time_space_x_center = _get_validated_x_center(x_center=value)
+        self._time_space_x_center = get_validated_offset_along_axis(
+            center=value,
+            which_axis="x",
+        )
 
     @property
     def time_space_symmetry(self) -> Literal["even", "odd", "none"]:
@@ -576,9 +580,12 @@ class HermiteFunctionBasis:
 
         # if required, the input parameters are validated
         if validate_parameters:
-            n = _get_validated_order(n=n)
-            alpha = _get_validated_alpha(alpha=alpha)
-            time_space_x_center = _get_validated_x_center(x_center=time_space_x_center)
+            n = get_validated_order(n=n)
+            alpha = get_validated_alpha(alpha=alpha)
+            time_space_x_center = get_validated_offset_along_axis(
+                center=time_space_x_center,
+                which_axis="x",
+            )
             time_space_symmetry = _get_validated_time_space_symmetry(
                 time_space_symmetry=time_space_symmetry
             )

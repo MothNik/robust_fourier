@@ -25,8 +25,8 @@ from ._numpy_funcs import _single_hermite_function as _np_single_hermite_functio
 from ._validate import (
     IntScalar,
     RealScalar,
-    _get_validated_hermite_function_input,
-    _get_validated_x_values,
+    get_validated_hermite_function_input,
+    get_validated_x_values,
 )
 
 from ._c_hermite import (  # pyright: ignore[reportMissingImports]; fmt: skip; isort: skip   # noqa: E501
@@ -194,7 +194,7 @@ def hermite_function_basis(
             n,
             alpha,
             x_center,
-        ) = _get_validated_hermite_function_input(
+        ) = get_validated_hermite_function_input(
             x=x,
             n=n,
             alpha=alpha,
@@ -202,7 +202,7 @@ def hermite_function_basis(
         )
 
     else:
-        x_internal = _get_validated_x_values(x=x)
+        x_internal = get_validated_x_values(x=x)
 
     # the number of workers is determined
     workers = _get_num_workers(workers)
@@ -323,7 +323,7 @@ def slow_hermite_function_basis(
             n,
             alpha,
             x_center,
-        ) = _get_validated_hermite_function_input(
+        ) = get_validated_hermite_function_input(
             x=x,
             n=n,
             alpha=alpha,
@@ -331,7 +331,7 @@ def slow_hermite_function_basis(
         )
 
     else:  # pragma: no cover
-        x_internal = _get_validated_x_values(x=x)
+        x_internal = get_validated_x_values(x=x)
 
     # --- Computation ---
 
@@ -442,7 +442,7 @@ def single_hermite_function(
             n,
             alpha,
             x_center,
-        ) = _get_validated_hermite_function_input(
+        ) = get_validated_hermite_function_input(
             x=x,
             n=n,
             alpha=alpha,
@@ -450,7 +450,7 @@ def single_hermite_function(
         )
 
     else:  # pragma: no cover
-        x_internal = _get_validated_x_values(x=x)
+        x_internal = get_validated_x_values(x=x)
 
     # --- Computation ---
 
