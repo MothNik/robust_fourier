@@ -54,10 +54,6 @@ jobs:
         run: |
           make ruff-check
 
-      - name: Run Cython check
-        run: |
-          make cython-check
-
       - name: Run tests
         run: |
           make test-xmlcov

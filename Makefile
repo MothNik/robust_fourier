@@ -65,12 +65,6 @@ ruff-check:
 	@echo Checking code style with 'ruff' ...
 	ruff check $(SRC_DIRS)
 
-# Cython lint checking
-.PHONY: cython-check
-cython-check:
-	@echo Checking Cython code with 'cython-lint' ...
-	cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
-
 # All checks combined
 .PHONY: check
 check: black-check isort-check pyright-check mypy-check pycodestyle-check ruff-check cython-check
@@ -87,12 +81,12 @@ test:
 .PHONY: test-htmlcov
 test-htmlcov:
 	@echo Running the tests with HTML coverage report ...
-	pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=html -x --no-jit
+	pytest --cov=robust_fourier ./tests -n="auto" --cov-report=html -x --no-jit
 
 .PHONY: test-xmlcov
 test-xmlcov:
 	@echo Running the tests with XML coverage report ...
-	pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=xml -x --no-jit
+	pytest --cov=robust_fourier ./tests -n="auto" --cov-report=xml -x --no-jit
 
 
 # === Documentation ===
