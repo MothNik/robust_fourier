@@ -11,10 +11,10 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from robust_hermite_ft import hermite_function_basis
+from robust_fourier import hermite_function_basis
 
 plt.style.use(
-    os.path.join(os.path.dirname(__file__), "../docs/robust_hermite_ft.mplstyle")
+    os.path.join(os.path.dirname(__file__), "../docs/robust_fourier.mplstyle")
 )
 
 # === Constants ===
@@ -66,7 +66,7 @@ if __name__ == "__main__":
             n=ORDERS,
             alpha=alpha,
             x_center=mu,
-            workers=-1,
+            jit=True,
         )
 
         # NOTE: x-axis are plotted for orientation
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     )
 
     # the plot is saved ...
-    if os.getenv("ROBHERMFT_DEVELOPER", "false").lower() == "true":
+    if os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":
         plt.savefig(os.path.join(os.path.dirname(__file__), PLOT_FILEPATH))
 
     # ... and shown

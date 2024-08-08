@@ -18,12 +18,12 @@ import numpy as np
 import pytest
 from pandas import Series as PandasSeries
 
-from robust_hermite_ft import (
+from robust_fourier import (
     approximate_hermite_funcs_fadeout_x,
     hermite_function_basis,
     single_hermite_function,
 )
-from robust_hermite_ft.hermite_functions._func_interface import (
+from robust_fourier.hermite_functions._func_interface import (
     _is_data_linked,
     get_validated_hermite_function_input,
 )
@@ -251,7 +251,6 @@ def test_centered_hermite_functions_do_not_modify_x_values(
         n=1,
         alpha=1.0,
         x_center=20.0,
-        workers=1,
     )
 
     # the x-values are checked to be unchanged

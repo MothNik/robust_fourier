@@ -13,6 +13,7 @@ from math import sqrt as py_sqrt
 import numpy as np
 from numpy import abs as np_abs
 from numpy import exp, log, sqrt, square
+from scipy.integrate import trapezoid
 
 # === Functions ===
 
@@ -266,8 +267,8 @@ def _single_hermite_function(
         integrand_values_x_prefactor = 2 * x_value_internal * k_value
         # NOTE: the prefactor 2 exploits the symmetry of the target function, so only
         #       1 side has to be integrated
-        hermite_function[iter_i] = 2.0 * np.trapz(
-            np.exp(
+        hermite_function[iter_i] = 2.0 * trapezoid(
+            y=np.exp(
                 -1.0j * n * sub_integ_points
                 + integrand_values_x_prefactor * np.exp(1.0j * sub_integ_points)
                 - k_value_squared * np.exp(2.0j * sub_integ_points)

@@ -48,6 +48,11 @@ class HermiteFunctionBasis:
         The center of the dilated Hermite function.
         If ``None`` or ``0``, the function is centered at the origin.
         Otherwise, the center is shifted to the given value.
+    jit : :class:`bool`, default=``True``
+        Whether to use the Numba-accelerated implementation (``True``) or the
+        NumPy-based implementation (``False``).
+        If Numba is not available, the function silently falls back to the NumPy-based
+        implementation.
 
     Attributes
     ----------
@@ -107,6 +112,7 @@ class HermiteFunctionBasis:
         n: IntScalar,
         alpha: RealScalar = 1.0,
         x_center: Optional[RealScalar] = None,
+        jit: bool = True,
     ):
         self._n: int = get_validated_order(n=n)
         self._alpha: float = get_validated_alpha(alpha=alpha)
@@ -114,6 +120,7 @@ class HermiteFunctionBasis:
             offset=x_center,
             which_axis="x",
         )
+        self._jit: bool = jit
 
     # --- Properties ---
 
@@ -124,7 +131,6 @@ class HermiteFunctionBasis:
     @n.setter
     def n(self, value: IntScalar) -> None:
         self._n = get_validated_order(n=value)
-        self._is_fully_validated = False
 
     @property
     def alpha(self) -> float:
@@ -145,6 +151,20 @@ class HermiteFunctionBasis:
             which_axis="x",
         )
 
+    @property
+    def jit(self) -> bool:
+        return self._jit
+
+    @jit.setter
+    def jit(self, value: bool) -> None:
+        if not isinstance(value, bool):
+            raise TypeError(
+                f"Expected 'jit' to be a boolean but it is of type "
+                f"'{type(value).__name__}'."
+            )
+
+        self._jit = value
+
     # --- Public Methods ---
 
     @staticmethod
@@ -153,6 +173,7 @@ class HermiteFunctionBasis:
         n: IntScalar = 10,
         alpha: RealScalar = 1.0,
         x_center: Optional[RealScalar] = None,
+        jit: bool = True,
         validate_parameters: bool = True,
     ) -> NDArray[np.float64]:
         """
@@ -176,6 +197,11 @@ class HermiteFunctionBasis:
             The center of the dilated Hermite functions.
             If ``None`` or ``0``, the functions are centered at the origin.
             Otherwise, the center is shifted to the given value.
+        jit : :class:`bool`, default=``True``
+            Whether to use the Numba-accelerated implementation (``True``) or the
+            NumPy-based implementation (``False``).
+            If Numba is not available, the function silently falls back to the
+            NumPy-based implementation.
         validate_parameters : :class:`bool`, default=``True``
             Whether to validate ``n``, ``alpha``, and ``x_center`` before evaluating the
             Hermite functions.
@@ -203,6 +229,7 @@ class HermiteFunctionBasis:
             n=n,
             alpha=alpha,
             x_center=x_center,
+            jit=jit,
             validate_parameters=validate_parameters,
         )
 
@@ -234,5 +261,6 @@ class HermiteFunctionBasis:
             n=self._n,
             alpha=self._alpha,
             x_center=self._x_center,
+            jit=self._jit,
             validate_parameters=False,
         )

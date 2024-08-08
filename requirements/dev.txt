@@ -1,7 +1,5 @@
 black>=24.4.0
 coverage
-cython>=3.0.10
-cython-lint>=0.16.0
 esbonio
 ipympl
 isort[colors]>=5.13.0

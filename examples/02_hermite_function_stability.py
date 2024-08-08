@@ -11,10 +11,10 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from robust_hermite_ft import hermite_function_basis
+from robust_fourier import hermite_function_basis
 
 plt.style.use(
-    os.path.join(os.path.dirname(__file__), "../docs/robust_hermite_ft.mplstyle")
+    os.path.join(os.path.dirname(__file__), "../docs/robust_fourier.mplstyle")
 )
 
 # === Constants ===
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         x=x_values,
         n=max(ORDERS),
         alpha=ALPHA,
-        workers=-1,
+        jit=True,
     )
 
     # ... and the individual Hermite functions of interest are plotted
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     )
 
     # the plot is saved
-    if os.getenv("ROBHERMFT_DEVELOPER", "false").lower() == "true":
+    if os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":
         plt.savefig(
             os.path.join(os.path.dirname(__file__), PLOT_FILEPATH),
             bbox_inches="tight",

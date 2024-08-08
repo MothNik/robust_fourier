@@ -14,7 +14,7 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from robust_hermite_ft import (
+from robust_fourier import (
     approximate_hermite_funcs_fadeout_x,
     approximate_hermite_funcs_largest_extrema_x,
     approximate_hermite_funcs_largest_zeros_x,
@@ -22,7 +22,7 @@ from robust_hermite_ft import (
 )
 
 plt.style.use(
-    os.path.join(os.path.dirname(__file__), "../docs/robust_hermite_ft.mplstyle")
+    os.path.join(os.path.dirname(__file__), "../docs/robust_fourier.mplstyle")
 )
 
 # === Constants ===
@@ -159,7 +159,7 @@ if __name__ == "__main__":
     ax.set_xlim(X_FROM + MU, X_TO + MU)
 
     # the plot is stored
-    if os.getenv("ROBHERMFT_DEVELOPER", "false").lower() == "true":
+    if os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":
         plt.savefig(os.path.join(os.path.dirname(__file__), PLOT_FILEPATH))
 
     plt.show()

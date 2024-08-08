@@ -1,8 +1,8 @@
 """
-Package ``robust_hermite_ft``
+Package ``robust_fourier``
 
 This package contains the implementation a noise- and outlier-robust Fourier transform
-based on a Least Squares Fit of Hermite functions.
+based on a Least Squares Fit of non-parametric functions to the data.
 
 """
 
@@ -17,7 +17,6 @@ from .hermite_functions import (  # noqa: F401
     approximate_hermite_funcs_largest_zeros_x,
     hermite_function_basis,
     single_hermite_function,
-    slow_hermite_function_basis,
 )
 
 # === Package Metadata ===
