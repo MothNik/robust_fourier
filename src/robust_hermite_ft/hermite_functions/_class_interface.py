@@ -410,7 +410,7 @@ class HermiteFunctionBasis:
         self._n: int = get_validated_order(n=n)
         self._alpha: float = get_validated_alpha(alpha=alpha)
         self._time_space_x_center: float = get_validated_offset_along_axis(
-            center=time_space_x_center,
+            offset=time_space_x_center,
             which_axis="x",
         )
         self._time_space_symmetry: Literal["even", "odd", "none"] = (
@@ -448,7 +448,7 @@ class HermiteFunctionBasis:
     @time_space_x_center.setter
     def time_space_x_center(self, value: Optional[RealScalar]) -> None:
         self._time_space_x_center = get_validated_offset_along_axis(
-            center=value,
+            offset=value,
             which_axis="x",
         )
 
@@ -583,7 +583,7 @@ class HermiteFunctionBasis:
             n = get_validated_order(n=n)
             alpha = get_validated_alpha(alpha=alpha)
             time_space_x_center = get_validated_offset_along_axis(
-                center=time_space_x_center,
+                offset=time_space_x_center,
                 which_axis="x",
             )
             time_space_symmetry = _get_validated_time_space_symmetry(
@@ -611,10 +611,12 @@ class HermiteFunctionBasis:
         if x_is_given:
             independent_variable = x
             center_internal = time_space_x_center
+            independent_variable_name = "x"
         else:
             independent_variable = omega
             alpha = 1.0 / alpha
             center_internal = 0.0
+            independent_variable_name = "omega"
 
         # the Hermite function basis is computed with skipped parameter validation
         # because this was already done within the constructor

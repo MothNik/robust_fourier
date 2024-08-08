@@ -80,7 +80,7 @@ def get_validated_x_values(x: Any) -> np.ndarray:
     if x_internal.size < 1:
         raise ValueError(
             f"Expected 'x' to have at least one element but got {x_internal.size} "
-            "elements."
+            f"elements."
         )
 
     return x_internal
@@ -129,7 +129,7 @@ def get_validated_alpha(alpha: Any) -> float:
 
 
 def get_validated_offset_along_axis(
-    center: Any,
+    offset: Any,
     which_axis: str,
 ) -> float:
     """
@@ -138,21 +138,21 @@ def get_validated_offset_along_axis(
 
     """
 
-    if center is not None:
+    if offset is not None:
         # integers and NumPy scalars need to be converted to Python floats
-        if isinstance(center, _real_scalar_types_no_pyfloat):
-            center = float(center)
+        if isinstance(offset, _real_scalar_types_no_pyfloat):
+            offset = float(offset)
 
-        if not isinstance(center, float):
+        if not isinstance(offset, float):
             raise TypeError(
                 f"Expected the {which_axis}-'center' to be a float, integer, or None "
-                f"but got type {type(center)}."
+                f"but got type {type(offset)}."
             )
 
     else:
-        center = 0.0
+        offset = 0.0
 
-    return center
+    return offset
 
 
 def get_validated_hermite_function_input(
@@ -169,8 +169,11 @@ def get_validated_hermite_function_input(
     # the input is validated according to the requirements of the higher level caller
     # functions
     return (
-        get_validated_x_values(x),
-        get_validated_order(n),
-        get_validated_alpha(alpha),
-        get_validated_offset_along_axis(x_center, which_axis="x"),
+        get_validated_x_values(x=x),
+        get_validated_order(n=n),
+        get_validated_alpha(alpha=alpha),
+        get_validated_offset_along_axis(
+            offset=x_center,
+            which_axis="x",
+        ),
     )

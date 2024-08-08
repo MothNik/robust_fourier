@@ -123,7 +123,7 @@ def hermite_funcs_largest_zeros_x(
 
     n = get_validated_order(n=n)
     alpha = get_validated_alpha(alpha=alpha)
-    x_center = get_validated_offset_along_axis(center=x_center, which_axis="x")
+    x_center = get_validated_offset_along_axis(offset=x_center, which_axis="x")
 
     # --- Computation ---
 
@@ -217,7 +217,7 @@ def hermite_funcs_largest_extrema_x(
 
     n = get_validated_order(n=n)
     alpha = get_validated_alpha(alpha=alpha)
-    x_center = get_validated_offset_along_axis(center=x_center, which_axis="x")
+    x_center = get_validated_offset_along_axis(offset=x_center, which_axis="x")
 
     # --- Computation ---
 
@@ -307,7 +307,7 @@ def hermite_funcs_fadeout_x(
 
     n = get_validated_order(n=n)
     alpha = get_validated_alpha(alpha=alpha)
-    x_center = get_validated_offset_along_axis(center=x_center, which_axis="x")
+    x_center = get_validated_offset_along_axis(offset=x_center, which_axis="x")
 
     # --- Computation ---
 
