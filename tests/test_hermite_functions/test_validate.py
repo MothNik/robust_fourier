@@ -323,20 +323,25 @@ def test_dilated_hermite_functions_input_validation(
 
     """  # noqa: E501
 
-    # the function is parametrized
-    func, kwargs = setup_hermite_function_basis_implementations(
-        implementation=implementation
-    )
-
     # if an exception should be raised, the function is called and the exception is
     # checked
     if isinstance(expected, Exception):
         with pytest.raises(type(expected), match=str(expected)):
-            func(
-                x=x,  # type: ignore
+            # the function is parametrized
+            # NOTE: for the class interface the validation will happen in the
+            #       constructor and a failure will thus happen here already
+            func, kwargs = setup_hermite_function_basis_implementations(
+                implementation=implementation,
                 n=n,
                 alpha=alpha,
                 x_center=x_center,
+            )
+
+            # the function is called
+            # NOTE: for the class interfaces the validation will happen in the actual
+            #       function call and a failure will thus happen here
+            func(
+                x=x,  # type: ignore
                 **kwargs,
             )
 
@@ -344,11 +349,17 @@ def test_dilated_hermite_functions_input_validation(
 
     # if no exception should be raised, the function is called and if it finishes, the
     # test is passed
-    func(
-        x=x,  # type: ignore
+    # the function is parametrized
+    func, kwargs = setup_hermite_function_basis_implementations(
+        implementation=implementation,
         n=n,
         alpha=alpha,
         x_center=x_center,
+    )
+
+    # the function is called
+    func(
+        x=x,  # type: ignore
         **kwargs,
     )
 

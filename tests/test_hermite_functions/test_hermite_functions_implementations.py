@@ -1,5 +1,7 @@
 """
-This test suite implements the tests for the module :mod:`hermite_functions._func_interface`.
+This test suite implements the tests for the module :mod:`hermite_functions._func_interface`
+and also the ``__call__`` method of the class :class:`HermiteFunctionBasis` from the
+module :mod:`hermite_functions._class_interface`.
 
 """  # noqa: E501
 
@@ -284,14 +286,14 @@ def test_dilated_hermite_function_basis_against_symbolic_reference(
     for reference in reference_dilated_hermite_function_basis:
         # the numerical implementation is parametrized and called
         func, kwargs = setup_hermite_function_basis_implementations(
-            implementation=implementation
+            implementation=implementation,
+            n=reference.n,
+            alpha=reference.alpha,
+            x_center=x_center,
         )
         x_center_for_shift = x_center if x_center is not None else 0.0
         numerical_herm_func_basis = func(
             x=(reference.x_values + x_center_for_shift).astype(x_dtype),  # type: ignore
-            n=reference.n,
-            alpha=reference.alpha,
-            x_center=x_center,
             **kwargs,
         )
 
@@ -357,12 +359,13 @@ def test_dilated_hermite_function_basis_orthonormal_and_bounded(
 
     # the function is parametrized and called to evaluate the Hermite functions
     func, kwargs = setup_hermite_function_basis_implementations(
-        implementation=implementation
+        implementation=implementation,
+        n=n,
+        alpha=alpha,
+        x_center=None,
     )
     hermite_basis = func(
         x=x_values,  # type: ignore
-        n=n,
-        alpha=alpha,
         **kwargs,
     )
 
@@ -448,13 +451,13 @@ def test_hermite_functions_work_identically_for_all_x_types(
 
     # the Hermite function for the NumPy-Array x-points is computed as a reference
     func, kwargs = setup_hermite_function_basis_implementations(
-        implementation=implementation
-    )
-    hermite_basis_reference = func(
-        x=x_points_to_check,  # type: ignore
+        implementation=implementation,
         n=1,
         alpha=alpha,
         x_center=x_center,
+    )
+    hermite_basis_reference = func(
+        x=x_points_to_check,  # type: ignore
         **kwargs,
     )
 
@@ -462,9 +465,6 @@ def test_hermite_functions_work_identically_for_all_x_types(
     # 1) a list
     hermite_basis_from_x_list = func(
         x=x_points_to_check.tolist(),  # type: ignore
-        n=1,
-        alpha=alpha,
-        x_center=x_center,
         **kwargs,
     )
     assert np.array_equal(
@@ -475,9 +475,6 @@ def test_hermite_functions_work_identically_for_all_x_types(
     # 2) a tuple
     hermite_basis_from_x_tuple = func(
         x=tuple(x_points_to_check.tolist()),  # type: ignore
-        n=1,
-        alpha=alpha,
-        x_center=x_center,
         **kwargs,
     )
     assert np.array_equal(
@@ -488,9 +485,6 @@ def test_hermite_functions_work_identically_for_all_x_types(
     # 3) a Pandas Series
     hermite_basis_from_x_pandas_series = func(
         x=PandasSeries(x_points_to_check.tolist()),  # type: ignore
-        n=1,
-        alpha=alpha,
-        x_center=x_center,
         **kwargs,
     )
     assert np.array_equal(
@@ -501,9 +495,6 @@ def test_hermite_functions_work_identically_for_all_x_types(
     # 4) a Python Array
     hermite_basis_from_x_pyarray = func(
         x=PythonArray("d", x_points_to_check.tolist()),  # type: ignore
-        n=1,
-        alpha=alpha,
-        x_center=x_center,
         **kwargs,
     )
     assert np.array_equal(
@@ -517,9 +508,6 @@ def test_hermite_functions_work_identically_for_all_x_types(
             [
                 func(
                     x=float_func(x_point),  # type: ignore
-                    n=1,
-                    alpha=alpha,
-                    x_center=x_center,
                     **kwargs,
                 )[0, ::]
                 for x_point in x_points_to_check
@@ -558,22 +546,25 @@ def test_hermite_functions_work_identically_for_all_n_alpha_x_center_types(
     # the Hermite function for the x-points and Python integer parameters is computed as
     # a reference
     func, kwargs = setup_hermite_function_basis_implementations(
-        implementation=implementation
-    )
-    hermite_basis_reference = func(
-        x=x_points_to_check,  # type: ignore
+        implementation=implementation,
         n=n_ref_value,
         alpha=alpha_ref_value,
         x_center=x_center_ref_value,
+    )
+    hermite_basis_reference = func(
+        x=x_points_to_check,  # type: ignore
         **kwargs,
     )
 
     # then, ``n`` is tested with a NumPy instead of a Python integer
-    hermite_basis_from_n_numpy_int = func(
-        x=x_points_to_check,  # type: ignore
+    func, kwargs = setup_hermite_function_basis_implementations(
+        implementation=implementation,
         n=np.int64(n_ref_value),
         alpha=alpha_ref_value,
         x_center=x_center_ref_value,
+    )
+    hermite_basis_from_n_numpy_int = func(
+        x=x_points_to_check,  # type: ignore
         **kwargs,
     )
     assert np.array_equal(
@@ -584,11 +575,14 @@ def test_hermite_functions_work_identically_for_all_n_alpha_x_center_types(
     # afterwards, ``alpha`` is tested with a NumPy integer, a Python float, and a
     # NumPy float instead of a Python integer
     for alpha_conversion in [np.int64, float, np.float64]:
-        hermite_basis_from_alpha_converted = func(
-            x=x_points_to_check,  # type: ignore
+        func, kwargs = setup_hermite_function_basis_implementations(
+            implementation=implementation,
             n=n_ref_value,
             alpha=alpha_conversion(alpha_ref_value),
             x_center=x_center_ref_value,
+        )
+        hermite_basis_from_alpha_converted = func(
+            x=x_points_to_check,  # type: ignore
             **kwargs,
         )
         assert np.array_equal(
@@ -599,11 +593,14 @@ def test_hermite_functions_work_identically_for_all_n_alpha_x_center_types(
     # finally, ``x_center`` is tested with a NumPy integer, a Python float, and a
     # NumPy float instead of a Python integer
     for x_center_conversion in [np.int64, float, np.float64]:
-        hermite_basis_from_x_center_converted = func(
-            x=x_points_to_check,  # type: ignore
+        func, kwargs = setup_hermite_function_basis_implementations(
+            implementation=implementation,
             n=n_ref_value,
             alpha=alpha_ref_value,
             x_center=x_center_conversion(x_center_ref_value),
+        )
+        hermite_basis_from_x_center_converted = func(
+            x=x_points_to_check,  # type: ignore
             **kwargs,
         )
         assert np.array_equal(
