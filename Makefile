@@ -19,7 +19,7 @@ install: upgrade-pip
 
 .PHONY: install-dev
 install-dev: upgrade-pip
-	@echo Installing the required dependencies and building the package ...
+	@echo Installing the required dependencies and building the package for development ...
 	python -m pip install --upgrade .["dev"]
 
 .PHONY: install-ci
@@ -44,13 +44,13 @@ isort-check:
 # pyright static type checking
 .PHONY: pyright-check
 pyright-check:
-	@echo Checking static types with 'pyright' ...
+	@echo Checking types statically with 'pyright' ...
 	pyright $(SRC_DIRS)
 
 # mypy static type checking
 .PHONY: mypy-check
 mypy-check:
-	@echo Checking static types with 'mypy' ...
+	@echo Checking types statically with 'mypy' ...
 	mypy $(SRC_DIRS)
 
 # pycodestyle style checking
@@ -71,15 +71,34 @@ cython-check:
 	@echo Checking Cython code with 'cython-lint' ...
 	cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
 
+# All checks combined
+.PHONY: check
+check: black-check isort-check pyright-check mypy-check pycodestyle-check ruff-check cython-check
+
 # === Test Commands ===
 
+# Running a single test
+.PHONY: test
+test:
+	@echo Running specific test with pytest ...
+	pytest -k "$(TEST)" -x
+
 # Running the tests
-.PHONY: test-html
-test-html:
-	@echo Running the tests ...
+.PHONY: test-htmlcov
+test-htmlcov:
+	@echo Running the tests with HTML coverage report ...
 	pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=html -x --no-jit
 
-.PHONY: test-xml
-test-xml:
-	@echo Running the tests ...
+.PHONY: test-xmlcov
+test-xmlcov:
+	@echo Running the tests with XML coverage report ...
 	pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=xml -x --no-jit
+
+
+# === Documentation ===
+
+# Updating the LaTeX equations
+.PHONY: update-equations
+update-equations:
+	@echo Updating the LaTeX equations ...
+	python ./auxiliary_scripts/03_write_docs_equations.py

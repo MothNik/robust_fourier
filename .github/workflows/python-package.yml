@@ -60,7 +60,7 @@ jobs:
 
       - name: Run tests
         run: |
-          make test-xml
+          make test-xmlcov
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v4.0.1

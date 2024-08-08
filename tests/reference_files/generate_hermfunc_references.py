@@ -1,7 +1,7 @@
 """
 This script generates the reference values of the dilated Hermite functions by
 symbolic calculation and stores them as NumPy binary files. Given that the symbolic
-computations with 100 significant digits are very costly, they have to be precomputed
+computations with 200 significant digits are very costly, they have to be precomputed
 and stored for later use.
 
 Despite the underlying multiprocessing, running ths script will take up to three hours
@@ -15,8 +15,8 @@ import json
 import os
 from dataclasses import asdict, dataclass, field
 from functools import partial
+from math import sqrt as pysqrt
 from multiprocessing import Pool
-from time import perf_counter
 from typing import Dict, List, Tuple
 
 import numpy as np
@@ -72,8 +72,6 @@ class ReferenceHermiteFunctionsMetadata:
 
     - ``parameters_mapping``: a mapping of the filenames to the parameters of
         the Hermite functions,
-    - ``computation_time_mapping``: a mapping of the filenames to the computation times
-        in seconds,
     - ``num_digits``: the number of significant digits used in the symbolic evaluation,
         and
     - ``x_values``: the points at which the Hermite functions are evaluated.
@@ -81,7 +79,6 @@ class ReferenceHermiteFunctionsMetadata:
     """
 
     parameters_mapping: Dict[str, HermiteFunctionsParameters]
-    computation_time_mapping: Dict[str, float]
     num_digits: int
     x_values: np.ndarray
 
@@ -111,7 +108,7 @@ def _eval_sym_hermite_worker(
         # the expression for the Hermite function is evaluated
         hermite_expression = expressions[iter_j]
         hermite_function_values[iter_j] = hermite_expression.subs(
-            x_sym, alpha * x[row_index]
+            x_sym, x[row_index] / alpha
         ).evalf(n=num_digits)
 
     return row_index, hermite_function_values
@@ -127,7 +124,7 @@ def _eval_sym_dilated_hermite_function_basis(
     Evaluates the first ``n + 1`` dilated Hermite functions at the given points ``x``.
     They are defined as
 
-    .. image:: docs/hermite_functions/equations/Dilated_Hermite_Functions_Of_Generic_X.png
+    .. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg
 
     Parameters
     ----------
@@ -136,7 +133,7 @@ def _eval_sym_dilated_hermite_function_basis(
     n : :class:`int`
         The order of the Hermite functions.
     alpha : :class:`float`
-        The scaling factor of the independent variable ``x`` as ``alpha * x``.
+        The scaling factor of the independent variable ``x`` as ``x / alpha``.
     num_digits : :class:`int`, default=16
         The number of digits used in the symbolic evaluation of the Hermite
         functions.
@@ -207,7 +204,7 @@ def _eval_sym_dilated_hermite_function_basis(
     for row_idx, row_values in results:
         hermite_function_basis[row_idx, ::] = row_values
 
-    return np.sqrt(alpha) * hermite_function_basis
+    return hermite_function_basis / pysqrt(alpha)
 
 
 # === Main Code ===
@@ -294,12 +291,10 @@ if __name__ == "__main__":
 
     # the Hermite functions are evaluated for the different scaling factors and saved
     filename_parameters_mapping: Dict[str, HermiteFunctionsParameters] = dict()
-    computation_time_mapping = dict()
 
     progress_bar.set_description("Generating Hermite reference data")
     for parameters in N_AND_ALPHA_COMBINATIONS:
         # the basis of the Hermite functions is generated ...
-        start_time = perf_counter()
         hermite_function_basis = _eval_sym_dilated_hermite_function_basis(
             x=x_values,
             n=parameters.n,
@@ -316,7 +311,6 @@ if __name__ == "__main__":
         filepath = os.path.join(FILE_DIRECTORY, filename)
         np.save(file=filepath, arr=hermite_function_basis, allow_pickle=False)
         filename_parameters_mapping[filename] = parameters
-        computation_time_mapping[filename] = perf_counter() - start_time
 
         progress_bar.update(1)
 
@@ -324,7 +318,6 @@ if __name__ == "__main__":
     progress_bar.set_description("Storing metadata")
     reference_metadata = ReferenceHermiteFunctionsMetadata(
         parameters_mapping=filename_parameters_mapping,
-        computation_time_mapping=computation_time_mapping,
         num_digits=NUM_DIGITS,
         x_values=x_values.tolist(),
     )

@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 from scipy.optimize import minimize_scalar
 
-from robust_hermite_ft.hermite_functions import (
+from robust_hermite_ft import (
     approximate_hermite_funcs_fadeout_x,
     approximate_hermite_funcs_largest_extrema_x,
     approximate_hermite_funcs_largest_zeros_x,
@@ -22,23 +22,23 @@ from robust_hermite_ft.hermite_functions import (
 # === Constants ===
 
 # the absolute and relative x-width for testing the largest zero
-LARGEST_ZERO_X_ABS_WIDTH = 1e-9
-LARGEST_ZERO_X_REL_WIDTH = 1e-9
+LARGEST_ZERO_TEST_X_ABS_WIDTH = 1e-9
+LARGEST_ZERO_TEST_X_REL_WIDTH = 1e-9
 
 # the y-tolerance for the fadeout points as a multiple of the machine epsilon
 # NOTE: to avoid numerical issues, the tolerance is slightly increased
-FADEOUT_Y_TOL_EPS_MULTIPLIER = 10.0
+FADEOUT_TEST_Y_TOL_EPS_MULTIPLIER = 10.0
 
 # the width of the x-interval spanned for testing the largest extrema via numerical
 # minimisation
-LARGEST_EXTREMUM_NUMMINIM_X_WIDTH = 1e-3
+LARGEST_EXTREMUM_TEST_NUMMINIM_X_WIDTH = 1e-3
 # the absolute tolerance of the numerical minimisation for the largest extrema
-LARGEST_EXTREMUM_NUMMINIM_X_ATOL = 1e-13
+LARGEST_EXTREMUM_TEST_NUMMINIM_X_ATOL = 1e-13
 # the maximum number of iterations for the numerical minimisation for the largest
 # extrema
-LARGEST_EXTREMUM_NUMMINIM_MAX_ITER = 100_000
+LARGEST_EXTREMUM_TEST_NUMMINIM_MAX_ITER = 100_000
 # the relative y-tolerance for testing the largest extrema
-LARGEST_EXTREMUM_Y_RTOL = 1e-10
+LARGEST_EXTREMUM_TEST_Y_RTOL = 1e-10
 
 # the scales alpha to test
 TEST_SCALES_ALPHA = [0.05, 0.5, 1.0, 2.0, 20.0]
@@ -134,8 +134,9 @@ def test_hermite_funcs_largest_zero_approximation(
         # NOTE: ``x_center`` has to be subtracted for the relative width to avoid it
         #       from getting bigger than it truly is just because of the offset
         x_reference_distance = max(
-            LARGEST_ZERO_X_ABS_WIDTH / alpha,
-            LARGEST_ZERO_X_REL_WIDTH * (abs(x_lgz) - abs(x_center_for_ref_tolerance)),
+            alpha * LARGEST_ZERO_TEST_X_ABS_WIDTH,
+            LARGEST_ZERO_TEST_X_REL_WIDTH
+            * (abs(x_lgz) - abs(x_center_for_ref_tolerance)),
         )
         x_zero_reference = np.array(
             [
@@ -199,11 +200,11 @@ def test_hermite_funcs_fadeout_approximation(
     )
 
     # ... and checked if they are close to zero
-    # NOTE: that different alpha-values scale the Hermite functions to preserve
-    #       orthonormality, so this scaling (by the square root of alpha) is taken
-    #       into account in the tolerance
-    y_fadeout_tolerance = (
-        pysqrt(alpha) * FADEOUT_Y_TOL_EPS_MULTIPLIER * np.finfo(np.float64).eps
+    # NOTE: different alpha-values require scaling the Hermite functions to preserve
+    #       orthonormality, so this scaling (by the reciprocal square root of alpha) is
+    #       taken into account in the tolerance
+    y_fadeout_tolerance = FADEOUT_TEST_Y_TOL_EPS_MULTIPLIER * (
+        np.finfo(np.float64).eps / pysqrt(alpha)
     )
     assert np.abs(hermite_fadeout_values <= y_fadeout_tolerance).all(), (
         f"The Hermite function of order {n} with {alpha=} and {x_center=} "
@@ -274,8 +275,8 @@ def test_hermite_funcs_largest_extrema_approximation(
     # then, the largest extrema are checked
     for x_lge, herm_lge in zip(x_largest_extrema, hermite_extrema_values):
         # the interval around the extremum is spanned
-        x_lower_bound = x_lge - LARGEST_EXTREMUM_NUMMINIM_X_WIDTH / alpha
-        x_upper_bound = x_lge + LARGEST_EXTREMUM_NUMMINIM_X_WIDTH / alpha
+        x_lower_bound = x_lge - alpha * LARGEST_EXTREMUM_TEST_NUMMINIM_X_WIDTH
+        x_upper_bound = x_lge + alpha * LARGEST_EXTREMUM_TEST_NUMMINIM_X_WIDTH
 
         # the objective function for the extremum is minimised
         reference_result = minimize_scalar(
@@ -284,15 +285,15 @@ def test_hermite_funcs_largest_extrema_approximation(
             args=(n, alpha, x_center),
             method="bounded",
             options=dict(
-                xatol=LARGEST_EXTREMUM_NUMMINIM_X_ATOL / alpha,
-                maxiter=LARGEST_EXTREMUM_NUMMINIM_MAX_ITER,
+                xatol=alpha * LARGEST_EXTREMUM_TEST_NUMMINIM_X_ATOL,
+                maxiter=LARGEST_EXTREMUM_TEST_NUMMINIM_MAX_ITER,
             ),
         )
 
         # the resulting extremum values is checked against the Hermite function
         # values at the estimated extremum (with the numerical minimisation as reference
         # for the tolerance)
-        tolerance = LARGEST_EXTREMUM_Y_RTOL * np.abs(reference_result.fun)
+        tolerance = LARGEST_EXTREMUM_TEST_Y_RTOL * np.abs(reference_result.fun)
         extremum_y_difference = abs(herm_lge) - abs(reference_result.fun)
         assert extremum_y_difference <= tolerance, (
             f"The Hermite function of order {n} with {alpha=} and {x_center=} "

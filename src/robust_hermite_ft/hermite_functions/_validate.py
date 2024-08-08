@@ -1,7 +1,7 @@
 """
 Module :mod:`hermite_functions._validate`
 
-This module implements the input validations for the Hermite function parameters
+This module implements the input validations for the Hermite function parameters:
 
 - ``x``: the independent variable
 - ``n``: the order of the Hermite function
@@ -12,16 +12,18 @@ This module implements the input validations for the Hermite function parameters
 
 # === Imports ===
 
-from typing import Optional, Tuple, Union
+from typing import Any, Tuple, Union
 
 import numpy as np
-from numpy.typing import ArrayLike
 
 # === Types ===
 
-# a float or integer
+# a Python or NumPy float or integer
 RealScalar = Union[float, int, np.floating, np.integer]
 _real_scalar_types_no_pyfloat = (int, np.floating, np.integer)
+
+# a Python or NumPy integer
+IntScalar = Union[int, np.integer]
 
 # === Constants ===
 
@@ -43,7 +45,7 @@ class _GivesNoRealArrayError(Exception):
 # === Functions ===
 
 
-def _get_validated_x_values(x: Union[RealScalar, ArrayLike]) -> np.ndarray:
+def get_validated_x_values(x: Any) -> np.ndarray:
     """
     Validates the input for the x-values and returns the validated input.
 
@@ -65,19 +67,26 @@ def _get_validated_x_values(x: Union[RealScalar, ArrayLike]) -> np.ndarray:
             f"{x_type_str}."
         )
 
-    # if required, the dtype is converted to the target dtype
-    if not x_internal.dtype == _X_DTYPE:
-        x_internal = x_internal.astype(_X_DTYPE)
-
+    # if the converted x-values are not 1-dimensional, an error is raised
     if x_internal.ndim != 1:
         raise ValueError(
             f"Expected 'x' to be 1-dimensional but it is {x_internal.ndim}-dimensional."
         )
 
+    # if required, the dtype is converted to the target dtype
+    if not x_internal.dtype == _X_DTYPE:
+        x_internal = x_internal.astype(_X_DTYPE)
+
+    if x_internal.size < 1:
+        raise ValueError(
+            f"Expected 'x' to have at least one element but got {x_internal.size} "
+            f"elements."
+        )
+
     return x_internal
 
 
-def _get_validated_order(n: Union[int, np.integer]) -> int:
+def get_validated_order(n: Any) -> int:
     """
     Validates the input for the order of the Hermite function and returns the validated
     input.
@@ -97,7 +106,7 @@ def _get_validated_order(n: Union[int, np.integer]) -> int:
     return n
 
 
-def _get_validated_alpha(alpha: RealScalar) -> float:
+def get_validated_alpha(alpha: Any) -> float:
     """
     Validates the input for the scaling factor of the Hermite function and returns the
     validated input.
@@ -119,33 +128,39 @@ def _get_validated_alpha(alpha: RealScalar) -> float:
     return alpha
 
 
-def _get_validated_x_center(x_center: Optional[RealScalar]) -> Optional[float]:
+def get_validated_offset_along_axis(
+    offset: Any,
+    which_axis: str,
+) -> float:
     """
-    Validates the input for the center of the Hermite function and returns the validated
-    input.
+    Validates the input for the center along the an axis, e.g., the x-center along the
+    x-axis, and returns the validated input.
 
     """
 
-    if x_center is not None:
+    if offset is not None:
         # integers and NumPy scalars need to be converted to Python floats
-        if isinstance(x_center, _real_scalar_types_no_pyfloat):
-            x_center = float(x_center)
+        if isinstance(offset, _real_scalar_types_no_pyfloat):
+            offset = float(offset)
 
-        if not isinstance(x_center, float):
+        if not isinstance(offset, float):
             raise TypeError(
-                f"Expected 'x_center' to be a float, integer, or None but got type "
-                f"{type(x_center)}."
+                f"Expected the {which_axis}-'center' to be a float, integer, or None "
+                f"but got type {type(offset)}."
             )
 
-    return x_center
+    else:
+        offset = 0.0
+
+    return offset
 
 
-def _get_validated_hermite_function_input(
-    x: Union[RealScalar, ArrayLike],
-    n: int,
-    alpha: RealScalar,
-    x_center: Optional[RealScalar],
-) -> Tuple[np.ndarray, int, float, Optional[float]]:
+def get_validated_hermite_function_input(
+    x: Any,
+    n: Any,
+    alpha: Any,
+    x_center: Any,
+) -> Tuple[np.ndarray, int, float, float]:
     """
     Validates the input for the Hermite functions and returns the validated input.
 
@@ -154,8 +169,11 @@ def _get_validated_hermite_function_input(
     # the input is validated according to the requirements of the higher level caller
     # functions
     return (
-        _get_validated_x_values(x),
-        _get_validated_order(n),
-        _get_validated_alpha(alpha),
-        _get_validated_x_center(x_center),
+        get_validated_x_values(x=x),
+        get_validated_order(n=n),
+        get_validated_alpha(alpha=alpha),
+        get_validated_offset_along_axis(
+            offset=x_center,
+            which_axis="x",
+        ),
     )

@@ -15,7 +15,7 @@ namely
 
 from math import log as pylog
 from math import sqrt as pysqrt
-from typing import Optional, Union
+from typing import Optional
 
 import numpy as np
 from scipy.interpolate import splev
@@ -29,9 +29,11 @@ from ._hermite_largest_roots_spline import (
     HERMITE_LARGEST_ZEROS_SPLINE_TCK,
 )
 from ._validate import (
-    _get_validated_alpha,
-    _get_validated_order,
-    _get_validated_x_center,
+    IntScalar,
+    RealScalar,
+    get_validated_alpha,
+    get_validated_offset_along_axis,
+    get_validated_order,
 )
 
 # === Constants ===
@@ -45,7 +47,7 @@ _LOG_DOUBLE_EPS = pylog(np.finfo(np.float64).eps)
 def _apply_centering_and_scaling(
     values: np.ndarray,
     alpha: float,
-    x_center: Optional[float],
+    x_center: float,
 ) -> np.ndarray:
     """
     Applies centering and scaling to the given values.
@@ -54,10 +56,10 @@ def _apply_centering_and_scaling(
 
     # the scaling is applied (if required)
     if alpha != 1.0:
-        values /= alpha
+        values *= alpha
 
     # the centering is applied (if required)
-    if x_center is not None and x_center != 0.0:
+    if x_center != 0.0:
         values += x_center
 
     return values
@@ -67,9 +69,9 @@ def _apply_centering_and_scaling(
 
 
 def hermite_funcs_largest_zeros_x(
-    n: int,
-    alpha: Union[float, int] = 1.0,
-    x_center: Union[float, int, None] = None,
+    n: IntScalar,
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
 ) -> np.ndarray:
     """
     Approximates the x-position of the largest zero (= outermost root) of the Hermite
@@ -84,7 +86,7 @@ def hermite_funcs_largest_zeros_x(
         order for the spline interpolation (roughly 100 000).
     alpha : :class:`float` or :class:`int`, default=``1.0``
         The scaling factor of the independent variable ``x`` for
-        ``x_scaled = alpha * x``.
+        ``x_scaled = x / alpha``.
         It must be a positive number ``> 0``.
     x_center : :class:`float` or :class:`int` or ``None``, default=``None``
         The center of the dilated Hermite function.
@@ -119,9 +121,9 @@ def hermite_funcs_largest_zeros_x(
 
     # --- Input Validation ---
 
-    n = _get_validated_order(n=n)
-    alpha = _get_validated_alpha(alpha=alpha)
-    x_center = _get_validated_x_center(x_center=x_center)
+    n = get_validated_order(n=n)
+    alpha = get_validated_alpha(alpha=alpha)
+    x_center = get_validated_offset_along_axis(offset=x_center, which_axis="x")
 
     # --- Computation ---
 
@@ -164,9 +166,9 @@ def hermite_funcs_largest_zeros_x(
 
 
 def hermite_funcs_largest_extrema_x(
-    n: int,
-    alpha: Union[float, int] = 1.0,
-    x_center: Union[float, int, None] = None,
+    n: IntScalar,
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
 ) -> np.ndarray:
     """
     Approximates the x-position of the maximum of the Hermite functions in their
@@ -181,7 +183,7 @@ def hermite_funcs_largest_extrema_x(
         order for the spline interpolation (roughly 100 000).
     alpha : :class:`float` or :class:`int`, default=``1.0``
         The scaling factor of the independent variable ``x`` for
-        ``x_scaled = alpha * x``.
+        ``x_scaled = x / alpha``.
         It must be a positive number ``> 0``.
     x_center : :class:`float` or :class:`int` or ``None``, default=``None``
         The center of the dilated Hermite function.
@@ -213,9 +215,9 @@ def hermite_funcs_largest_extrema_x(
 
     # --- Input Validation ---
 
-    n = _get_validated_order(n=n)
-    alpha = _get_validated_alpha(alpha=alpha)
-    x_center = _get_validated_x_center(x_center=x_center)
+    n = get_validated_order(n=n)
+    alpha = get_validated_alpha(alpha=alpha)
+    x_center = get_validated_offset_along_axis(offset=x_center, which_axis="x")
 
     # --- Computation ---
 
@@ -254,9 +256,9 @@ def hermite_funcs_largest_extrema_x(
 
 
 def hermite_funcs_fadeout_x(
-    n: int,
-    alpha: Union[float, int] = 1.0,
-    x_center: Union[float, int, None] = None,
+    n: IntScalar,
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
 ) -> np.ndarray:
     """
     Approximates the x-position at which the outermost tail of the dilated Hermite
@@ -271,7 +273,7 @@ def hermite_funcs_fadeout_x(
         It must be a non-negative integer ``>= 0``.
     alpha : :class:`float` or :class:`int`, default=``1.0``
         The scaling factor of the independent variable ``x`` for
-        ``x_scaled = alpha * x``.
+        ``x_scaled = x / alpha``.
         It must be a positive number ``> 0``.
     x_center : :class:`float` or :class:`int` or ``None``, default=``None``
         The center of the dilated Hermite function.
@@ -303,9 +305,9 @@ def hermite_funcs_fadeout_x(
 
     # --- Input Validation ---
 
-    n = _get_validated_order(n=n)
-    alpha = _get_validated_alpha(alpha=alpha)
-    x_center = _get_validated_x_center(x_center=x_center)
+    n = get_validated_order(n=n)
+    alpha = get_validated_alpha(alpha=alpha)
+    x_center = get_validated_offset_along_axis(offset=x_center, which_axis="x")
 
     # --- Computation ---
 

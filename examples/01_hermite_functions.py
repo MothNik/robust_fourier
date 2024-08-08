@@ -25,7 +25,7 @@ X_TO = 5.0
 NUM_X = 10_001
 
 # the scaling factors alpha and centers mu to use
-ALPHAS_AND_MUS = [(1.0, 0.0), (2.0, 0.0), (2.0, 2.0)]
+ALPHAS_AND_MUS = [(1.0, 0.0), (0.5, 0.0), (0.5, 2.0)]
 # the orders of the Hermite functions to plot
 ORDERS = 6
 # the offset between the individual Hermite functions
@@ -33,7 +33,7 @@ OFFSET = -2.0
 
 # the path where to store the plot (only for developers)
 PLOT_FILEPATH = (
-    "../docs//hermite_functions/01-DilatedHermiteFunctions_DifferentScales.png"
+    "../docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.svg"
 )
 
 # === Main ===

@@ -16,13 +16,18 @@ from math import sqrt as pysqrt
 from typing import Optional, Union
 
 import numpy as np
-from numpy.typing import ArrayLike
+from numpy.typing import ArrayLike, NDArray
 
 from .._utils import _get_num_workers
 from ._numba_funcs import nb_hermite_function_basis as _nb_hermite_function_basis
 from ._numpy_funcs import _hermite_function_basis as _np_hermite_function_basis
 from ._numpy_funcs import _single_hermite_function as _np_single_hermite_function
-from ._validate import RealScalar, _get_validated_hermite_function_input
+from ._validate import (
+    IntScalar,
+    RealScalar,
+    get_validated_hermite_function_input,
+    get_validated_x_values,
+)
 
 from ._c_hermite import (  # pyright: ignore[reportMissingImports]; fmt: skip; isort: skip   # noqa: E501
     hermite_function_basis as _c_hermite_function_basis,
@@ -57,19 +62,25 @@ def _is_data_linked(
     return arr.base is not None
 
 
-def _center_x_values(
-    x_internal: np.ndarray,
+def _normalise_x_values(
+    x_internal: NDArray[np.float64],
     x: Union[float, int, ArrayLike],
-    x_center: Optional[float],
-) -> np.ndarray:
+    x_center: float,
+    alpha: float,
+) -> NDArray[np.float64]:
     """
     Centers the given x-values around the given center value by handling potential
     copies and the special case where the center is the origin (0).
+    Afterwards, the x-values are scaled with the scaling factor alpha, also handling
+    the special case where alpha is 1.0.
 
     """
 
-    # when the x-values are centered around the origin, the x-values are not modified
-    if x_center is None or x_center == 0.0:
+    # when the x-values are centered around the origin and not scaled, the x-values are
+    # not modified at all
+    center_is_origin = x_center == 0.0
+    alpha_is_unity = alpha == 1.0
+    if center_is_origin and alpha_is_unity:
         return x_internal
 
     # if x is a view of the original x-Array, a copy is made to avoid modifying
@@ -77,8 +88,14 @@ def _center_x_values(
     if _is_data_linked(arr=x_internal, original=x):
         x_internal = x_internal.copy()
 
-    # the x-values are centered around the given center value
-    x_internal -= x_center
+    # the x-values are centered around the given center value (if required)
+    if not center_is_origin:
+        x_internal -= x_center
+
+    # if required, the x-values are scaled with the scaling factor alpha (if required)
+    if not alpha_is_unity:
+        x_internal /= alpha
+
     return x_internal
 
 
@@ -87,11 +104,12 @@ def _center_x_values(
 
 def hermite_function_basis(
     x: Union[RealScalar, ArrayLike],
-    n: int,
+    n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
     workers: int = 1,
-) -> np.ndarray:
+    validate_parameters: bool = True,
+) -> NDArray[np.float64]:
     """
     Computes the basis of dilated Hermite functions up to order ``n`` for the given
     points ``x``. It makes use of a recursion formula to compute all Hermite basis
@@ -103,12 +121,13 @@ def hermite_function_basis(
     x : :class:`float` or :class:`int` or Array-like of shape (m,)
         The points at which the dilated Hermite functions are evaluated.
         Internally, it will be promoted to ``np.float64``.
+        It has to contain at least one element.
     n : :class:`int`
         The order of the dilated Hermite functions.
         It must be a non-negative integer ``>= 0``.
     alpha : :class:`float` or :class:`int`, default=``1.0``
         The scaling factor of the independent variable ``x`` for
-        ``x_scaled = alpha * x``.
+        ``x_scaled = x / alpha``.
         It must be a positive number ``> 0``.
     x_center : :class:`float` or :class:`int` or ``None``, default=``None``
         The center of the dilated Hermite functions.
@@ -122,10 +141,15 @@ def hermite_function_basis(
         threads available in the whole system).
         Values that exceed the number of available threads are silently clipped to the
         maximum number available.
+    validate_parameters : :class:`bool`, default=``True``
+        Whether to validate all the input parameters (``True``) or only ``x``
+        (``False``).
+        Disabling the input checks is not recommended and was only implemented for
+        internal use.
 
     Returns
     -------
-    hermite_function_basis : :class:`numpy.ndarray` of shape (m, n + 1)
+    hermite_function_basis : :class:`numpy.ndarray` of shape (m, n + 1) of dtype ``np.float64``
         The values of the dilated Hermite functions at the points ``x``.
         It will always be 2D even if ``x`` is a scalar.
 
@@ -142,11 +166,11 @@ def hermite_function_basis(
     -----
     The dilated Hermite functions are defined as
 
-    .. image:: docs/hermite_functions/equations/Dilated_Hermite_Functions_Of_Generic_X.png
+    .. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg
 
     with the Hermite polynomials
 
-    .. image:: docs/hermite_functions/equations/Dilated_Hermite_Polynomials_Of_Generic_X.png
+    .. image:: docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg
 
     Internally, they are computed in a numerically stable way that relies on a
     logarithmic scaling trick to avoid over- and underflow in the recursive calculation
@@ -164,17 +188,21 @@ def hermite_function_basis(
 
     # --- Input validation ---
 
-    (
-        x_internal,
-        n,
-        alpha,
-        x_center,
-    ) = _get_validated_hermite_function_input(
-        x=x,
-        n=n,
-        alpha=alpha,
-        x_center=x_center,
-    )
+    if validate_parameters:
+        (
+            x_internal,
+            n,
+            alpha,
+            x_center,
+        ) = get_validated_hermite_function_input(
+            x=x,
+            n=n,
+            alpha=alpha,
+            x_center=x_center,
+        )
+
+    else:
+        x_internal = get_validated_x_values(x=x)
 
     # the number of workers is determined
     workers = _get_num_workers(workers)
@@ -182,28 +210,37 @@ def hermite_function_basis(
     # --- Computation ---
 
     # if required, the x-values are centered
-    x_internal = _center_x_values(
+    x_internal = _normalise_x_values(
         x_internal=x_internal,
         x=x,
-        x_center=x_center,
+        x_center=x_center,  # type: ignore
+        alpha=alpha,  # type: ignore
     )
 
     # the computation is done in serial and parallel fashion using the
     # Cython-accelerated implementation
-    return pysqrt(alpha) * _c_hermite_function_basis(
-        x=alpha * x_internal,
+    hermite_basis = _c_hermite_function_basis(
+        x=x_internal,
         n=n,
         workers=workers,
     )
 
+    # to preserve orthonormality, the Hermite functions are scaled with the square root
+    # of the scaling factor alpha (if required)
+    if alpha != 1.0:
+        hermite_basis *= 1.0 / pysqrt(alpha)
+
+    return hermite_basis
+
 
 def slow_hermite_function_basis(
     x: Union[RealScalar, ArrayLike],
-    n: int,
+    n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
     jit: bool = False,
-) -> np.ndarray:
+    validate_parameters: bool = True,
+) -> NDArray[np.float64]:
     """
     DEPRECATED: ONLY KEPT FOR COMPARISON PURPOSES
 
@@ -216,12 +253,13 @@ def slow_hermite_function_basis(
     x : :class:`float` or :class:`int` or Array-like of shape (m,)
         The points at which the dilated Hermite functions are evaluated.
         Internally, it will be promoted to ``np.float64``.
+        It has to contain at least one element.
     n : :class:`int`
         The order of the dilated Hermite functions.
         It must be a non-negative integer ``>= 0``.
     alpha : :class:`float` or :class:`int`, default=``1.0``
         The scaling factor of the independent variable ``x`` for
-        ``x_scaled = alpha * x``.
+        ``x_scaled = x / alpha``.
         It must be a positive number ``> 0``.
     x_center : :class:`float` or :class:`int` or ``None``, default=``None``
         The center of the dilated Hermite functions.
@@ -232,10 +270,15 @@ def slow_hermite_function_basis(
         NumPy-based implementation (``False``).
         If Numba is not available, the function silently falls back to the NumPy-based
         implementation.
+    validate_parameters : :class:`bool`, default=``True``
+        Whether to validate all the input parameters (``True``) or only ``x``
+        (``False``).
+        Disabling the input checks is not recommended and was only implemented for
+        internal use.
 
     Returns
     -------
-    hermite_function_basis : :class:`numpy.ndarray` of shape (m, n + 1)
+    hermite_function_basis : :class:`numpy.ndarray` of shape (m, n + 1) of dtype ``np.float64``
         The values of the dilated Hermite functions at the points ``x``.
         It will always be 2D even if ``x`` is a scalar.
 
@@ -252,11 +295,11 @@ def slow_hermite_function_basis(
     -----
     The dilated Hermite functions are defined as
 
-    .. image:: docs/hermite_functions/equations/Dilated_Hermite_Functions_Of_Generic_X.png
+    .. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg
 
     with the Hermite polynomials
 
-    .. image:: docs/hermite_functions/equations/Dilated_Hermite_Polynomials_Of_Generic_X.png
+    .. image:: docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg
 
     Internally, they are computed in a numerically stable way that relies on a
     logarithmic scaling trick to avoid over- and underflow in the recursive calculation
@@ -274,17 +317,21 @@ def slow_hermite_function_basis(
 
     # --- Input validation ---
 
-    (
-        x_internal,
-        n,
-        alpha,
-        x_center,
-    ) = _get_validated_hermite_function_input(
-        x=x,
-        n=n,
-        alpha=alpha,
-        x_center=x_center,
-    )
+    if validate_parameters:
+        (
+            x_internal,
+            n,
+            alpha,
+            x_center,
+        ) = get_validated_hermite_function_input(
+            x=x,
+            n=n,
+            alpha=alpha,
+            x_center=x_center,
+        )
+
+    else:  # pragma: no cover
+        x_internal = get_validated_x_values(x=x)
 
     # --- Computation ---
 
@@ -292,25 +339,34 @@ def slow_hermite_function_basis(
     # NOTE: this does not have to necessarily involve Numba because it can also be
     #       the NumPy-based implementation under the hood
     # if required, the x-values are centered
-    x_internal = _center_x_values(
+    x_internal = _normalise_x_values(
         x_internal=x_internal,
         x=x,
-        x_center=x_center,
+        x_center=x_center,  # type: ignore
+        alpha=alpha,  # type: ignore
     )
 
     func = _nb_hermite_function_basis if jit else _np_hermite_function_basis
-    return pysqrt(alpha) * func(  # type: ignore
-        x=alpha * x_internal,  # type: ignore
+    hermite_basis = func(  # type: ignore
+        x=x_internal,  # type: ignore
         n=n,  # type: ignore
     )
+
+    # to preserve orthonormality, the Hermite functions are scaled with the square root
+    # of the scaling factor alpha (if required)
+    if alpha != 1.0:
+        hermite_basis *= 1.0 / pysqrt(alpha)
+
+    return hermite_basis
 
 
 def single_hermite_function(
     x: Union[RealScalar, ArrayLike],
-    n: int,
+    n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
-) -> np.ndarray:
+    validate_parameters: bool = True,
+) -> NDArray[np.float64]:
     """
     Computes a single dilated Hermite function of order ``n`` for the given points
     ``x``. It offers a fast alternative for the computation of only a single high order
@@ -321,21 +377,27 @@ def single_hermite_function(
     x : :class:`float` or :class:`int` or Array-like of shape (m,)
         The points at which the dilated Hermite function is evaluated.
         Internally, it will be promoted to ``np.float64``.
+        It has to contain at least one element.
     n : :class:`int`
         The order of the dilated Hermite function.
         It must be a non-negative integer ``>= 0``.
     alpha : :class:`float` or :class:`int`, default=``1.0``
         The scaling factor of the independent variable ``x`` for
-        ``x_scaled = alpha * x``.
+        ``x_scaled = x / alpha``.
         It must be a positive number ``> 0``.
     x_center : :class:`float` or :class:`int` or ``None``, default=``None``
         The center of the dilated Hermite function.
         If ``None`` or ``0``, the function is centered at the origin.
         Otherwise, the center is shifted to the given value.
+    validate_parameters : :class:`bool`, default=``True``
+        Whether to validate all the input parameters (``True``) or only ``x``
+        (``False``).
+        Disabling the input checks is not recommended and was only implemented for
+        internal use.
 
     Returns
     -------
-    hermite_function : :class:`numpy.ndarray` of shape (m,)
+    hermite_function : :class:`numpy.ndarray` of shape (m,) of dtype ``np.float64``
         The values of the dilated Hermite function at the points ``x``.
         It will always be 1D even if ``x`` is a scalar.
 
@@ -352,11 +414,11 @@ def single_hermite_function(
     -----
     The dilated Hermite functions are defined as
 
-    .. image:: docs/hermite_functions/equations/Dilated_Hermite_Functions_Of_Generic_X.png
+    .. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg
 
     with the Hermite polynomials
 
-    .. image:: docs/hermite_functions/equations/Dilated_Hermite_Polynomials_Of_Generic_X.png
+    .. image:: docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg
 
     For their computation, the function does not rely on recursion, but a direct
     evaluation of the Hermite functions via a complex integral.
@@ -374,28 +436,40 @@ def single_hermite_function(
 
     # --- Input validation ---
 
-    (
-        x_internal,
-        n,
-        alpha,
-        x_center,
-    ) = _get_validated_hermite_function_input(
-        x=x,
-        n=n,
-        alpha=alpha,
-        x_center=x_center,
-    )
+    if validate_parameters:
+        (
+            x_internal,
+            n,
+            alpha,
+            x_center,
+        ) = get_validated_hermite_function_input(
+            x=x,
+            n=n,
+            alpha=alpha,
+            x_center=x_center,
+        )
+
+    else:  # pragma: no cover
+        x_internal = get_validated_x_values(x=x)
 
     # --- Computation ---
 
     # if required, the x-values are centered
-    x_internal = _center_x_values(
+    x_internal = _normalise_x_values(
         x_internal=x_internal,
         x=x,
-        x_center=x_center,
+        x_center=x_center,  # type: ignore
+        alpha=alpha,  # type: ignore
     )
 
-    return pysqrt(alpha) * _np_single_hermite_function(
-        x=alpha * x_internal,
-        n=n,
+    hermite_function = _np_single_hermite_function(
+        x=x_internal,
+        n=n,  # type: ignore
     )
+
+    # to preserve orthonormality, the Hermite function is scaled with the square root of
+    # the scaling factor alpha (if required)
+    if alpha != 1.0:
+        hermite_function *= 1.0 / pysqrt(alpha)
+
+    return hermite_function

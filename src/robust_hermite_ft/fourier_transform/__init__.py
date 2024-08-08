@@ -3,7 +3,7 @@ Module :mod:`fourier_transform`
 
 This module provides the implementation of the robust Fourier transform by Least Squares
 Fits with Hermite functions as well as general utility functions for dealing with
-Discrete Fourier Transforms.
+Discrete Fourier transforms.
 
 """
 

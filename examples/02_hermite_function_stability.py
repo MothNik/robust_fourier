@@ -34,7 +34,7 @@ SPECIAL_COLOR = "#00CC00"
 OFFSET = -0.5
 
 # the path where to store the plot (only for developers)
-PLOT_FILEPATH = "../docs/hermite_functions/02-DilatedHermiteFunctions_Stability.png"
+PLOT_FILEPATH = "../docs/hermite_functions/EX-02-DilatedHermiteFunctions_Stability.svg"
 
 # === Main ===
 
@@ -78,7 +78,10 @@ if __name__ == "__main__":
 
     # the title, grid, labels, and ticks are set
     psi_label = r"$\psi_{n}^{\left(" + f"{ALPHA:.0f}; 0" + r"\right)}\left(x\right)$"
-    ax.set_title("Numerical Stability of the Dilated Hermite Functions " + psi_label)
+    ax.set_title(
+        "Numerical Stability of the Dilated Hermite Functions " + psi_label,
+        fontsize=18,
+    )
     ax.set_xlabel(r"$x$")
     ax.set_ylabel(psi_label)
     ax.set_xlim(X_FROM, X_TO)
