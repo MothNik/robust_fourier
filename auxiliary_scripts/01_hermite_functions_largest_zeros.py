@@ -15,10 +15,10 @@ In the end, it was found that a quintic B-spline with only a few knots is suffic
 represent the largest zeros of the Hermite functions with a decent accuracy.
 Therefore, this script auto-generates the B-spline coefficients for the largest zeros
 of the Hermite functions and stores them in the Python file that will then be available
-within ``robust_hermite_ft``.
+within ``robust_fourier``.
 
 NOTE: THIS SCRIPT CAN ONLY BE RUN IF THE DEVELOPER MODE IS ENABLED BY SETTING THE
-      ENVIRONMENT VARIABLE ``ROBHERMFT_DEVELOPER`` TO ``true``.
+      ENVIRONMENT VARIABLE ``ROBFT_DEVELOPER`` TO ``true``.
 
 """
 
@@ -35,7 +35,7 @@ from scipy.special import roots_hermite
 from tqdm import tqdm
 
 plt.style.use(
-    os.path.join(os.path.dirname(__file__), "../docs/robust_hermite_ft.mplstyle")
+    os.path.join(os.path.dirname(__file__), "../docs/robust_fourier.mplstyle")
 )
 
 
@@ -47,11 +47,11 @@ REFERENCE_DATA_FILE_PATH = "./files/01-01_hermite_functions_largest_zeros.npy"
 OVERWRITE_REFERENCE_DATA = False
 
 # the path where the diagnostic plot is stored (relative to the current file)
-DIAGNOSTIC_PLOT_FILE_PATH = "./files/01-02_hermite_functions_largest_zeros.png"
+DIAGNOSTIC_PLOT_FILE_PATH = "./files/01-02_hermite_functions_largest_zeros.svg"
 
 # the path where to store the spline specifications (relative to the current file)
 SPLINE_SPECS_FILE_PATH = (
-    "../src/robust_hermite_ft/hermite_functions/_hermite_largest_roots_spline.py"
+    "../src/robust_fourier/hermite_functions/_hermite_largest_roots_spline.py"
 )
 # the template for storing the spline specifications in the Python file
 SPLINE_SPECS_TEMPLATE = """
@@ -117,10 +117,7 @@ X_MAX_RTOL = 1e-11
 
 # === Main ===
 
-if (
-    __name__ == "__main__"
-    and os.getenv("ROBHERMFT_DEVELOPER", "false").lower() == "true"
-):
+if __name__ == "__main__" and os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":
 
     # --- Reference data loading / computation ---
 
@@ -288,3 +285,10 @@ if (
         fig.savefig(diagnostic_plot_file_path)
 
     plt.show()
+
+
+elif __name__ == "__main__":
+    print(
+        "This script can only be run if the developer mode is enabled by setting the "
+        "environment variable 'ROBFT_DEVELOPER' to 'true'."
+    )

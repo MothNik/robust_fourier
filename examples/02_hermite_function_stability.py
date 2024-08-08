@@ -11,10 +11,10 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from robust_hermite_ft import hermite_function_basis
+from robust_fourier import hermite_function_basis
 
 plt.style.use(
-    os.path.join(os.path.dirname(__file__), "../docs/robust_hermite_ft.mplstyle")
+    os.path.join(os.path.dirname(__file__), "../docs/robust_fourier.mplstyle")
 )
 
 # === Constants ===
@@ -34,7 +34,7 @@ SPECIAL_COLOR = "#00CC00"
 OFFSET = -0.5
 
 # the path where to store the plot (only for developers)
-PLOT_FILEPATH = "../docs/hermite_functions/02-DilatedHermiteFunctions_Stability.png"
+PLOT_FILEPATH = "../docs/hermite_functions/EX-02-DilatedHermiteFunctions_Stability.svg"
 
 # === Main ===
 
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         x=x_values,
         n=max(ORDERS),
         alpha=ALPHA,
-        workers=-1,
+        jit=True,
     )
 
     # ... and the individual Hermite functions of interest are plotted
@@ -78,7 +78,10 @@ if __name__ == "__main__":
 
     # the title, grid, labels, and ticks are set
     psi_label = r"$\psi_{n}^{\left(" + f"{ALPHA:.0f}; 0" + r"\right)}\left(x\right)$"
-    ax.set_title("Numerical Stability of the Dilated Hermite Functions " + psi_label)
+    ax.set_title(
+        "Numerical Stability of the Dilated Hermite Functions " + psi_label,
+        fontsize=18,
+    )
     ax.set_xlabel(r"$x$")
     ax.set_ylabel(psi_label)
     ax.set_xlim(X_FROM, X_TO)
@@ -91,7 +94,7 @@ if __name__ == "__main__":
     )
 
     # the plot is saved
-    if os.getenv("ROBHERMFT_DEVELOPER", "false").lower() == "true":
+    if os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":
         plt.savefig(
             os.path.join(os.path.dirname(__file__), PLOT_FILEPATH),
             bbox_inches="tight",

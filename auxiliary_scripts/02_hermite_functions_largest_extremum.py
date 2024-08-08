@@ -14,10 +14,10 @@ In the end, it was found that a quintic B-spline with only a few knots is suffic
 represent the largest extrema of the Hermite functions with a decent accuracy.
 Therefore, this script auto-generates the B-spline coefficients for the largest
 extrema of the Hermite functions and stores them in the Python file that will then be
-available within ``robust_hermite_ft``.
+available within ``robust_fourier``.
 
 NOTE: THIS SCRIPT CAN ONLY BE RUN IF THE DEVELOPER MODE IS ENABLED BY SETTING THE
-      ENVIRONMENT VARIABLE ``ROBHERMFT_DEVELOPER`` TO ``true``.
+      ENVIRONMENT VARIABLE ``ROBFT_DEVELOPER`` TO ``true``.
 
 """
 
@@ -34,14 +34,14 @@ from scipy.interpolate import splev, splrep
 from scipy.optimize import minimize
 from tqdm import tqdm
 
-from robust_hermite_ft.hermite_functions import (
+from robust_fourier.hermite_functions import (
     approximate_hermite_funcs_fadeout_x,
     approximate_hermite_funcs_largest_zeros_x,
     single_hermite_function,
 )
 
 plt.style.use(
-    os.path.join(os.path.dirname(__file__), "../docs/robust_hermite_ft.mplstyle")
+    os.path.join(os.path.dirname(__file__), "../docs/robust_fourier.mplstyle")
 )
 
 # === Constants ===
@@ -52,11 +52,11 @@ REFERENCE_DATA_FILE_PATH = "./files/02-01_hermite_functions_largest_extrema.npy"
 OVERWRITE_REFERENCE_DATA = False
 
 # the path where the diagnostic plot is stored (relative to the current file)
-DIAGNOSTIC_PLOT_FILE_PATH = "./files/02-02_hermite_functions_largest_extrema.png"
+DIAGNOSTIC_PLOT_FILE_PATH = "./files/02-02_hermite_functions_largest_extrema.svg"
 
 # the path where to store the spline specifications (relative to the current file)
 SPLINE_SPECS_FILE_PATH = (
-    "../src/robust_hermite_ft/hermite_functions/_hermite_largest_extrema_spline.py"
+    "../src/robust_fourier/hermite_functions/_hermite_largest_extrema_spline.py"
 )
 # the template for storing the spline specifications in the Python file
 SPLINE_SPECS_TEMPLATE = """
@@ -235,10 +235,7 @@ def find_hermite_functions_largest_extremum_x(n: int) -> float:
 
 # === Main ===
 
-if (
-    __name__ == "__main__"
-    and os.getenv("ROBHERMFT_DEVELOPER", "false").lower() == "true"
-):
+if __name__ == "__main__" and os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":
 
     # --- Reference data loading / computation ---
 
@@ -409,3 +406,10 @@ if (
         fig.savefig(diagnostic_plot_file_path)
 
     plt.show()
+
+
+elif __name__ == "__main__":
+    print(
+        "This script can only be run if the developer mode is enabled by setting the "
+        "environment variable 'ROBFT_DEVELOPER' to 'true'."
+    )

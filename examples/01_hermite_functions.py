@@ -11,10 +11,10 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from robust_hermite_ft import hermite_function_basis
+from robust_fourier import hermite_function_basis
 
 plt.style.use(
-    os.path.join(os.path.dirname(__file__), "../docs/robust_hermite_ft.mplstyle")
+    os.path.join(os.path.dirname(__file__), "../docs/robust_fourier.mplstyle")
 )
 
 # === Constants ===
@@ -25,7 +25,7 @@ X_TO = 5.0
 NUM_X = 10_001
 
 # the scaling factors alpha and centers mu to use
-ALPHAS_AND_MUS = [(1.0, 0.0), (2.0, 0.0), (2.0, 2.0)]
+ALPHAS_AND_MUS = [(1.0, 0.0), (0.5, 0.0), (0.5, 2.0)]
 # the orders of the Hermite functions to plot
 ORDERS = 6
 # the offset between the individual Hermite functions
@@ -33,7 +33,7 @@ OFFSET = -2.0
 
 # the path where to store the plot (only for developers)
 PLOT_FILEPATH = (
-    "../docs//hermite_functions/01-DilatedHermiteFunctions_DifferentScales.png"
+    "../docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.svg"
 )
 
 # === Main ===
@@ -66,7 +66,7 @@ if __name__ == "__main__":
             n=ORDERS,
             alpha=alpha,
             x_center=mu,
-            workers=-1,
+            jit=True,
         )
 
         # NOTE: x-axis are plotted for orientation
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     )
 
     # the plot is saved ...
-    if os.getenv("ROBHERMFT_DEVELOPER", "false").lower() == "true":
+    if os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":
         plt.savefig(os.path.join(os.path.dirname(__file__), PLOT_FILEPATH))
 
     # ... and shown

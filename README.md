@@ -1,4 +1,4 @@
-# `robust_hermite_ft`
+# `robust_fourier`
 
 [![python-3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
 [![python-3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
@@ -7,8 +7,8 @@
 [![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![code style: isort](https://img.shields.io/badge/code%20style-isort-000000.svg)](https://pycqa.github.io/isort/)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
-[![codecov](https://codecov.io/gh/MothNik/robust_hermite_ft/branch/10-improve-and-add-coverage-to-CI/graph/badge.svg)](https://codecov.io/gh/MothNik/robust_hermite_ft/branch/10-improve-and-add-coverage-to-CI)
-![tests](https://github.com/MothNik/robust_hermite_ft/actions/workflows/python-package.yml/badge.svg)
+[![codecov](https://codecov.io/gh/MothNik/robust_fourier/branch/10-improve-and-add-coverage-to-CI/graph/badge.svg)](https://codecov.io/gh/MothNik/robust_fourier/branch/10-improve-and-add-coverage-to-CI)
+![tests](https://github.com/MothNik/robust_fourier/actions/workflows/python-package.yml/badge.svg)
 <br><br>
 
 You want to compute the Fourier transform of a signal, but your signal can be corrupted by outliers? If so, this package is for you even though you will have to say goodbye to the _"fast"_ in _Fast Fourier Transform_ 🏃🙅‍♀️
@@ -24,46 +24,59 @@ Currently under construction. Please check back later.
 Currently, the package is not yet available on PyPI. To install it, you can clone the repository
 
 ```bash
-git clone https://github.com/MothNik/robust_hermite_ft.git
+git clone https://github.com/MothNik/robust_fourier.git
 ```
 
-and from within the repositories root directory, install it for normal use
+For the following commands, a Makefile is provided to simplify the process. Its use is
+optional, but recommended.<br>
+From within the repositories root directory, the package can be installed for normal use
 
 ```bash
 # activate your virtual environment, e.g., source venv/bin/activate
-pip install .
+make install
+# equivalent to
+pip install --upgrade .
 ```
 
-or for development with all the development dependencies
+or for development (with all the development dependencies)
 
 ```bash
 # activate your virtual environment, e.g., source venv/bin/activate
-pip install .["dev"]
+make install-dev
+# equivalent to
+pip install --upgrade .["dev"]
 ```
-
-⚠️ **Warning**: This will require a C-compiler to be installed on your system to
-compile the Cython code.
 
 When working in developer mode, an environment variable has to be added to run certain
 scripts.
 
 ```
-ROBHERMFT_DEVELOPER = true
+ROBFT_DEVELOPER = true
 ```
 
 ### 🔎 Code quality
 
-The following checks for `black`, `isort`, `pyright`, `ruff`, and
-`cython-lint` - that are also part of the CI pipeline - can be run with
+The following checks for `black`, `isort`, `pyright`, `mypy`, `pycodestyle`, and
+`ruff` - that are also part of the CI pipeline - can be run with
 
 ```bash
+make black-check
+make isort-check
+make pyright-check
+make mypy-check
+make pycodestyle-check
+make ruff-check
+
+# or for all at once
+make check
+
+# equivalent to
 black --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
 isort --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
 pyright ./auxiliary_scripts ./examples ./src ./tests
 mypy ./auxiliary_scripts ./examples ./src ./tests
 ruff check ./auxiliary_scripts ./examples ./src ./tests
 pycodestyle ./auxiliary_scripts ./examples ./src ./tests --max-line-length=88 --ignore=E203,W503
-cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
 ```
 
 ### ✅❌ Tests
@@ -71,13 +84,16 @@ cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
 To run the tests - almost like in the CI pipeline - you can use
 
 ```bash
-pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=xml -x --no-jit
-# or for a nice HTML coverage report
-# pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=html -x --no-jit
+make test-xmlcov  # for an XML report
+make test-htmlcov  # for an HTML report
+
+# equivalent to
+pytest --cov=robust_fourier ./tests -n="auto" --cov-report=xml -x --no-jit
+pytest --cov=robust_fourier ./tests -n="auto" --cov-report=html -x --no-jit
 ```
 
-for parallelized testing whose coverage report will be stored in the folder
-`./htmlcov`.
+for parallelized testing whose coverage report will be stored in the file
+`./coverage.xml` or in the folder `./htmlcov`, respectively.
 
 ## 〰️ Hermite functions
 
@@ -90,20 +106,20 @@ functions or arbitrary order $n$ and argument - that can be scaled with a factor
 $\alpha$ and shifted by a constant $\mu$:
 
 <p align="center">
-  <img src="docs/hermite_functions/01-DilatedHermiteFunctions_DifferentScales.png" width="1000px" />
+  <img src="docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.svg" width="1000px" />
 </p>
 
 After a slight modification of the definitions in [[1]](#references), the Hermite
 functions can be written as
 
-<p align="left">
-  <img src="docs/hermite_functions/equations/Dilated_Hermite_Functions_Of_Generic_X.png" width="500px", height="91px" />
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg" />
 </p>
 
 with the Hermite polynomials
 
-<p align="left">
-  <img src="docs/hermite_functions/equations/Dilated_Hermite_Polynomials_Of_Generic_X.png" width="764px", height="65px" />
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg" />
 </p>
 
 By making use of logarithm tricks, the evaluation that might involve infinitely high
@@ -113,14 +129,14 @@ results.
 
 For doing so, the relation between the dilated and the non-dilated Hermite functions
 
-<p align="left">
-  <img src="docs/hermite_functions/equations/HermiteFunctions_UndilatedToDilated.png" width="366px", height="32px" />
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-03-Hermite_Functions_Dilated_to_Undilated.svg" />
 </p>
 
 and the recurrence relation for the Hermite functions
 
-<p align="left">
-  <img src="docs/hermite_functions/equations/HermiteFunctions_RecurrenceRelation.png" width="576px", height="68px" />
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-04-Hermite_Functions_Recurrence_Relation.svg" />
 </p>
 
 are used, but not directly. Instead, the latest evaluated Hermite function is kept at a
@@ -135,25 +151,53 @@ evaluated for this anymore. The factorial for example would already have overflo
 orders of 170 in `float64`-precision.
 
 <p align="center">
-  <img src="docs/hermite_functions/02-DilatedHermiteFunctions_Stability.png" width="1000px" />
+  <img src="docs/hermite_functions/EX-02-DilatedHermiteFunctions_Stability.svg" width="1000px" />
 </p>
 
 As a sanity check, their orthogonality is part of the tests together with a test for
 the fact that the absolute values of the Hermite functions for real input cannot exceed
-the value $\frac{\sqrt{\alpha}}{\pi^{-\frac{1}{4}}}$.
+the value $\frac{1}{\sqrt[4]{\pi\cdot\alpha^{2}}}$.
 
-On top of that `robust_hermite_ft` comes with utility functions to approximate some
+On top of that `robust_fourier` comes with utility functions to approximate some
 special points of the Hermite functions, namely the x-positions of their
 
 - largest root (= outermost zero),
-- largest maximum in the outermost oscillation, and
+- largest extrema in the outermost oscillation, and
 - the point where they numerically fade to zero.
 
+```python
+from robust_fourier import (
+    approximate_hermite_funcs_fadeout_x,
+    approximate_hermite_funcs_largest_extrema_x,
+    approximate_hermite_funcs_largest_zeros_x,
+)
+
+# 1) the x-positions at which the outermost oscillation fades below machine
+# precision
+x_fadeout = approximate_hermite_funcs_fadeout_x(
+    n=25,
+    alpha=20.0,
+    x_center=150.0,
+)
+# 2) the x-positions of the largest zeros
+x_largest_zero = approximate_hermite_funcs_largest_zeros_x(
+    n=25,
+    alpha=20.0,
+    x_center=150.0,
+)
+# 3) the x-positions of the largest extrema
+x_largest_extremum = approximate_hermite_funcs_largest_extrema_x(
+    n=25,
+    alpha=20.0,
+    x_center=150.0,
+)
+```
+
 <p align="center">
-  <img src="docs/hermite_functions/04-HermiteFunctions_SpecialPoints.png" width="1000px" />
+  <img src="docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.svg" width="1000px" />
 </p>
 
-## References
+## 📖 References
 
 - [1] Dobróka M., Szegedi H., and Vass P., Inversion-Based Fourier Transform as a New
   Tool for Noise Rejection, _Fourier Transforms - High-tech Application and Current Trends_

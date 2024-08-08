@@ -91,17 +91,6 @@
             "ns_for_single_function": []
         }
     },
-    "computation_time_mapping": {
-        "ref_hermite_functions_order_250_alpha_0-point-5.npy": 1865.3461492,
-        "ref_hermite_functions_order_250_alpha_1-point-0.npy": 1409.7497346000002,
-        "ref_hermite_functions_order_250_alpha_2-point-0.npy": 1404.8454167,
-        "ref_hermite_functions_order_000_alpha_0-point-5.npy": 3.0256173999996463,
-        "ref_hermite_functions_order_000_alpha_1-point-0.npy": 3.125232999999753,
-        "ref_hermite_functions_order_000_alpha_2-point-0.npy": 3.247388800000408,
-        "ref_hermite_functions_order_001_alpha_0-point-5.npy": 3.2019123000000036,
-        "ref_hermite_functions_order_001_alpha_1-point-0.npy": 3.172190500000397,
-        "ref_hermite_functions_order_001_alpha_2-point-0.npy": 3.225925100000495
-    },
     "num_digits": 200,
     "x_values": [
         -45.0,
