@@ -55,7 +55,7 @@ def test_hermite_function_basis_properties_and_len() -> None:
     # the properties are tested
     assert hermite_basis.n == 1
     assert hermite_basis.alpha == 1.0
-    assert hermite_basis.x_center == 0.0  #
+    assert hermite_basis.x_center == 0.0
     assert hermite_basis.jit is True
     assert len(hermite_basis) == 2
 
