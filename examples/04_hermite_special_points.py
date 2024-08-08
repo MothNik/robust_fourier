@@ -14,11 +14,11 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from robust_hermite_ft import single_hermite_function
-from robust_hermite_ft.hermite_functions import (
+from robust_hermite_ft import (
     approximate_hermite_funcs_fadeout_x,
     approximate_hermite_funcs_largest_extrema_x,
     approximate_hermite_funcs_largest_zeros_x,
+    single_hermite_function,
 )
 
 plt.style.use(
@@ -94,7 +94,7 @@ if __name__ == "__main__":
         x_values,
         hermite_function,
         label="Hermite function",
-        color="red",
+        color="#FF8000",
         linewidth=2.0,
         zorder=3,
     )
@@ -103,7 +103,7 @@ if __name__ == "__main__":
         np.zeros_like(x_fadeout),
         marker="D",
         facecolor="none",
-        edgecolors="#00CCCC",
+        edgecolors="red",
         linewidths=3.0,
         s=150,
         label="Numerical Fadeouts",
