@@ -6,6 +6,7 @@ This test suite implements the tests for the module :mod:`hermite_functions._cla
 # === Imports ===
 
 import numpy as np
+import pytest
 
 from robust_fourier import HermiteFunctionBasis, hermite_function_basis
 
@@ -162,3 +163,7 @@ def test_hermite_function_basis_properties_and_len() -> None:
         ),
         hermite_basis(x=x_reference),
     )
+
+    # finally, ``jit`` is set to a non-boolean value
+    with pytest.raises(TypeError, match="Expected 'jit' to be a boolean"):
+        hermite_basis.jit = "this is wrong!"  # type: ignore

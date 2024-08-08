@@ -158,7 +158,10 @@ class HermiteFunctionBasis:
     @jit.setter
     def jit(self, value: bool) -> None:
         if not isinstance(value, bool):
-            raise TypeError(f"Expected 'bool' but got '{type(value).__name__}'.")
+            raise TypeError(
+                f"Expected 'jit' to be a boolean but it is of type "
+                f"'{type(value).__name__}'."
+            )
 
         self._jit = value
 
