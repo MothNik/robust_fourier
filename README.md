@@ -59,14 +59,14 @@ ROBHERMFT_DEVELOPER = true
 
 ### 🔎 Code quality
 
-The following checks for `black`, `isort`, `pyright`, `ruff`, and
+The following checks for `black`, `isort`, `pyright`, `mypy`, `pycodestyle`, `ruff`, and
 `cython-lint` - that are also part of the CI pipeline - can be run with
 
 ```bash
 make black-check
 make isort-check
-make mypy-check
 make pyright-check
+make mypy-check
 make pycodestyle-check
 make ruff-check
 make cython-check
@@ -167,44 +167,39 @@ On top of that `robust_hermite_ft` comes with utility functions to approximate s
 special points of the Hermite functions, namely the x-positions of their
 
 - largest root (= outermost zero),
-- largest maximum in the outermost oscillation, and
+- largest extrema in the outermost oscillation, and
 - the point where they numerically fade to zero.
+
+```python
+from robust_hermite_ft import (
+    approximate_hermite_funcs_fadeout_x,
+    approximate_hermite_funcs_largest_extrema_x,
+    approximate_hermite_funcs_largest_zeros_x,
+)
+
+# 1) the x-positions at which the outermost oscillation fades below machine
+# precision
+x_fadeout = approximate_hermite_funcs_fadeout_x(
+    n=25,
+    alpha=20.0,
+    x_center=150.0,
+)
+# 2) the x-positions of the largest zeros
+x_largest_zero = approximate_hermite_funcs_largest_zeros_x(
+    n=25,
+    alpha=20.0,
+    x_center=150.0,
+)
+# 3) the x-positions of the largest extrema
+x_largest_extremum = approximate_hermite_funcs_largest_extrema_x(
+    n=25,
+    alpha=20.0,
+    x_center=150.0,
+)
+```
 
 <p align="center">
   <img src="docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.svg" width="1000px" />
-</p>
-
-## 📈📉 Fourier transform
-
-When the previous definition of the Hermite function is (arbitrarily) defined to be the
-representation of the basis in the time/space domain, their Fourier transform can be
-written as
-
-<p align="center">
-  <img src="docs/hermite_functions/equations/HF-07-Hermite_Functions_Frequency_Domain_pt_1.svg" />
-</p>
-
-which is relatively similar to the Hermite functions in the time/space domain, but
-
-- $x$ is replaced by the angular frequency $\omega = 2\pi\cdot f$,
-- the scaling factor $\alpha$ is inverted,
-- there is an imaginary prefactor $\left(-j\right)^{n}$, and
-- there is another exponential prefactor $e^{-j\cdot\mu\cdot\omega}$ to account for the
-  shift $\mu$ in the time/space domain (while there is no shift itself in the frequency
-  domain).
-
-Writing all the terms explicitly gives
-
-<p align="center">
-  <img src="docs/hermite_functions/equations/HF-08-Hermite_Functions_Frequency_Domain_pt_2.svg" />
-</p>
-
-This relationship can be proven by comparing the results of the analytical and the
-numerical Fourier transform of the Hermite functions - a quality control that is also
-part of the test suite.
-
-<p align="center">
-  <img src="docs/hermite_functions/EX-05-DilatedHermiteFunctions_FourierTransforms.svg" width="1000px" />
 </p>
 
 ## 📖 References
