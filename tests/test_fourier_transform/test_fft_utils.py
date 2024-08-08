@@ -11,7 +11,7 @@ from typing import Literal, Optional, Union
 import numpy as np
 import pytest
 
-from robust_hermite_ft.fourier_transform import (
+from robust_fourier.fourier_transform import (
     TimeSpaceSignal,
     convert_continuous_to_discrete_ft,
     convert_discrete_to_continuous_ft,

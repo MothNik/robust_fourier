@@ -18,7 +18,6 @@ from typing import Optional, Union
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
-from .._utils import _get_num_workers
 from ._numba_funcs import nb_hermite_function_basis as _nb_hermite_function_basis
 from ._numpy_funcs import _hermite_function_basis as _np_hermite_function_basis
 from ._numpy_funcs import _single_hermite_function as _np_single_hermite_function
@@ -27,10 +26,6 @@ from ._validate import (
     RealScalar,
     get_validated_hermite_function_input,
     get_validated_x_values,
-)
-
-from ._c_hermite import (  # pyright: ignore[reportMissingImports]; fmt: skip; isort: skip   # noqa: E501
-    hermite_function_basis as _c_hermite_function_basis,
 )
 
 # === Auxiliary Functions ===
@@ -107,138 +102,7 @@ def hermite_function_basis(
     n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
-    workers: int = 1,
-    validate_parameters: bool = True,
-) -> NDArray[np.float64]:
-    """
-    Computes the basis of dilated Hermite functions up to order ``n`` for the given
-    points ``x``. It makes use of a recursion formula to compute all Hermite basis
-    functions in one go. For maximum speed, the computation across the different
-    x-values is implemented in a parallelized Cython function.
-
-    Parameters
-    ----------
-    x : :class:`float` or :class:`int` or Array-like of shape (m,)
-        The points at which the dilated Hermite functions are evaluated.
-        Internally, it will be promoted to ``np.float64``.
-        It has to contain at least one element.
-    n : :class:`int`
-        The order of the dilated Hermite functions.
-        It must be a non-negative integer ``>= 0``.
-    alpha : :class:`float` or :class:`int`, default=``1.0``
-        The scaling factor of the independent variable ``x`` for
-        ``x_scaled = x / alpha``.
-        It must be a positive number ``> 0``.
-    x_center : :class:`float` or :class:`int` or ``None``, default=``None``
-        The center of the dilated Hermite functions.
-        If ``None`` or ``0``, the functions are centered at the origin.
-        Otherwise, the center is shifted to the given value.
-    workers : :class:`int`, default=``1``
-        The number of parallel workers to use for the computation.
-        If ``workers=1``, the computation is done in a single thread.
-        If ``workers=-1``, the number of workers is set to the number of threads
-        available for the process calling this function (not necessarily the number of
-        threads available in the whole system).
-        Values that exceed the number of available threads are silently clipped to the
-        maximum number available.
-    validate_parameters : :class:`bool`, default=``True``
-        Whether to validate all the input parameters (``True``) or only ``x``
-        (``False``).
-        Disabling the input checks is not recommended and was only implemented for
-        internal use.
-
-    Returns
-    -------
-    hermite_function_basis : :class:`numpy.ndarray` of shape (m, n + 1) of dtype ``np.float64``
-        The values of the dilated Hermite functions at the points ``x``.
-        It will always be 2D even if ``x`` is a scalar.
-
-    Raises
-    ------
-    TypeError
-        If any of the input arguments is not of the expected type.
-    ValueError
-        If ``x`` is not 1-dimensional after conversion to a NumPy array.
-    ValueError
-        If ``n`` is not a non-negative integer or ``alpha`` is not a positive number.
-
-    Notes
-    -----
-    The dilated Hermite functions are defined as
-
-    .. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg
-
-    with the Hermite polynomials
-
-    .. image:: docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg
-
-    Internally, they are computed in a numerically stable way that relies on a
-    logarithmic scaling trick to avoid over- and underflow in the recursive calculation
-    of the Hermite polynomials and the Gaussians. This allows for arbitrary large orders
-    ``n`` to be evaluated.
-
-    References
-    ----------
-    The implementation is an adaption of the Appendix in [1]_.
-
-    .. [1] Bunck B. F., A fast algorithm for evaluation of normalized Hermite
-       functions, BIT Numer Math (2009), 49, pp. 281–295, DOI: 10.1007/s10543-009-0216-1
-
-    """  # noqa: E501
-
-    # --- Input validation ---
-
-    if validate_parameters:
-        (
-            x_internal,
-            n,
-            alpha,
-            x_center,
-        ) = get_validated_hermite_function_input(
-            x=x,
-            n=n,
-            alpha=alpha,
-            x_center=x_center,
-        )
-
-    else:
-        x_internal = get_validated_x_values(x=x)
-
-    # the number of workers is determined
-    workers = _get_num_workers(workers)
-
-    # --- Computation ---
-
-    # if required, the x-values are centered
-    x_internal = _normalise_x_values(
-        x_internal=x_internal,
-        x=x,
-        x_center=x_center,  # type: ignore
-        alpha=alpha,  # type: ignore
-    )
-
-    # the computation is done in serial and parallel fashion using the
-    # Cython-accelerated implementation
-    hermite_basis = _c_hermite_function_basis(
-        x=x_internal,
-        n=n,
-        workers=workers,
-    )
-
-    # to preserve orthonormality, the Hermite functions are scaled with the square root
-    # of the scaling factor alpha (if required)
-    if alpha != 1.0:
-        hermite_basis *= 1.0 / pysqrt(alpha)
-
-    return hermite_basis
-
-
-def slow_hermite_function_basis(
-    x: Union[RealScalar, ArrayLike],
-    n: IntScalar,
-    alpha: RealScalar = 1.0,
-    x_center: Optional[RealScalar] = None,
-    jit: bool = False,
+    jit: bool = True,
     validate_parameters: bool = True,
 ) -> NDArray[np.float64]:
     """
@@ -265,7 +129,7 @@ def slow_hermite_function_basis(
         The center of the dilated Hermite functions.
         If ``None`` or ``0``, the functions are centered at the origin.
         Otherwise, the center is shifted to the given value.
-    jit : :class:`bool`, default=``False``
+    jit : :class:`bool`, default=``True``
         Whether to use the Numba-accelerated implementation (``True``) or the
         NumPy-based implementation (``False``).
         If Numba is not available, the function silently falls back to the NumPy-based

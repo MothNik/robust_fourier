@@ -33,5 +33,4 @@ from ._class_interface import HermiteFunctionBasis  # noqa: F401
 from ._func_interface import (  # noqa: F401
     hermite_function_basis,
     single_hermite_function,
-    slow_hermite_function_basis,
 )

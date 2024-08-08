@@ -1,4 +1,4 @@
-# `robust_hermite_ft`
+# `robust_fourier`
 
 [![python-3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
 [![python-3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
@@ -7,8 +7,8 @@
 [![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![code style: isort](https://img.shields.io/badge/code%20style-isort-000000.svg)](https://pycqa.github.io/isort/)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
-[![codecov](https://codecov.io/gh/MothNik/robust_hermite_ft/branch/10-improve-and-add-coverage-to-CI/graph/badge.svg)](https://codecov.io/gh/MothNik/robust_hermite_ft/branch/10-improve-and-add-coverage-to-CI)
-![tests](https://github.com/MothNik/robust_hermite_ft/actions/workflows/python-package.yml/badge.svg)
+[![codecov](https://codecov.io/gh/MothNik/robust_fourier/branch/10-improve-and-add-coverage-to-CI/graph/badge.svg)](https://codecov.io/gh/MothNik/robust_fourier/branch/10-improve-and-add-coverage-to-CI)
+![tests](https://github.com/MothNik/robust_fourier/actions/workflows/python-package.yml/badge.svg)
 <br><br>
 
 You want to compute the Fourier transform of a signal, but your signal can be corrupted by outliers? If so, this package is for you even though you will have to say goodbye to the _"fast"_ in _Fast Fourier Transform_ 🏃🙅‍♀️
@@ -24,7 +24,7 @@ Currently under construction. Please check back later.
 Currently, the package is not yet available on PyPI. To install it, you can clone the repository
 
 ```bash
-git clone https://github.com/MothNik/robust_hermite_ft.git
+git clone https://github.com/MothNik/robust_fourier.git
 ```
 
 For the following commands, a Makefile is provided to simplify the process. Its use is
@@ -47,20 +47,17 @@ make install-dev
 pip install --upgrade .["dev"]
 ```
 
-⚠️ **Warning**: This will require a C-compiler to be installed on your system to
-compile the Cython code.
-
 When working in developer mode, an environment variable has to be added to run certain
 scripts.
 
 ```
-ROBHERMFT_DEVELOPER = true
+ROBFT_DEVELOPER = true
 ```
 
 ### 🔎 Code quality
 
-The following checks for `black`, `isort`, `pyright`, `mypy`, `pycodestyle`, `ruff`, and
-`cython-lint` - that are also part of the CI pipeline - can be run with
+The following checks for `black`, `isort`, `pyright`, `mypy`, `pycodestyle`, and
+`ruff` - that are also part of the CI pipeline - can be run with
 
 ```bash
 make black-check
@@ -69,7 +66,6 @@ make pyright-check
 make mypy-check
 make pycodestyle-check
 make ruff-check
-make cython-check
 
 # or for all at once
 make check
@@ -81,7 +77,6 @@ pyright ./auxiliary_scripts ./examples ./src ./tests
 mypy ./auxiliary_scripts ./examples ./src ./tests
 ruff check ./auxiliary_scripts ./examples ./src ./tests
 pycodestyle ./auxiliary_scripts ./examples ./src ./tests --max-line-length=88 --ignore=E203,W503
-cython-lint src/robust_hermite_ft/hermite_functions/_c_hermite.pyx
 ```
 
 ### ✅❌ Tests
@@ -93,8 +88,8 @@ make test-xmlcov  # for an XML report
 make test-htmlcov  # for an HTML report
 
 # equivalent to
-pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=xml -x --no-jit
-pytest --cov=robust_hermite_ft ./tests -n="auto" --cov-report=html -x --no-jit
+pytest --cov=robust_fourier ./tests -n="auto" --cov-report=xml -x --no-jit
+pytest --cov=robust_fourier ./tests -n="auto" --cov-report=html -x --no-jit
 ```
 
 for parallelized testing whose coverage report will be stored in the file
@@ -163,7 +158,7 @@ As a sanity check, their orthogonality is part of the tests together with a test
 the fact that the absolute values of the Hermite functions for real input cannot exceed
 the value $\frac{1}{\sqrt[4]{\pi\cdot\alpha^{2}}}$.
 
-On top of that `robust_hermite_ft` comes with utility functions to approximate some
+On top of that `robust_fourier` comes with utility functions to approximate some
 special points of the Hermite functions, namely the x-positions of their
 
 - largest root (= outermost zero),
@@ -171,7 +166,7 @@ special points of the Hermite functions, namely the x-positions of their
 - the point where they numerically fade to zero.
 
 ```python
-from robust_hermite_ft import (
+from robust_fourier import (
     approximate_hermite_funcs_fadeout_x,
     approximate_hermite_funcs_largest_extrema_x,
     approximate_hermite_funcs_largest_zeros_x,

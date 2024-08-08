@@ -5,7 +5,7 @@ It relies on a Matplotlib-to-LaTeX converter function which was taken from
 https://medium.com/@ealbanez/how-to-easily-convert-latex-to-images-with-python-9062184dc815
 
 NOTE: THIS SCRIPT CAN ONLY BE RUN IF THE DEVELOPER MODE IS ENABLED BY SETTING THE
-      ENVIRONMENT VARIABLE ``ROBHERMFT_DEVELOPER`` TO ``true``.
+      ENVIRONMENT VARIABLE ``ROBFT_DEVELOPER`` TO ``true``.
 
 """  # noqa: E501
 
@@ -211,10 +211,7 @@ def latex2image(
 
 # === Main ===
 
-if (
-    __name__ == "__main__"
-    and os.getenv("ROBHERMFT_DEVELOPER", "false").lower() == "true"
-):
+if __name__ == "__main__" and os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":
 
     # the previews are enabled for the specified indices or disabled if None
     preview_names = [None] * len(EQUATION_SPECIFICATIONS)
@@ -248,5 +245,5 @@ if (
 elif __name__ == "__main__":
     print(
         "This script can only be run if the developer mode is enabled by setting the "
-        "environment variable 'ROBHERMFT_DEVELOPER' to 'true'."
+        "environment variable 'ROBFT_DEVELOPER' to 'true'."
     )

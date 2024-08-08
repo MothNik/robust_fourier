@@ -10,10 +10,9 @@ from typing import Any, Callable, Dict, Tuple
 
 import numpy as np
 
-from robust_hermite_ft.hermite_functions import (
+from robust_fourier.hermite_functions import (
     HermiteFunctionBasis,
     hermite_function_basis,
-    slow_hermite_function_basis,
 )
 
 # === Models ===
@@ -22,22 +21,20 @@ from robust_hermite_ft.hermite_functions import (
 
 
 class HermiteFunctionBasisImplementations(str, Enum):
-    FUNCTION_CYTHON_SINGLE = auto()
-    FUNCTION_CYTHON_PARALLEL = auto()
-    FUNCTION_NUMPY_SINGLE = auto()
-    FUNCTION_NUMBA_SINGLE = auto()
-    CLASS_INTERFACE = auto()
+    FUNCTION_NUMPY = auto()
+    FUNCTION_NUMBA = auto()
+    CLASS_NUMPY = auto()
+    CLASS_NUMBA = auto()
 
 
 # === Constants ===
 
 # a list of all Hermite function basis implementations
 ALL_HERMITE_IMPLEMENTATIONS = [
-    HermiteFunctionBasisImplementations.FUNCTION_CYTHON_SINGLE,
-    HermiteFunctionBasisImplementations.FUNCTION_CYTHON_PARALLEL,
-    HermiteFunctionBasisImplementations.FUNCTION_NUMPY_SINGLE,
-    HermiteFunctionBasisImplementations.FUNCTION_NUMBA_SINGLE,
-    HermiteFunctionBasisImplementations.CLASS_INTERFACE,
+    HermiteFunctionBasisImplementations.FUNCTION_NUMPY,
+    HermiteFunctionBasisImplementations.FUNCTION_NUMBA,
+    HermiteFunctionBasisImplementations.CLASS_NUMPY,
+    HermiteFunctionBasisImplementations.CLASS_NUMBA,
 ]
 
 # === Functions ===
@@ -61,33 +58,29 @@ def setup_hermite_function_basis_implementations(
 
     """
 
-    if implementation == HermiteFunctionBasisImplementations.CLASS_INTERFACE:
+    if implementation in {
+        HermiteFunctionBasisImplementations.CLASS_NUMPY,
+        HermiteFunctionBasisImplementations.CLASS_NUMBA,
+    }:
+        jit = implementation == HermiteFunctionBasisImplementations.CLASS_NUMBA
         return (
             HermiteFunctionBasis(
                 n=n,
                 alpha=alpha,
                 x_center=x_center,
+                jit=jit,
             ),
             dict(),
         )
 
     base_kwargs = dict(n=n, alpha=alpha, x_center=x_center)
 
-    if implementation == HermiteFunctionBasisImplementations.FUNCTION_CYTHON_SINGLE:
-        kwargs = dict(workers=1, **base_kwargs)
-        return hermite_function_basis, kwargs
-
-    elif implementation == HermiteFunctionBasisImplementations.FUNCTION_CYTHON_PARALLEL:
-        kwargs = dict(workers=-1, **base_kwargs)
-        return hermite_function_basis, kwargs
-
-    elif implementation == HermiteFunctionBasisImplementations.FUNCTION_NUMPY_SINGLE:
+    if implementation == HermiteFunctionBasisImplementations.FUNCTION_NUMPY:
         kwargs = dict(jit=False, **base_kwargs)
-        return slow_hermite_function_basis, kwargs
+        return hermite_function_basis, kwargs
 
-    elif implementation == HermiteFunctionBasisImplementations.FUNCTION_NUMBA_SINGLE:
+    if implementation == HermiteFunctionBasisImplementations.FUNCTION_NUMBA:
         kwargs = dict(jit=True, **base_kwargs)
-        return slow_hermite_function_basis, kwargs
+        return hermite_function_basis, kwargs
 
-    else:
-        raise AssertionError(f"Unknown implementation: {implementation}")
+    raise AssertionError(f"Unknown implementation: {implementation}")
