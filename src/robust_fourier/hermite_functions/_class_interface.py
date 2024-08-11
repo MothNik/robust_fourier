@@ -13,14 +13,14 @@ from typing import Optional, Union
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
-from ._func_interface import hermite_function_basis
-from ._validate import (
+from .._utils import (
     IntScalar,
     RealScalar,
     get_validated_alpha,
     get_validated_offset_along_axis,
     get_validated_order,
 )
+from ._func_interface import hermite_function_basis
 
 # === Classes ===
 

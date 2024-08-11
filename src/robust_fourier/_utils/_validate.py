@@ -1,12 +1,13 @@
 """
-Module :mod:`hermite_functions._validate`
+Module :mod:`_utils._validate`
 
-This module implements the input validations for the Hermite function parameters:
+This module implements the input validations for the Chebyshev polynomial and Hermite
+function parameters:
 
 - ``x``: the independent variable
-- ``n``: the order of the Hermite function
+- ``n``: the order
 - ``alpha``: the scaling factor of the independent variable
-- ``x_center``: the center of the Hermite function
+- ``x_center``: the center
 
 """
 
@@ -88,8 +89,8 @@ def get_validated_x_values(x: Any) -> np.ndarray:
 
 def get_validated_order(n: Any) -> int:
     """
-    Validates the input for the order of the Hermite function and returns the validated
-    input.
+    Validates the input for the order of the Chebyshev polynomials or Hermite functions
+    and returns the validated input.
 
     """
 
@@ -108,8 +109,8 @@ def get_validated_order(n: Any) -> int:
 
 def get_validated_alpha(alpha: Any) -> float:
     """
-    Validates the input for the scaling factor of the Hermite function and returns the
-    validated input.
+    Validates the input for the scaling factor for the independent variable of the
+    Chebyshev polynomials or Hermite functions and returns the validated input.
 
     """
 
@@ -133,8 +134,8 @@ def get_validated_offset_along_axis(
     which_axis: str,
 ) -> float:
     """
-    Validates the input for the center along the an axis, e.g., the x-center along the
-    x-axis, and returns the validated input.
+    Validates the input for the center (shift) along the an axis, e.g., the x-center
+    along the x-axis, and returns the validated input.
 
     """
 
@@ -155,14 +156,15 @@ def get_validated_offset_along_axis(
     return offset
 
 
-def get_validated_hermite_function_input(
+def get_validated_chebpoly_or_hermfunc_input(
     x: Any,
     n: Any,
     alpha: Any,
     x_center: Any,
 ) -> Tuple[np.ndarray, int, float, float]:
     """
-    Validates the input for the Hermite functions and returns the validated input.
+    Validates the input for the Chebyshev polynomials or Hermite functions and returns
+    the validated input.
 
     """
 

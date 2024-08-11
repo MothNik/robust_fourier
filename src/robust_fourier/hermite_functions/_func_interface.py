@@ -18,15 +18,15 @@ from typing import Optional, Union
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
+from .._utils import (
+    IntScalar,
+    RealScalar,
+    get_validated_chebpoly_or_hermfunc_input,
+    get_validated_x_values,
+)
 from ._numba_funcs import nb_hermite_function_basis as _nb_hermite_function_basis
 from ._numpy_funcs import _hermite_function_basis as _np_hermite_function_basis
 from ._numpy_funcs import _single_hermite_function as _np_single_hermite_function
-from ._validate import (
-    IntScalar,
-    RealScalar,
-    get_validated_hermite_function_input,
-    get_validated_x_values,
-)
 
 # === Auxiliary Functions ===
 
@@ -187,7 +187,7 @@ def hermite_function_basis(
             n,
             alpha,
             x_center,
-        ) = get_validated_hermite_function_input(
+        ) = get_validated_chebpoly_or_hermfunc_input(
             x=x,
             n=n,
             alpha=alpha,
@@ -306,7 +306,7 @@ def single_hermite_function(
             n,
             alpha,
             x_center,
-        ) = get_validated_hermite_function_input(
+        ) = get_validated_chebpoly_or_hermfunc_input(
             x=x,
             n=n,
             alpha=alpha,

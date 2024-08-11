@@ -25,7 +25,7 @@ from robust_fourier import (
 )
 from robust_fourier.hermite_functions._func_interface import (
     _is_data_linked,
-    get_validated_hermite_function_input,
+    get_validated_chebpoly_or_hermfunc_input,
 )
 
 from ..reference_files.generate_hermfunc_references import (
@@ -201,7 +201,7 @@ def test_is_data_linked_identified_correctly_after_hermite_functions_input_valid
     """
 
     # the input validation is called and the data copying is checked
-    modified = get_validated_hermite_function_input(
+    modified = get_validated_chebpoly_or_hermfunc_input(
         x=original,
         n=1,
         alpha=1.0,
