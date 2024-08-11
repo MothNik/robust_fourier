@@ -210,7 +210,7 @@ class HermiteFunctionBasis:
 
         Returns
         -------
-        hermite_function_basis : :class:`numpy.ndarray` of shape (m, n + 1) of dtype ``np.float64``
+        hermite_basis : :class:`numpy.ndarray` of shape (m, n + 1) of dtype ``np.float64``
             The values of the dilated Hermite functions at the points ``x``.
             It will always be 2D even if ``x`` is a scalar.
 

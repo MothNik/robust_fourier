@@ -21,7 +21,7 @@ from ._numpy_funcs import _hermite_function_basis
 
 # === Compilation ===
 
-# if available, the functions are compiled by Numba
+# if available/enabled, the functions are compiled by Numba
 try:
     if do_numba_normal_jit_action:  # pragma: no cover
         from numba import jit
