@@ -184,9 +184,8 @@ def test_dilated_hermite_function_basis_against_symbolic_reference(
     x_dtype: Type,
 ) -> None:
     """
-    This test checks the implementation of the function
-    :func:`slow_hermite_function_basis` against the symbolic implementation of the
-    Hermite functions.
+    This test checks the implementations of the Hermite functions against a symbolic
+    reference implementation.
 
     The ``x_center`` is tested in a hacky manner by shifting the x-values and calling
     the function with the shifted values and the center. With this, the function - given
@@ -227,7 +226,9 @@ def test_dilated_hermite_function_basis_against_symbolic_reference(
             reference.hermite_function_basis,
             atol=atol,
             rtol=rtol,
-        ), f"For n = {reference.n} and alpha = {reference.alpha}"
+        ), f"Failed for or n = {reference.n} and alpha = {reference.alpha}"
+
+        return
 
 
 @pytest.mark.parametrize("implementation", ALL_HERMITE_IMPLEMENTATIONS)

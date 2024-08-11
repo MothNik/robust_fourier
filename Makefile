@@ -71,11 +71,17 @@ check: black-check isort-check pyright-check mypy-check pycodestyle-check ruff-c
 
 # === Test Commands ===
 
-# Running a single test
+# Running a selected test (serial)
 .PHONY: test
 test:
 	@echo Running specific test with pytest ...
 	pytest -k "$(TEST)" -x
+
+# Running a selected test (parallel)
+.PHONY: test-parallel
+test-parallel:
+	@echo Running specific test with pytest in parallel ...
+	pytest -k "$(TEST)" -n="auto" -x
 
 # Running the tests
 .PHONY: test-htmlcov

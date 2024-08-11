@@ -311,7 +311,7 @@ def test_dilated_chebpoly_hermfunc_input_validation(
 ) -> None:
     """
     This test checks whether the function input validation for the Chebyshev polynomials
-    or Hermite functions:
+    or Hermite functions
 
     - passes if the input is correct and no exception is raised,
     - raises an exception if the input is incorrect.
