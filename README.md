@@ -197,6 +197,30 @@ x_largest_extremum = approximate_hermite_funcs_largest_extrema_x(
   <img src="docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.svg" width="1000px" />
 </p>
 
+## 🧮 Chebyshev Polynomials
+
+Even though the [Hermite functions](#〰️-hermite-functions) have some nice properties,
+they are not necessarily the best choice for the Fourier transform. Choosing their
+scaling parameter $\alpha$ can be a bit tricky.
+Therefore [[3]](#references) suggests using Chebyshev polynomials instead. They are
+only defined on the interval $[-1, 1]$ and can be scaled and shifted to fit the
+interval $[\mu - \alpha, \mu + \alpha]$ like
+
+<p align="center">
+  <img src="docs/chebyshev_polynomials/equations/CP-01-Chebyshev_Polynomials_Recurrence_Relation_First_Kind.svg" />
+
+for the first kind and
+
+<p align="center">
+  <img src="docs/chebyshev_polynomials/equations/CP-02-Chebyshev_Polynomials_Recurrence_Relation_Second_Kind.svg" />
+
+for the second kind. In [[3]](#references) the second kind $U$ is used, but the first
+kind $T$ is also implemented in `robust_fourier`.
+
+<p align="center">
+  <img src="docs/chebyshev_polynomials/EX-05-DilatedChebyshevPolynomials_DifferentScales.svg" width="1000px" />
+</p>
+
 ## 📖 References
 
 - [1] Dobróka M., Szegedi H., and Vass P., Inversion-Based Fourier Transform as a New
@@ -205,3 +229,9 @@ x_largest_extremum = approximate_hermite_funcs_largest_extrema_x(
 - [2] Bunck B. F., A fast algorithm for evaluation of normalized Hermite functions,
   _BIT Numer Math_ (2009), 49, pp. 281–295, DOI:
   [https://doi.org/10.1007/s10543-009-0216-1](https://doi.org/10.1007/s10543-009-0216-1)
+- [3] Al Marashly, O., Dobróka, M., Chebyshev polynomial-based Fourier transformation
+  and its use in low pass filter of gravity data, _Acta Geod Geophys_ (2024), 59,
+  pp. 159–181 DOI: [https://doi.org/10.1007/s40328-024-00444-z](https://doi.org/10.1007/s40328-024-00444-z)
+- [4] Hrycak T., Schmutzhard S., Accurate evaluation of Chebyshev polynomials in
+  floating-point arithmetic, _BIT Numer Math_ (2019), 59, pp. 403–416,
+  DOI: [https://doi.org/10.1007/s10543-018-0738-5](https://doi.org/10.1007/s10543-018-0738-5)
