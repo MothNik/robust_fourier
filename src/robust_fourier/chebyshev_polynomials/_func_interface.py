@@ -38,8 +38,30 @@ chebyshev_both_kinds_set = {"both", None}
 # === Auxiliary Functions ===
 
 
+@overload
 def get_validated_chebyshev_kind(
     kind: Any,
+    allow_both_kinds: Literal[False],
+) -> Literal[1, 2]: ...
+
+
+@overload
+def get_validated_chebyshev_kind(
+    kind: Any,
+    allow_both_kinds: Literal[True] = True,
+) -> Optional[Literal[1, 2]]: ...
+
+
+@overload
+def get_validated_chebyshev_kind(
+    kind: Any,
+    allow_both_kinds: bool = True,
+) -> Optional[Literal[1, 2]]: ...
+
+
+def get_validated_chebyshev_kind(
+    kind: Any,
+    allow_both_kinds: bool = True,
 ) -> Optional[Literal[1, 2]]:
     """
     Validates the input for the kind of Chebyshev polynomials and returns the validated
@@ -66,7 +88,13 @@ def get_validated_chebyshev_kind(
         return 2
 
     if kind_internal in chebyshev_both_kinds_set:
-        return None
+        if allow_both_kinds:
+            return None
+
+        raise ValueError(
+            f"Expected 'kind' to be one of {chebyshev_first_kind_set} or "
+            f"{chebyshev_second_kind_set}, but got '{kind}'."
+        )
 
     raise ValueError(
         f"Expected 'kind' to be one of {chebyshev_first_kind_set}, "
@@ -85,6 +113,7 @@ def chebyshev_poly_basis(
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
     kind: Literal[1, 2, "first", "second"] = "second",
+    allow_both_kinds: bool = True,
     jit: bool = True,
     validate_parameters: bool = True,
 ) -> NDArray[np.float64]: ...
@@ -97,6 +126,7 @@ def chebyshev_poly_basis(
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
     kind: Optional[Literal["both"]] = "both",
+    allow_both_kinds: bool = True,
     jit: bool = True,
     validate_parameters: bool = True,
 ) -> Tuple[NDArray[np.float64], NDArray[np.float64]]: ...
@@ -108,6 +138,7 @@ def chebyshev_poly_basis(
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
     kind: Optional[Literal[1, 2, "first", "second", "both"]] = "second",
+    allow_both_kinds: bool = True,
     jit: bool = True,
     validate_parameters: bool = True,
 ) -> Union[NDArray[np.float64], Tuple[NDArray[np.float64], NDArray[np.float64]]]:
@@ -133,14 +164,18 @@ def chebyshev_poly_basis(
         The center of the dilated Chebyshev polynomials.
         If ``None`` or ``0``, the functions are centered at the origin.
         Otherwise, the center is shifted to the given value.
-    kind : {``1``, ``2``, ``"first"``, ``"second"``, ``"both"``}, default=``"second"``
+    kind : {``1``, ``2``, ``"first"``, ``"second"``, ``"both"``} or None, default=``"second"``
         The kind of Chebyshev polynomials to compute, which can either
 
         - ``1`` or ``"first"`` for the first kind,
         - ``2`` or ``"second"`` for the second kind,
-        - ``"both"`` for both kinds simultaneously (no significant performance impact
-            due to the combined recursion formula).
+        - ``"both"`` or ``None`` for both kinds simultaneously (no significant
+            performance impact due to the combined recursion formula; only available if
+            ``allow_both_kinds`` is ``True``).
 
+    allow_both_kinds : :class:`bool`, default=``True``
+        Whether to allow the computation of both kinds of Chebyshev polynomials
+        simultaneously (``True``) or not (``False``).
     jit : :class:`bool`, default=``True``
         Whether to use the Numba-accelerated implementation (``True``) or the
         NumPy-based implementation (``False``).
@@ -219,7 +254,10 @@ def chebyshev_poly_basis(
     else:  # pragma: no cover
         x_internal = get_validated_x_values(x=x)
 
-    kind_internal = get_validated_chebyshev_kind(kind=kind)
+    kind_internal = get_validated_chebyshev_kind(
+        kind=kind,
+        allow_both_kinds=allow_both_kinds,
+    )
 
     # --- Computation ---
 

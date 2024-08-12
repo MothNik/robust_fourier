@@ -10,7 +10,7 @@ from typing import Any, Callable, Dict, Tuple
 
 import numpy as np
 
-from robust_fourier import chebyshev_poly_basis
+from robust_fourier import ChebyshevPolynomialBasis, chebyshev_poly_basis
 
 # === Models ===
 
@@ -20,6 +20,8 @@ from robust_fourier import chebyshev_poly_basis
 class ChebyshevPolyBasisImplementations(str, Enum):
     FUNCTION_NUMPY = auto()
     FUNCTION_NUMBA = auto()
+    CLASS_NUMPY = auto()
+    CLASS_NUMBA = auto()
 
 
 # === Constants ===
@@ -28,6 +30,8 @@ class ChebyshevPolyBasisImplementations(str, Enum):
 ALL_CHEBYSHEV_IMPLEMENTATIONS = [
     ChebyshevPolyBasisImplementations.FUNCTION_NUMPY,
     ChebyshevPolyBasisImplementations.FUNCTION_NUMBA,
+    ChebyshevPolyBasisImplementations.CLASS_NUMPY,
+    ChebyshevPolyBasisImplementations.CLASS_NUMBA,
 ]
 
 # === Functions ===
@@ -52,20 +56,21 @@ def setup_chebyshev_poly_basis_implementations(
 
     """
 
-    # if implementation in {
-    #     ChebyshevPolyBasisImplementations.CLASS_NUMPY,
-    #     ChebyshevPolyBasisImplementations.CLASS_NUMBA,
-    # }:
-    #     jit = implementation == ChebyshevPolyBasisImplementations.CLASS_NUMBA
-    #     return (
-    #         HermiteFunctionBasis(
-    #             n=n,
-    #             alpha=alpha,
-    #             x_center=x_center,
-    #             jit=jit,
-    #         ),
-    #         dict(),
-    #     )
+    if implementation in {
+        ChebyshevPolyBasisImplementations.CLASS_NUMPY,
+        ChebyshevPolyBasisImplementations.CLASS_NUMBA,
+    }:
+        jit = implementation == ChebyshevPolyBasisImplementations.CLASS_NUMBA
+        return (
+            ChebyshevPolynomialBasis(
+                n=n,
+                alpha=alpha,
+                x_center=x_center,
+                kind=kind,
+                jit=jit,
+            ),
+            dict(),
+        )
 
     base_kwargs = dict(
         n=n,

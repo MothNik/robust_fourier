@@ -8,4 +8,5 @@ second kind for fitting a basis for robust Fourier transforms.
 
 # === Imports ===
 
+from ._class_interface import ChebyshevPolynomialBasis  # noqa: F401
 from ._func_interface import chebyshev_poly_basis  # noqa: F401

@@ -124,6 +124,6 @@ try:
 # Numba-based implementation
 except ImportError:  # pragma: no cover
 
-    from _numpy_funcs import (  # noqa: F401, E501 # isort:skip
+    from ._numpy_funcs import (  # noqa: F401, E501 # isort:skip
         _chebyshev_poly_bases as nb_chebyshev_poly_bases,
     )

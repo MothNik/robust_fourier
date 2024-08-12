@@ -49,30 +49,103 @@ assert TEST_CHEBYSHEV_POLY_N_X_VALUES % 2 == 1, "The number of x-values must be 
 
 
 @pytest.mark.parametrize(
-    "kind, expected",
+    "kind, allow_both_kinds, expected",
     [
-        (1, 1),  # Test 0: kind is 1
-        ("first", 1),  # Test 1: kind is "first"
-        (2, 2),  # Test 2: kind is 2
-        ("second", 2),  # Test 3: kind is "second"
-        (None, None),  # Test 4: kind is None
-        ("both", None),  # Test 5: kind is "both"
-        (  # Test 6: kind is of an invalid type
+        (  # Test 0: kind is 1 and both kinds are allowed
+            1,
+            True,
+            1,
+        ),
+        (  # Test 1: kind is "first" and both kinds are allowed
+            "first",
+            True,
+            1,
+        ),
+        (  # Test 2: kind is 2 and both kinds are allowed
+            2,
+            True,
+            2,
+        ),
+        (  # Test 3: kind is "second" and both kinds are allowed
+            "second",
+            True,
+            2,
+        ),
+        (  # Test 4: kind is None and both kinds are allowed
+            None,
+            True,
+            None,
+        ),
+        (  # Test 5: kind is "both" and both kinds are not allowed
+            "both",
+            True,
+            None,
+        ),
+        (  # Test 6: kind is of an invalid type and both kinds are allowed
             complex(3, 5),
+            True,
             TypeError("Expected 'kind' to be an integer, a string, or None"),
         ),
-        (  # Test 7: kind is an invalid integer
+        (  # Test 7: kind is an invalid integer and both kinds are allowed
             0,
+            True,
             ValueError("Expected 'kind' to be one of"),
         ),
-        (  # Test 8: kind is an invalid string
+        (  # Test 8: kind is an invalid string and both kinds are allowed
             "zero",
+            True,
+            ValueError("Expected 'kind' to be one of"),
+        ),
+        (  # Test 9: kind is 1 and both kinds are not allowed
+            1,
+            False,
+            1,
+        ),
+        (  # Test 10: kind is "first" and both kinds are not allowed
+            "first",
+            False,
+            1,
+        ),
+        (  # Test 11: kind is 2 and both kinds are not allowed
+            2,
+            False,
+            2,
+        ),
+        (  # Test 12: kind is "second" and both kinds are not allowed
+            "second",
+            False,
+            2,
+        ),
+        (  # Test 13: kind is None and both kinds are not allowed
+            None,
+            False,
+            ValueError("Expected 'kind' to be one of"),
+        ),
+        (  # Test 14: kind is "both" and both kinds are not allowed
+            "both",
+            False,
+            ValueError("Expected 'kind' to be one of"),
+        ),
+        (  # Test 15: kind is of an invalid type and both kinds are not allowed
+            complex(3, 5),
+            False,
+            TypeError("Expected 'kind' to be an integer, a string, or None"),
+        ),
+        (  # Test 16: kind is an invalid integer and both kinds are not allowed
+            0,
+            False,
+            ValueError("Expected 'kind' to be one of"),
+        ),
+        (  # Test 17: kind is an invalid string and both kinds are not allowed
+            "zero",
+            False,
             ValueError("Expected 'kind' to be one of"),
         ),
     ],
 )
 def test_chebyshev_poly_kind_input_validation(
     kind: Any,
+    allow_both_kinds: bool,
     expected: Union[Exception, Optional[Literal[1, 2]]],
 ) -> None:
     """
@@ -88,12 +161,18 @@ def test_chebyshev_poly_kind_input_validation(
     # checked
     if isinstance(expected, Exception):
         with pytest.raises(type(expected), match=str(expected)):
-            kind_validated = get_validated_chebyshev_kind(kind=kind)
+            kind_validated = get_validated_chebyshev_kind(
+                kind=kind,
+                allow_both_kinds=allow_both_kinds,
+            )
 
         return
 
     # if no exception should be raised, the output is checked to be as expected
-    kind_validated = get_validated_chebyshev_kind(kind=kind)
+    kind_validated = get_validated_chebyshev_kind(
+        kind=kind,
+        allow_both_kinds=allow_both_kinds,
+    )
     if expected is not None:
         assert kind_validated == expected
 
@@ -274,6 +353,7 @@ def test_chebyshev_polys_work_identically_for_all_x_types(
 
     # the checks are performed
     # NOTE: a loop is used to test the first and second kind individually
+    kind = ""
     for kind in ["first", "second"]:
         # the Chebyshev polynomials for the NumPy-Array x-points are computed as a
         # reference
@@ -393,6 +473,7 @@ def test_chebyshev_polys_work_identically_for_all_n_alpha_x_center_types(
 
     # the checks are performed
     # NOTE: a loop is used to test the first and second kind individually
+    kind = ""
     for kind in ["first", "second"]:
         # the Chebyshev polynomials for the NumPy-Array x-points are computed as a
         # reference

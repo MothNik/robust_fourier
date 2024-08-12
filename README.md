@@ -76,7 +76,7 @@ isort --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
 pyright ./auxiliary_scripts ./examples ./src ./tests
 mypy ./auxiliary_scripts ./examples ./src ./tests
 ruff check ./auxiliary_scripts ./examples ./src ./tests
-pycodestyle ./auxiliary_scripts ./examples ./src ./tests --max-line-length=88 --ignore=E203,W503
+pycodestyle ./auxiliary_scripts ./examples ./src ./tests --max-line-length=88 --ignore=E203,W503,E704
 ```
 
 ### ✅❌ Tests

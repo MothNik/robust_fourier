@@ -57,7 +57,7 @@ mypy-check:
 .PHONY: pycodestyle-check
 pycodestyle-check:
 	@echo Checking code style with 'pycodestyle' ...
-	pycodestyle $(SRC_DIRS) --max-line-length=88 --ignore=E203,W503
+	pycodestyle $(SRC_DIRS) --max-line-length=88 --ignore=E203,W503,E704
 
 # ruff lint checking
 .PHONY: ruff-check
