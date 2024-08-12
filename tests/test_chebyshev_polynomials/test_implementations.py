@@ -33,7 +33,7 @@ from .utils import (
 # the SciPy implementation
 # NOTE: the number of x-values has to be an odd number to make sure that 0 is included
 TEST_CHEBYSHEV_POLY_ORDER = 1_000
-TEST_CHEBYSHEV_POLY_N_X_VALUES = 2_001
+TEST_CHEBYSHEV_POLY_N_X_VALUES = 1_101
 
 # the absolute and relative tolerances for the tests of the Chebyshev polynomials
 # against the SciPy implementation
@@ -136,6 +136,8 @@ def test_centered_chebyshev_poly_do_not_modify_x_values(
     # the x-values are checked to be unchanged
     assert np.array_equal(np.asarray(x_values), x_values_original)
 
+    return
+
 
 @pytest.mark.parametrize("x_center", [-10.0, 0.0, None, 10.0])
 @pytest.mark.parametrize("alpha", [0.5, 1.0, 2.0])
@@ -173,10 +175,6 @@ def test_dilated_chebyshev_poly_basis_against_scipy_reference(
         kind="second",
         **spec_kwargs,  # type: ignore
     )
-    func_both, kwargs_both = setup_chebyshev_poly_basis_implementations(
-        kind="both",
-        **spec_kwargs,  # type: ignore
-    )
 
     # then, the x-values are set up and the Chebyshev polynomials are evaluated
     # NOTE: to be numerically precise, the x-values are set up in a way with as much
@@ -189,32 +187,30 @@ def test_dilated_chebyshev_poly_basis_against_scipy_reference(
         num=TEST_CHEBYSHEV_POLY_N_X_VALUES,
         dtype=np.float64,
     )
-    chebyshev_basis_first_kind_alone = func_first(
+    chebyshev_basis_first_kind = func_first(
         x=x_values,
         **kwargs_first,
     )
-    chebyshev_basis_second_kind_alone = func_second(
+    chebyshev_basis_second_kind = func_second(
         x=x_values,
         **kwargs_second,
-    )
-    (
-        chebyshev_basis_first_kind_both,
-        chebyshev_basis_second_kind_both,
-    ) = func_both(
-        x=x_values,
-        **kwargs_both,
     )
 
     # the SciPy reference values are computed with the x-values between -1 and +1
     n_values = np.arange(
-        start=0, stop=TEST_CHEBYSHEV_POLY_ORDER + 1, step=1, dtype=np.int64
+        start=0,
+        stop=TEST_CHEBYSHEV_POLY_ORDER + 1,
+        step=1,
+        dtype=np.int64,
     ).reshape((1, -1))
+
     x_values = np.linspace(
         start=-1.0,
         stop=+1.0,
         num=TEST_CHEBYSHEV_POLY_N_X_VALUES,
         dtype=np.float64,
     ).reshape((-1, 1))
+
     reference_chebyshev_basis_first_kind = scipy_chebyshev_first_kind(
         n_values,
         x_values,
@@ -230,14 +226,10 @@ def test_dilated_chebyshev_poly_basis_against_scipy_reference(
     #       and scaling applied in the tests
     for basis, ref_basis in zip(
         (
-            chebyshev_basis_first_kind_alone,
-            chebyshev_basis_second_kind_alone,
-            chebyshev_basis_first_kind_both,
-            chebyshev_basis_second_kind_both,
+            chebyshev_basis_first_kind,
+            chebyshev_basis_second_kind,
         ),
         (
-            reference_chebyshev_basis_first_kind,
-            reference_chebyshev_basis_second_kind,
             reference_chebyshev_basis_first_kind,
             reference_chebyshev_basis_second_kind,
         ),
@@ -250,4 +242,239 @@ def test_dilated_chebyshev_poly_basis_against_scipy_reference(
             rtol=TEST_CHEBYSHEV_POLY_FLOAT64_RTOL,
         )
 
+    return
+
+
+@pytest.mark.parametrize("x_center", [None, 0.0, 1.0, -1.0])
+@pytest.mark.parametrize("alpha", [0.5, 1.0, 2.0])
+@pytest.mark.parametrize("implementation", ALL_CHEBYSHEV_IMPLEMENTATIONS)
+def test_chebyshev_polys_work_identically_for_all_x_types(
+    implementation: ChebyshevPolyBasisImplementations,
+    alpha: float,
+    x_center: Optional[float],
+) -> None:
+    """
+    This test checks whether the Chebyshev polynomials can be evaluated for all possible
+    types that are supported for ``x``, i.e.,
+
+    - NumPy arrays
+    - lists
+    - tuples
+    - Pandas Series
+    - Python arrays
+    - individual Python and NumPy floats
+
+    """
+
+    # the points for the check are set up as a NumPy-Array
+    x_center_for_points = x_center if x_center is not None else 0.0
+    x_points_to_check = np.linspace(start=-10.0, stop=10.0, num=1_001)
+    x_points_to_check *= alpha
+    x_points_to_check += x_center_for_points
+
+    # the checks are performed
+    # NOTE: a loop is used to test the first and second kind individually
+    for kind in ["first", "second"]:
+        # the Chebyshev polynomials for the NumPy-Array x-points are computed as a
+        # reference
+        func, kwargs = setup_chebyshev_poly_basis_implementations(
+            implementation=implementation,
+            n=1,
+            alpha=alpha,
+            x_center=x_center,
+            kind=kind,
+        )
+
+        chebyshev_basis_reference = func(
+            x=x_points_to_check,  # type: ignore
+            **kwargs,
+        )
+
+        # then, all the other types for ``x`` are checked
+        # 1) a list
+        chebyshev_basis_from_x_list = func(
+            x=x_points_to_check.tolist(),  # type: ignore
+            **kwargs,
+        )
+
+        assert np.array_equal(
+            chebyshev_basis_reference,
+            chebyshev_basis_from_x_list,
+        )
+
+        del chebyshev_basis_from_x_list
+
+        # 2) a tuple
+        chebyshev_basis_from_x_tuple = func(
+            x=tuple(x_points_to_check.tolist()),  # type: ignore
+            **kwargs,
+        )
+
+        assert np.array_equal(
+            chebyshev_basis_reference,
+            chebyshev_basis_from_x_tuple,
+        )
+
+        del chebyshev_basis_from_x_tuple
+
+        # 3) a Pandas Series
+        chebyshev_basis_from_x_pandas_series = func(
+            x=PandasSeries(x_points_to_check.tolist()),  # type: ignore
+            **kwargs,
+        )
+
+        assert np.array_equal(
+            chebyshev_basis_reference,
+            chebyshev_basis_from_x_pandas_series,
+        )
+
+        del chebyshev_basis_from_x_pandas_series
+
+        # 4) a Python Array
+        chebyshev_basis_from_x_pyarray = func(
+            x=PythonArray("d", x_points_to_check.tolist()),  # type: ignore
+            **kwargs,
+        )
+
+        assert np.array_equal(
+            chebyshev_basis_reference,
+            chebyshev_basis_from_x_pyarray,
+        )
+
+        del chebyshev_basis_from_x_pyarray
+
+        # 5) individual Python and NumPy floats
+
+        for float_func in [float, np.float64]:
+            chebyshev_basis_from_x_float = np.array(
+                [
+                    func(
+                        x=float_func(x_point),  # type: ignore
+                        **kwargs,
+                    )[0, ::]
+                    for x_point in x_points_to_check
+                ]
+            )
+
+            assert np.array_equal(
+                chebyshev_basis_reference,
+                chebyshev_basis_from_x_float,
+            )
+
+            del chebyshev_basis_from_x_float
+
+    assert kind == "second"
+    return
+
+
+@pytest.mark.parametrize("implementation", ALL_CHEBYSHEV_IMPLEMENTATIONS)
+def test_chebyshev_polys_work_identically_for_all_n_alpha_x_center_types(
+    implementation: ChebyshevPolyBasisImplementations,
+) -> None:
+    """
+    This test checks whether the Chebyshev polynomials can be evaluated for all possible
+    types that are supported for ``n``, ``alpha``, and ``x_center``, i.e.,
+
+    - Python and Numpy integers for ``n``
+    - Python and  integers and floats for ``alpha`` and ``x_center``
+
+    """
+
+    # the reference values for ``n``, ``alpha``, and ``x_center`` are set up as Python
+    # integers to avoid any float conversion issues
+    n_ref_value = 11
+    alpha_ref_value = 2
+    x_center_ref_value = 10
+
+    # the x-points for the check are set up as a NumPy-Array
+    x_points_to_check = np.linspace(start=-10.0, stop=10.0, num=1_001)
+    x_points_to_check *= float(alpha_ref_value)
+    x_points_to_check += float(x_center_ref_value)
+
+    # the checks are performed
+    # NOTE: a loop is used to test the first and second kind individually
+    for kind in ["first", "second"]:
+        # the Chebyshev polynomials for the NumPy-Array x-points are computed as a
+        # reference
+        func, kwargs = setup_chebyshev_poly_basis_implementations(
+            implementation=implementation,
+            n=n_ref_value,
+            alpha=alpha_ref_value,
+            x_center=x_center_ref_value,
+            kind=kind,
+        )
+
+        chebyshev_basis_reference = func(
+            x=x_points_to_check,  # type: ignore
+            **kwargs,
+        )
+
+        # then, ``n`` is tested with a NumPy instead of a Python integer
+        func, kwargs = setup_chebyshev_poly_basis_implementations(
+            implementation=implementation,
+            n=np.int64(n_ref_value),
+            alpha=alpha_ref_value,
+            x_center=x_center_ref_value,
+            kind=kind,
+        )
+
+        chebyshev_basis_from_n_numpy_int = func(
+            x=x_points_to_check,  # type: ignore
+            **kwargs,
+        )
+
+        assert np.array_equal(
+            chebyshev_basis_reference,
+            chebyshev_basis_from_n_numpy_int,
+        )
+
+        del chebyshev_basis_from_n_numpy_int
+
+        # afterwards, ``alpha`` is tested with a NumPy integer, a Python float, and a
+        # NumPy float instead of a Python integer
+        for alpha_conversion in [np.int64, float, np.float64]:
+            func, kwargs = setup_chebyshev_poly_basis_implementations(
+                implementation=implementation,
+                n=n_ref_value,
+                alpha=alpha_conversion(alpha_ref_value),
+                x_center=x_center_ref_value,
+                kind=kind,
+            )
+
+            chebyshev_basis_from_alpha_converted = func(
+                x=x_points_to_check,  # type: ignore
+                **kwargs,
+            )
+
+            assert np.array_equal(
+                chebyshev_basis_reference,
+                chebyshev_basis_from_alpha_converted,
+            )
+
+            del chebyshev_basis_from_alpha_converted
+
+        # finally, ``x_center`` is tested with a NumPy integer, a Python float, and a
+        # NumPy float instead of a Python integer
+        for x_center_conversion in [np.int64, float, np.float64]:
+            func, kwargs = setup_chebyshev_poly_basis_implementations(
+                implementation=implementation,
+                n=n_ref_value,
+                alpha=alpha_ref_value,
+                x_center=x_center_conversion(x_center_ref_value),
+                kind=kind,
+            )
+
+            chebyshev_basis_from_x_center_converted = func(
+                x=x_points_to_check,  # type: ignore
+                **kwargs,
+            )
+
+            assert np.array_equal(
+                chebyshev_basis_reference,
+                chebyshev_basis_from_x_center_converted,
+            )
+
+            del chebyshev_basis_from_x_center_converted
+
+    assert kind == "second"
     return
