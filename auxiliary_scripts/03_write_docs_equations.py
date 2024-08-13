@@ -48,6 +48,37 @@ class EquationSpecification:
 # the paths to there the images will be stored (relative to the current file) and their
 # respective LaTeX expressions
 EQUATION_SPECIFICATIONS = {
+    "chebyshev_polynomials_recurrence_relation_first_kind": EquationSpecification(
+        image_path=(
+            "../docs/chebyshev_polynomials/equations"
+            "/CP-01-Chebyshev_Polynomials_Recurrence_Relation_First_Kind.svg"
+        ),
+        latex_expression=(
+            r"$T_{n+1}^{\left(\alpha;\mu\right)}\left(x\right)=2\cdot "
+            r"\frac{x-\mu}{\alpha}\cdot T_{n}^{\left(\alpha;\mu\right)}\left(x\right)-"
+            r"T_{n-1}^{\left(\alpha;\mu\right)}\left(x\right)$"
+            + "\n\n"
+            + r"$T_{0}^{\left(\alpha;\mu\right)}\left(x\right)=1$"
+            + "\n\n"
+            + r"$T_{1}^{\left(\alpha;\mu\right)}\left(x\right)=\frac{x-\mu}{\alpha}$"
+        ),
+    ),
+    "chebyshev_polynomials_recurrence_relation_second_kind": EquationSpecification(
+        image_path=(
+            "../docs/chebyshev_polynomials/equations"
+            "/CP-02-Chebyshev_Polynomials_Recurrence_Relation_Second_Kind.svg"
+        ),
+        latex_expression=(
+            r"$U_{n+1}^{\left(\alpha;\mu\right)}\left(x\right)=2\cdot "
+            r"\frac{x-\mu}{\alpha}\cdot U_{n}^{\left(\alpha;\mu\right)}\left(x\right)-"
+            r"U_{n-1}^{\left(\alpha;\mu\right)}\left(x\right)$"
+            + "\n\n"
+            + r"$U_{0}^{\left(\alpha;\mu\right)}\left(x\right)=1$"
+            + "\n\n"
+            + r"$U_{1}^{\left(\alpha;\mu\right)}\left(x\right)="
+            r"2\cdot\frac{x-\mu}{\alpha}$"
+        ),
+    ),
     "hermite_functions_time_space_domain": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"

@@ -1,5 +1,5 @@
 """
-This test suite implements the tests for the module :mod:`hermite_functions._validate`.
+This test suite implements the tests for the module :mod:`_utils._validate`.
 
 """
 
@@ -12,16 +12,11 @@ import numpy as np
 import pytest
 from pandas import Series as PandasSeries
 
-from .utils import (
-    ALL_HERMITE_IMPLEMENTATIONS,
-    HermiteFunctionBasisImplementations,
-    setup_hermite_function_basis_implementations,
-)
+from robust_fourier._utils import get_validated_chebpoly_or_hermfunc_input
 
 # === Tests ===
 
 
-@pytest.mark.parametrize("implementation", ALL_HERMITE_IMPLEMENTATIONS)
 @pytest.mark.parametrize(
     "x, n, alpha, x_center, expected",
     [
@@ -307,60 +302,42 @@ from .utils import (
         ),
     ],
 )
-def test_dilated_hermite_functions_input_validation(
+def test_dilated_chebpoly_hermfunc_input_validation(
     x: Any,
     n: Any,
     alpha: Any,
     x_center: Any,
     expected: Optional[Exception],
-    implementation: HermiteFunctionBasisImplementations,
 ) -> None:
     """
-    This test checks whether the function input validation of the :func:`hermite_function_basis` implementations
+    This test checks whether the function input validation for the Chebyshev polynomials
+    or Hermite functions
 
     - passes if the input is correct and no exception is raised,
     - raises an exception if the input is incorrect.
 
-    """  # noqa: E501
+    """
 
     # if an exception should be raised, the function is called and the exception is
     # checked
     if isinstance(expected, Exception):
         with pytest.raises(type(expected), match=str(expected)):
-            # the function is parametrized
-            # NOTE: for the class interface the validation will happen in the
-            #       constructor and a failure will thus happen here already
-            func, kwargs = setup_hermite_function_basis_implementations(
-                implementation=implementation,
+            _ = get_validated_chebpoly_or_hermfunc_input(
+                x=x,
                 n=n,
                 alpha=alpha,
                 x_center=x_center,
-            )
-
-            # the function is called
-            # NOTE: for the class interfaces the validation will happen in the actual
-            #       function call and a failure will thus happen here
-            func(
-                x=x,  # type: ignore
-                **kwargs,
             )
 
         return
 
     # if no exception should be raised, the function is called and if it finishes, the
     # test is passed
-    # the function is parametrized
-    func, kwargs = setup_hermite_function_basis_implementations(
-        implementation=implementation,
+    _ = get_validated_chebpoly_or_hermfunc_input(
+        x=x,
         n=n,
         alpha=alpha,
         x_center=x_center,
-    )
-
-    # the function is called
-    func(
-        x=x,  # type: ignore
-        **kwargs,
     )
 
     return

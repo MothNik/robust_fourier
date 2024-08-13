@@ -20,6 +20,13 @@ from typing import Optional
 import numpy as np
 from scipy.interpolate import splev
 
+from .._utils import (
+    IntScalar,
+    RealScalar,
+    get_validated_alpha,
+    get_validated_offset_along_axis,
+    get_validated_order,
+)
 from ._hermite_largest_extrema_spline import (
     HERMITE_LARGEST_EXTREMA_MAX_ORDER,
     HERMITE_LARGEST_EXTREMA_SPLINE_TCK,
@@ -27,13 +34,6 @@ from ._hermite_largest_extrema_spline import (
 from ._hermite_largest_roots_spline import (
     HERMITE_LARGEST_ZEROS_MAX_ORDER,
     HERMITE_LARGEST_ZEROS_SPLINE_TCK,
-)
-from ._validate import (
-    IntScalar,
-    RealScalar,
-    get_validated_alpha,
-    get_validated_offset_along_axis,
-    get_validated_order,
 )
 
 # === Constants ===

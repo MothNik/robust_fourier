@@ -10,10 +10,7 @@ from typing import Any, Callable, Dict, Tuple
 
 import numpy as np
 
-from robust_fourier.hermite_functions import (
-    HermiteFunctionBasis,
-    hermite_function_basis,
-)
+from robust_fourier import HermiteFunctionBasis, hermite_function_basis
 
 # === Models ===
 
@@ -73,7 +70,11 @@ def setup_hermite_function_basis_implementations(
             dict(),
         )
 
-    base_kwargs = dict(n=n, alpha=alpha, x_center=x_center)
+    base_kwargs = dict(
+        n=n,
+        alpha=alpha,
+        x_center=x_center,
+    )
 
     if implementation == HermiteFunctionBasisImplementations.FUNCTION_NUMPY:
         kwargs = dict(jit=False, **base_kwargs)
