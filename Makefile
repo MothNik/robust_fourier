@@ -8,7 +8,7 @@ SRC_DIRS = ./auxiliary_scripts ./examples ./src ./tests
 # Upgrading pip, setuptools and wheel
 .PHONY: upgrade-pip
 upgrade-pip:
-	@echo Upgrading pip, setuptools and wheel ...
+	@echo Upgrading pip, setuptools, and wheel ...
 	python -m pip install --upgrade pip setuptools wheel
 
 # Installing the required dependencies and building the package

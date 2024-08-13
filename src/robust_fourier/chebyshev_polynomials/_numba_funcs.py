@@ -15,7 +15,7 @@ from typing import Tuple
 
 import numpy as np
 
-from src.robust_fourier._utils.numba_helpers import do_numba_normal_jit_action
+from .._utils._numba_helpers import do_numba_normal_jit_action
 
 # === Functions and Compilation ===
 

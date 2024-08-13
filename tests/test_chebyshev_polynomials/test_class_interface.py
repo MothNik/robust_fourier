@@ -54,7 +54,7 @@ def test_chebyshev_polynomials_basis_properties_and_len(
     # expected results
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        chebyshev_poly_basis(
+        chebyshev_poly_basis(  # type: ignore
             x=x_reference,
             n=0,
             alpha=1.0,
@@ -79,7 +79,7 @@ def test_chebyshev_polynomials_basis_properties_and_len(
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        chebyshev_poly_basis(
+        chebyshev_poly_basis(  # type: ignore
             x=x_reference,
             n=1,
             alpha=1.0,
@@ -104,7 +104,7 @@ def test_chebyshev_polynomials_basis_properties_and_len(
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        chebyshev_poly_basis(
+        chebyshev_poly_basis(  # type: ignore
             x=x_reference,
             n=1,
             alpha=2.0,
@@ -129,7 +129,7 @@ def test_chebyshev_polynomials_basis_properties_and_len(
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        chebyshev_poly_basis(
+        chebyshev_poly_basis(  # type: ignore
             x=x_reference,
             n=1,
             alpha=2.0,
@@ -154,7 +154,7 @@ def test_chebyshev_polynomials_basis_properties_and_len(
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        chebyshev_poly_basis(
+        chebyshev_poly_basis(  # type: ignore
             x=x_reference,
             n=1,
             alpha=2.0,
@@ -173,10 +173,10 @@ def test_chebyshev_polynomials_basis_properties_and_len(
         new_kind = 1
         ref_kind = 1
     elif kind == "first":
-        new_kind = "second"
+        new_kind = "second"  # type: ignore
         ref_kind = 2
     elif kind == "second":
-        new_kind = "first"
+        new_kind = "first"  # type: ignore
         ref_kind = 1
     else:
         raise AssertionError(f"Unexpected kind '{kind}'.")
@@ -194,7 +194,7 @@ def test_chebyshev_polynomials_basis_properties_and_len(
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        chebyshev_poly_basis(
+        chebyshev_poly_basis(  # type: ignore
             x=x_reference,
             n=1,
             alpha=2.0,
@@ -219,7 +219,7 @@ def test_chebyshev_polynomials_basis_properties_and_len(
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        chebyshev_poly_basis(
+        chebyshev_poly_basis(  # type: ignore
             x=x_reference,
             n=1,
             alpha=2.0,
