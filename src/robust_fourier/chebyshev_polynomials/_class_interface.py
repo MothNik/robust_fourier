@@ -172,7 +172,7 @@ class ChebyshevPolynomialBasis:
         return self._kind
 
     @kind.setter
-    def kind(self, value: Literal[1, 2]) -> None:
+    def kind(self, value: Literal[1, 2, "first", "second"]) -> None:
         self._kind = get_validated_chebyshev_kind(
             kind=value,
             allow_both_kinds=False,
