@@ -68,7 +68,7 @@ def _chebyshev_poly_bases(
     # the combined recurrence relation is started with the initial value
     # - 1 for the Chebyshev polynomial of the first kind T_0(x)
     # - 0 for the Chebyshev polynomial of the second kind U_{-1}(x)
-    chebyshev_t1_basis = np.empty(shape=(x.size, n + 1))
+    chebyshev_t1_basis = np.empty(shape=(n + 1, x.size))
     chebyshev_u2_basis = np.empty_like(chebyshev_t1_basis)
     t_i_minus_1 = np.ones_like(x)
     u_i_minus_2 = np.zeros_like(x)
@@ -79,9 +79,9 @@ def _chebyshev_poly_bases(
     # T_{n}(x) = x * T_{n-1}(x) - (1 - x * x) * U_{n-2}(x)
     # U_{n-1}(x) = x * U_{n-2}(x) + T_{n-1}(x)
     for iter_j in range(0, n + 1):
-        chebyshev_t1_basis[::, iter_j] = t_i_minus_1  # NOTE: is not a view
+        chebyshev_t1_basis[iter_j] = t_i_minus_1  # NOTE: is not a view
         u_i_minus_1 = x * u_i_minus_2 + t_i_minus_1
-        chebyshev_u2_basis[::, iter_j] = u_i_minus_1  # NOTE: is not a view
+        chebyshev_u2_basis[iter_j] = u_i_minus_1  # NOTE: is not a view
         t_i_minus_1 = x * t_i_minus_1 - one_minus_x_squared * u_i_minus_2
         u_i_minus_2 = u_i_minus_1
 
