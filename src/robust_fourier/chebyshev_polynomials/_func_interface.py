@@ -281,8 +281,21 @@ def chebyshev_poly_basis(
     # --- Output post-processing ---
 
     # if only one kind is requested, the corresponding part of the output is returned
+    # NOTE: the Array(s) has/have to be transposed because the low level functions
+    #       return the transposed basis because it is more efficient for the computation
     if kind_internal in {1, 2}:
-        return chebyshev_bases[kind_internal - 1]
+        return np.moveaxis(
+            chebyshev_bases[kind_internal - 1],
+            source=0,
+            destination=1,
+        )
 
     # if both kinds are requested, the full output is returned
-    return chebyshev_bases
+    return tuple(  # type: ignore
+        np.moveaxis(
+            arr,
+            source=0,
+            destination=1,
+        )
+        for arr in chebyshev_bases
+    )

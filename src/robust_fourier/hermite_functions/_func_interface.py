@@ -154,7 +154,13 @@ def hermite_function_basis(
     if alpha != 1.0:
         hermite_basis *= 1.0 / pysqrt(alpha)
 
-    return hermite_basis
+    # NOTE: the Array has to be transposed because the low level functions return the
+    #       transposed basis because it is more efficient for the computation
+    return np.moveaxis(
+        hermite_basis,
+        source=0,
+        destination=1,
+    )
 
 
 def single_hermite_function(

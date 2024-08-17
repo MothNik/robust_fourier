@@ -73,7 +73,7 @@ def _hermite_function_basis(
     h_i_minus_1 = np.zeros_like(x)
 
     # a result Array for the results is initialised
-    hermite_functions = np.empty(shape=(x.size, n + 1))
+    hermite_functions = np.empty(shape=(n + 1, x.size))
 
     # the 0-th order Hermite function is defined as
     # h_{0} = pi ** (-1/4) * exp(-x ** 2 / 2)
@@ -83,7 +83,7 @@ def _hermite_function_basis(
     h_i = np.ones_like(x)
     exponent_corrections = log_fourth_root_of_pi - 0.5 * square(x)
 
-    hermite_functions[::, 0] = exp(exponent_corrections)
+    hermite_functions[0] = exp(exponent_corrections)
 
     # if only the 0-th order is requested, the function can exit early here
     if n < 1:
@@ -109,7 +109,7 @@ def _hermite_function_basis(
             prefactors_i[iter_i] * x * h_i - prefactors_i_minus_1[iter_i] * h_i_minus_1
         )
         # ... and stored after the correction factor is applied
-        hermite_functions[::, iter_i + 1] = exp(exponent_corrections) * h_i_plus_1
+        hermite_functions[iter_i + 1] = exp(exponent_corrections) * h_i_plus_1
 
         # afterwards, the correction factors are updated
         # NOTE: special care must be taken for values that are zero to avoid division by
