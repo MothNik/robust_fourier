@@ -31,6 +31,6 @@ from ._approximations import (  # noqa: F401
 )
 from ._class_interface import HermiteFunctionBasis  # noqa: F401
 from ._func_interface import (  # noqa: F401
-    hermite_function_basis,
+    hermite_function_vander,
     single_hermite_function,
 )

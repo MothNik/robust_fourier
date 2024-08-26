@@ -20,7 +20,7 @@ from .._utils import (
     get_validated_offset_along_axis,
     get_validated_order,
 )
-from ._func_interface import hermite_function_basis
+from ._func_interface import hermite_function_vander
 
 # === Classes ===
 
@@ -221,7 +221,7 @@ class HermiteFunctionBasis:
 
         """  # noqa: E501
 
-        return hermite_function_basis(
+        return hermite_function_vander(
             x=x,
             n=n,
             alpha=alpha,

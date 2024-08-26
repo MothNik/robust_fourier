@@ -19,7 +19,7 @@ from .hermite_functions import (  # noqa: F401
     approximate_hermite_funcs_fadeout_x,
     approximate_hermite_funcs_largest_extrema_x,
     approximate_hermite_funcs_largest_zeros_x,
-    hermite_function_basis,
+    hermite_function_vander,
     single_hermite_function,
 )
 
