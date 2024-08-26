@@ -10,7 +10,7 @@ from typing import Literal
 import numpy as np
 import pytest
 
-from robust_fourier import ChebyshevPolynomialBasis, chebyshev_poly_basis
+from robust_fourier import ChebyshevPolynomialBasis, chebyshev_polyvander
 
 # === Tests ===
 
@@ -54,7 +54,7 @@ def test_chebyshev_polynomials_basis_properties_and_len(
     # expected results
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        chebyshev_poly_basis(  # type: ignore
+        chebyshev_polyvander(  # type: ignore
             x=x_reference,
             n=0,
             alpha=1.0,
@@ -79,7 +79,7 @@ def test_chebyshev_polynomials_basis_properties_and_len(
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        chebyshev_poly_basis(  # type: ignore
+        chebyshev_polyvander(  # type: ignore
             x=x_reference,
             n=1,
             alpha=1.0,
@@ -104,7 +104,7 @@ def test_chebyshev_polynomials_basis_properties_and_len(
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        chebyshev_poly_basis(  # type: ignore
+        chebyshev_polyvander(  # type: ignore
             x=x_reference,
             n=1,
             alpha=2.0,
@@ -129,7 +129,7 @@ def test_chebyshev_polynomials_basis_properties_and_len(
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        chebyshev_poly_basis(  # type: ignore
+        chebyshev_polyvander(  # type: ignore
             x=x_reference,
             n=1,
             alpha=2.0,
@@ -154,7 +154,7 @@ def test_chebyshev_polynomials_basis_properties_and_len(
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        chebyshev_poly_basis(  # type: ignore
+        chebyshev_polyvander(  # type: ignore
             x=x_reference,
             n=1,
             alpha=2.0,
@@ -194,7 +194,7 @@ def test_chebyshev_polynomials_basis_properties_and_len(
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        chebyshev_poly_basis(  # type: ignore
+        chebyshev_polyvander(  # type: ignore
             x=x_reference,
             n=1,
             alpha=2.0,
@@ -219,7 +219,7 @@ def test_chebyshev_polynomials_basis_properties_and_len(
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        chebyshev_poly_basis(  # type: ignore
+        chebyshev_polyvander(  # type: ignore
             x=x_reference,
             n=1,
             alpha=2.0,

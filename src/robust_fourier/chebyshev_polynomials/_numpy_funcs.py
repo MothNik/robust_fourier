@@ -15,14 +15,14 @@ import numpy as np
 # === Functions ===
 
 
-def _chebyshev_poly_bases(
+def _chebyshev_polyvander(
     x: np.ndarray,
     n: int,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Simultaneously evaluates the complete basis of Chebyshev polynomials of the first
-    and second kind by making use of a numerically stabilised combined recurrence
-    relation.
+    Simultaneously evaluates the complete basis (Vandermonde matrix) of Chebyshev
+    polynomials of the first and second kind by making use of a numerically stabilised
+    combined recurrence relation.
 
     Parameters
     ----------
@@ -33,11 +33,13 @@ def _chebyshev_poly_bases(
 
     Returns
     -------
-    chebyshev_t1_basis : :class:`numpy.ndarray` of shape (m, n + 1)
-        The values of the Chebyshev polynomials of the first kind.
+    chebyshev_t1_vander : :class:`numpy.ndarray` of shape (m, n + 1)
+        The values of the Chebyshev polynomials of the first kind evaluated at the
+        points ``x`` represented as a Vandermonde matrix.
 
-    chebyshev_u2_basis : :class:`numpy.ndarray` of shape (m, n + 1)
-        The values of the Chebyshev polynomials of the second kind.
+    chebyshev_u2_vander : :class:`numpy.ndarray` of shape (m, n + 1)
+        The values of the Chebyshev polynomials of the second kind evaluated at the
+        points ``x`` represented as a Vandermonde matrix.
 
     References
     ----------
@@ -68,8 +70,8 @@ def _chebyshev_poly_bases(
     # the combined recurrence relation is started with the initial value
     # - 1 for the Chebyshev polynomial of the first kind T_0(x)
     # - 0 for the Chebyshev polynomial of the second kind U_{-1}(x)
-    chebyshev_t1_basis = np.empty(shape=(n + 1, x.size))
-    chebyshev_u2_basis = np.empty_like(chebyshev_t1_basis)
+    chebyshev_t1_vander = np.empty(shape=(n + 1, x.size))
+    chebyshev_u2_vander = np.empty_like(chebyshev_t1_vander)
     t_i_minus_1 = np.ones_like(x)
     u_i_minus_2 = np.zeros_like(x)
     one_minus_x_squared = 1.0 - (x * x)
@@ -79,10 +81,10 @@ def _chebyshev_poly_bases(
     # T_{n}(x) = x * T_{n-1}(x) - (1 - x * x) * U_{n-2}(x)
     # U_{n-1}(x) = x * U_{n-2}(x) + T_{n-1}(x)
     for iter_j in range(0, n + 1):
-        chebyshev_t1_basis[iter_j] = t_i_minus_1  # NOTE: is not a view
+        chebyshev_t1_vander[iter_j] = t_i_minus_1  # NOTE: is not a view
         u_i_minus_1 = x * u_i_minus_2 + t_i_minus_1
-        chebyshev_u2_basis[iter_j] = u_i_minus_1  # NOTE: is not a view
+        chebyshev_u2_vander[iter_j] = u_i_minus_1  # NOTE: is not a view
         t_i_minus_1 = x * t_i_minus_1 - one_minus_x_squared * u_i_minus_2
         u_i_minus_2 = u_i_minus_1
 
-    return chebyshev_t1_basis, chebyshev_u2_basis
+    return chebyshev_t1_vander, chebyshev_u2_vander

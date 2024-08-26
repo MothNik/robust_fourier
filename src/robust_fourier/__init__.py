@@ -12,7 +12,7 @@ import os as _os
 
 from .chebyshev_polynomials import (  # noqa: F401
     ChebyshevPolynomialBasis,
-    chebyshev_poly_basis,
+    chebyshev_polyvander,
 )
 from .hermite_functions import (  # noqa: F401
     HermiteFunctionBasis,

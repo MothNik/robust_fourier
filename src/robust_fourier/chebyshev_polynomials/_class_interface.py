@@ -20,7 +20,7 @@ from .._utils import (
     get_validated_offset_along_axis,
     get_validated_order,
 )
-from ._func_interface import chebyshev_poly_basis, get_validated_chebyshev_kind
+from ._func_interface import chebyshev_polyvander, get_validated_chebyshev_kind
 
 # === Classes ===
 
@@ -255,7 +255,7 @@ class ChebyshevPolynomialBasis:
 
         """  # noqa: E501
 
-        return chebyshev_poly_basis(
+        return chebyshev_polyvander(
             x=x,
             n=n,
             alpha=alpha,

@@ -16,7 +16,7 @@ from pandas import Series as PandasSeries
 from scipy.special import eval_chebyt as scipy_chebyshev_first_kind
 from scipy.special import eval_chebyu as scipy_chebyshev_second_kind
 
-from robust_fourier import chebyshev_poly_basis
+from robust_fourier import chebyshev_polyvander
 from robust_fourier.chebyshev_polynomials._func_interface import (
     get_validated_chebyshev_kind,
 )
@@ -189,7 +189,7 @@ def test_centered_chebyshev_poly_do_not_modify_x_values(
     dtype: Type,
 ) -> None:
     """
-    This test checks whether the function :func:`chebyshev_poly_basis` does not modify
+    This test checks whether the function :func:`chebyshev_polyvander` does not modify
     the input x-values when the center is set.
 
     """
@@ -204,7 +204,7 @@ def test_centered_chebyshev_poly_do_not_modify_x_values(
         x_values = PythonArray(dtype_str, x_values.tolist())  # type: ignore
 
     # the function is called with the center set
-    chebyshev_poly_basis(
+    chebyshev_polyvander(
         x=x_values,
         n=1,
         alpha=1.0,
