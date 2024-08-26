@@ -12,7 +12,7 @@ imported from the NumPy-based implementation.
 # === Imports ===
 
 from .._utils._numba_helpers import do_numba_normal_jit_action
-from ._numpy_funcs import _chebyshev_poly_bases
+from ._numpy_funcs import _chebyshev_polyvander
 
 # === Functions ===
 
@@ -30,14 +30,14 @@ try:
         from .._utils import no_jit as jit
 
     # if it is enabled, the functions are compiled
-    nb_chebyshev_poly_bases = jit(
+    nb_chebyshev_polyvander = jit(
         nopython=True,
         cache=True,
-    )(_chebyshev_poly_bases)
+    )(_chebyshev_polyvander)
 
 
 # otherwise, the NumPy-based implementation of the Hermite functions is declared as the
 # Numba-based implementation
 except ImportError:  # pragma: no cover
 
-    nb_chebyshev_poly_bases = _chebyshev_poly_bases
+    nb_chebyshev_polyvander = _chebyshev_polyvander

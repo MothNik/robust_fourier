@@ -11,7 +11,7 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from robust_fourier import chebyshev_poly_basis
+from robust_fourier import chebyshev_polyvander
 
 plt.style.use(
     os.path.join(os.path.dirname(__file__), "../docs/robust_fourier.mplstyle")
@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
         # the Chebyshev polynomials are computed and plotted
         x_values = np.linspace(start=mu - alpha, stop=mu + alpha, num=NUM_X)
-        chebyshev_basis = chebyshev_poly_basis(
+        chebyshev_basis = chebyshev_polyvander(
             x=x_values,
             n=ORDERS,
             alpha=alpha,

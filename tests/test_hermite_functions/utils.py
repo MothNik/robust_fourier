@@ -10,7 +10,7 @@ from typing import Any, Callable, Dict, Tuple
 
 import numpy as np
 
-from robust_fourier import HermiteFunctionBasis, hermite_function_basis
+from robust_fourier import HermiteFunctionBasis, hermite_function_vander
 
 # === Models ===
 
@@ -78,10 +78,10 @@ def setup_hermite_function_basis_implementations(
 
     if implementation == HermiteFunctionBasisImplementations.FUNCTION_NUMPY:
         kwargs = dict(jit=False, **base_kwargs)
-        return hermite_function_basis, kwargs
+        return hermite_function_vander, kwargs
 
     if implementation == HermiteFunctionBasisImplementations.FUNCTION_NUMBA:
         kwargs = dict(jit=True, **base_kwargs)
-        return hermite_function_basis, kwargs
+        return hermite_function_vander, kwargs
 
     raise AssertionError(f"Unknown implementation: {implementation}")

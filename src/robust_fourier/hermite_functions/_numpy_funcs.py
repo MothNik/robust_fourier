@@ -18,13 +18,14 @@ from scipy.integrate import trapezoid
 # === Functions ===
 
 
-def _hermite_function_basis(
+def _hermite_function_vander(
     x: np.ndarray,
     n: int,
 ) -> np.ndarray:
     """
-    Evaluates the complete basis of Hermite functions that are given by the product of a
-    scaled Gaussian with a Hermite polynomial and can be written as follows:
+    Evaluates the complete basis (Vandermonde matrix) of Hermite functions that are
+    given by the product of a scaled Gaussian with a Hermite polynomial and can be
+    written as follows:
 
     .. image:: docs/hermite_functions/equations/HF-05-Hermite_Functions_Basic_Definition.svg
 
@@ -41,8 +42,9 @@ def _hermite_function_basis(
 
     Returns
     -------
-    hermite_basis : :class:`numpy.ndarray` of shape (m, n + 1)
-        The values of the Hermite functions.
+    hermite_func_vander : :class:`numpy.ndarray` of shape (m, n + 1)
+        The values of the Hermite functions evaluated at the points ``x`` represented as
+        a Vandermonde matrix.
 
     References
     ----------
@@ -73,7 +75,7 @@ def _hermite_function_basis(
     h_i_minus_1 = np.zeros_like(x)
 
     # a result Array for the results is initialised
-    hermite_functions = np.empty(shape=(n + 1, x.size))
+    hermite_func_vander = np.empty(shape=(n + 1, x.size))
 
     # the 0-th order Hermite function is defined as
     # h_{0} = pi ** (-1/4) * exp(-x ** 2 / 2)
@@ -83,11 +85,11 @@ def _hermite_function_basis(
     h_i = np.ones_like(x)
     exponent_corrections = log_fourth_root_of_pi - 0.5 * square(x)
 
-    hermite_functions[0] = exp(exponent_corrections)
+    hermite_func_vander[0] = exp(exponent_corrections)
 
     # if only the 0-th order is requested, the function can exit early here
     if n < 1:
-        return hermite_functions
+        return hermite_func_vander
 
     # if higher orders are requested, a recursion is entered to compute the remaining
     # Hermite functions
@@ -109,7 +111,7 @@ def _hermite_function_basis(
             prefactors_i[iter_i] * x * h_i - prefactors_i_minus_1[iter_i] * h_i_minus_1
         )
         # ... and stored after the correction factor is applied
-        hermite_functions[iter_i + 1] = exp(exponent_corrections) * h_i_plus_1
+        hermite_func_vander[iter_i + 1] = exp(exponent_corrections) * h_i_plus_1
 
         # afterwards, the correction factors are updated
         # NOTE: special care must be taken for values that are zero to avoid division by
@@ -124,7 +126,7 @@ def _hermite_function_basis(
         exponent_corrections += log(scale_factors)
 
     # finally, the Hermite functions are returned
-    return hermite_functions
+    return hermite_func_vander
 
 
 def _single_hermite_function(

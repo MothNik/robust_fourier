@@ -10,7 +10,7 @@ from typing import Any, Callable, Dict, Tuple
 
 import numpy as np
 
-from robust_fourier import ChebyshevPolynomialBasis, chebyshev_poly_basis
+from robust_fourier import ChebyshevPolynomialBasis, chebyshev_polyvander
 
 # === Models ===
 
@@ -81,10 +81,10 @@ def setup_chebyshev_poly_basis_implementations(
 
     if implementation == ChebyshevPolyBasisImplementations.FUNCTION_NUMPY:
         kwargs = dict(jit=False, **base_kwargs)
-        return chebyshev_poly_basis, kwargs
+        return chebyshev_polyvander, kwargs
 
     if implementation == ChebyshevPolyBasisImplementations.FUNCTION_NUMBA:
         kwargs = dict(jit=True, **base_kwargs)
-        return chebyshev_poly_basis, kwargs
+        return chebyshev_polyvander, kwargs
 
     raise AssertionError(f"Unknown implementation: {implementation}")

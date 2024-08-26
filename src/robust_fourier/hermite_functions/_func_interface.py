@@ -25,14 +25,14 @@ from .._utils import (
     get_validated_x_values,
     normalise_x_values,
 )
-from ._numba_funcs import nb_hermite_function_basis as _nb_hermite_function_basis
-from ._numpy_funcs import _hermite_function_basis as _np_hermite_function_basis
+from ._numba_funcs import nb_hermite_function_vander as _nb_hermite_function_vander
+from ._numpy_funcs import _hermite_function_vander as _np_hermite_function_vander
 from ._numpy_funcs import _single_hermite_function as _np_single_hermite_function
 
 # === Main Functions ===
 
 
-def hermite_function_basis(
+def hermite_function_vander(
     x: Union[RealScalar, ArrayLike],
     n: IntScalar,
     alpha: RealScalar = 1.0,
@@ -41,9 +41,9 @@ def hermite_function_basis(
     validate_parameters: bool = True,
 ) -> NDArray[np.float64]:
     """
-    Computes the basis of dilated Hermite functions up to order ``n`` for the given
-    points ``x``. It makes use of a recursion formula to compute all Hermite basis
-    functions in one go.
+    Computes the complete basis (Vandermonde matrix) of dilated Hermite functions up to
+    order ``n`` for the given points ``x``. It makes use of a recursion formula to
+    compute all Hermite basis functions in one go.
 
     Parameters
     ----------
@@ -75,8 +75,9 @@ def hermite_function_basis(
 
     Returns
     -------
-    hermite_basis : :class:`numpy.ndarray` of shape (m, n + 1) of dtype ``np.float64``
-        The values of the dilated Hermite functions at the points ``x``.
+    hermite_func_vander : :class:`numpy.ndarray` of shape (m, n + 1) of dtype ``np.float64``
+        The values of the dilated Hermite functions at the points ``x`` represented as
+        a Vandermonde matrix.
         It will always be 2D even if ``x`` is a scalar.
 
     Raises
@@ -143,7 +144,7 @@ def hermite_function_basis(
     # if requested, the Numba-accelerated implementation is used
     # NOTE: this does not have to necessarily involve Numba because it can also be
     #       the NumPy-based implementation under the hood
-    func = _nb_hermite_function_basis if jit else _np_hermite_function_basis
+    func = _nb_hermite_function_vander if jit else _np_hermite_function_vander
     hermite_basis = func(  # type: ignore
         x=x_internal,  # type: ignore
         n=n,  # type: ignore

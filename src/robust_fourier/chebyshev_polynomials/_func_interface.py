@@ -24,8 +24,8 @@ from .._utils import (
     get_validated_x_values,
     normalise_x_values,
 )
-from ._numba_funcs import nb_chebyshev_poly_bases as _nb_chebyshev_poly_bases
-from ._numpy_funcs import _chebyshev_poly_bases as _np_chebyshev_poly_bases
+from ._numba_funcs import nb_chebyshev_polyvander as _nb_chebyshev_polyvander
+from ._numpy_funcs import _chebyshev_polyvander as _np_chebyshev_polyvander
 
 # === Constants ===
 
@@ -107,7 +107,7 @@ def get_validated_chebyshev_kind(
 
 
 @overload
-def chebyshev_poly_basis(
+def chebyshev_polyvander(
     x: Union[RealScalar, ArrayLike],
     n: IntScalar,
     alpha: RealScalar = 1.0,
@@ -120,7 +120,7 @@ def chebyshev_poly_basis(
 
 
 @overload
-def chebyshev_poly_basis(
+def chebyshev_polyvander(
     x: Union[RealScalar, ArrayLike],
     n: IntScalar,
     alpha: RealScalar = 1.0,
@@ -132,7 +132,7 @@ def chebyshev_poly_basis(
 ) -> Tuple[NDArray[np.float64], NDArray[np.float64]]: ...
 
 
-def chebyshev_poly_basis(
+def chebyshev_polyvander(
     x: Union[RealScalar, ArrayLike],
     n: IntScalar,
     alpha: RealScalar = 1.0,
@@ -143,9 +143,10 @@ def chebyshev_poly_basis(
     validate_parameters: bool = True,
 ) -> Union[NDArray[np.float64], Tuple[NDArray[np.float64], NDArray[np.float64]]]:
     """
-    Computes the basis of dilated Chebyshev polynomials up to order ``n`` for the given
-    points ``x``. It makes use of a combined recursion formula that links the first and
-    second kind of Chebyshev polynomials to evaluate them in a numerically stable way.
+    Computes the basis (Vandermonde matrix) of dilated Chebyshev polynomials up to order
+    ``n`` for the given points ``x``. It makes use of a combined recursion formula that
+    links the first and second kind of Chebyshev polynomials to evaluate them in a
+    numerically stable way.
 
     Parameters
     ----------
@@ -189,14 +190,16 @@ def chebyshev_poly_basis(
 
     Returns
     -------
-    chebyshev_t1_basis : :class:`numpy.ndarray` of shape (m, n + 1)
-        The values of the Chebyshev polynomials of the first kind at the points ``x``.
+    chebyshev_t1_vander : :class:`numpy.ndarray` of shape (m, n + 1)
+        The values of the Chebyshev polynomials of the first kind evaluated at the
+        points ``x`` represented as a Vandermonde matrix.
         It will always be 2D even if ``x`` is a scalar.
         It is only returned if ``kind`` is ``1``, ``"first"``, ``"both"`` (for the
         latter, it is the first element of the tuple).
 
-    chebyshev_u2_basis : :class:`numpy.ndarray` of shape (m, n + 1)
-        The values of the Chebyshev polynomials of the second kind at the points ``x``.
+    chebyshev_u2_vander : :class:`numpy.ndarray` of shape (m, n + 1)
+        The values of the Chebyshev polynomials of the second kind evaluated at the
+        points ``x`` represented as a Vandermonde matrix.
         It will always be 2D even if ``x`` is a scalar.
         It is only returned if ``kind`` is ``2``, ``"second"``, ``"both"`` (for the
         latter, it is the second element of the tuple).
@@ -272,7 +275,7 @@ def chebyshev_poly_basis(
     # if requested, the Numba-accelerated implementation is used
     # NOTE: this does not have to necessarily involve Numba because it can also be
     #       the NumPy-based implementation under the hood
-    func = _nb_chebyshev_poly_bases if jit else _np_chebyshev_poly_bases
+    func = _nb_chebyshev_polyvander if jit else _np_chebyshev_polyvander
     chebyshev_bases = func(  # type: ignore
         x=x_internal,  # type: ignore
         n=n,  # type: ignore

@@ -11,7 +11,7 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from robust_fourier import hermite_function_basis
+from robust_fourier import hermite_function_vander
 
 plt.style.use(
     os.path.join(os.path.dirname(__file__), "../docs/robust_fourier.mplstyle")
@@ -61,7 +61,7 @@ if __name__ == "__main__":
         )
 
         # the Hermite functions are computed and plotted
-        hermite_basis = hermite_function_basis(
+        hermite_basis = hermite_function_vander(
             x=x_values,
             n=ORDERS,
             alpha=alpha,

@@ -20,7 +20,7 @@ from pandas import Series as PandasSeries
 
 from robust_fourier import (
     approximate_hermite_funcs_fadeout_x,
-    hermite_function_basis,
+    hermite_function_vander,
     single_hermite_function,
 )
 
@@ -74,7 +74,7 @@ class ReferenceHermiteFunctionBasis:
     n: int
     alpha: float
     x_values: np.ndarray
-    hermite_function_basis: np.ndarray
+    hermite_func_vander: np.ndarray
     ns_for_single_function: list[int]
 
 
@@ -128,7 +128,7 @@ def reference_dilated_hermite_function_basis() -> (
                 n=parameters.n,
                 alpha=parameters.alpha,
                 x_values=np.array(reference_metadata.x_values, dtype=np.float64),
-                hermite_function_basis=reference_hermite_function_basis,
+                hermite_func_vander=reference_hermite_function_basis,
                 ns_for_single_function=parameters.ns_for_single_function,
             )
 
@@ -146,8 +146,8 @@ def test_centered_hermite_functions_do_not_modify_x_values(
     dtype: Type,
 ) -> None:
     """
-    This test checks whether the function :func:`hermite_function_basis` does not modify
-    the input x-values when the center is set.
+    This test checks whether the function :func:`hermite_function_vander` does not
+    modify the input x-values when the center is set.
 
     """
 
@@ -161,7 +161,7 @@ def test_centered_hermite_functions_do_not_modify_x_values(
         x_values = PythonArray(dtype_str, x_values.tolist())  # type: ignore
 
     # the function is called with the center set
-    hermite_function_basis(
+    hermite_function_vander(
         x=x_values,
         n=1,
         alpha=1.0,
@@ -225,7 +225,7 @@ def test_dilated_hermite_function_basis_against_symbolic_reference(
 
         assert np.allclose(
             numerical_herm_func_basis,
-            reference.hermite_function_basis,
+            reference.hermite_func_vander,
             atol=atol,
             rtol=rtol,
         ), f"Failed for or n = {reference.n} and alpha = {reference.alpha}"
@@ -335,7 +335,7 @@ def test_single_hermite_functions(
             # the reference values are compared with the numerical results
             assert np.allclose(
                 numerical_herm_func,
-                reference.hermite_function_basis[::, n],
+                reference.hermite_func_vander[::, n],
                 atol=SYMBOLIC_TEST_HERMITE_FUNC_FLOAT64_ATOL,
                 rtol=SYMBOLIC_TEST_HERMITE_FUNC_FLOAT64_RTOL,
             ), f"For n = {n} and alpha = {reference.alpha}"
