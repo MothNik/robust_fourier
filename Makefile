@@ -101,4 +101,4 @@ test-xmlcov:
 .PHONY: update-equations
 update-equations:
 	@echo Updating the LaTeX equations ...
-	python ./auxiliary_scripts/03_write_docs_equations.py
+	python ./auxiliary_scripts/00_write_docs_equations.py
