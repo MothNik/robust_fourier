@@ -22,7 +22,7 @@ from .._utils import (
     IntScalar,
     RealScalar,
     get_validated_chebpoly_or_hermfunc_input,
-    get_validated_x_values,
+    get_validated_grid_points,
     normalise_x_values,
 )
 from ._numba_funcs import nb_hermite_function_vander as _nb_hermite_function_vander
@@ -123,13 +123,14 @@ def hermite_function_vander(
             x_center,
         ) = get_validated_chebpoly_or_hermfunc_input(
             x=x,
+            x_dtype=np.float64,
             n=n,
             alpha=alpha,
             x_center=x_center,
         )
 
     else:  # pragma: no cover
-        x_internal = get_validated_x_values(x=x)
+        x_internal = get_validated_grid_points(grid_points=x, dtype=np.float64)
 
     # --- Computation ---
 
@@ -248,13 +249,14 @@ def single_hermite_function(
             x_center,
         ) = get_validated_chebpoly_or_hermfunc_input(
             x=x,
+            x_dtype=np.float64,
             n=n,
             alpha=alpha,
             x_center=x_center,
         )
 
     else:  # pragma: no cover
-        x_internal = get_validated_x_values(x=x)
+        x_internal = get_validated_grid_points(grid_points=x, dtype=np.float64)
 
     # --- Computation ---
 
