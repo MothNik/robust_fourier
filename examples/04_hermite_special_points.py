@@ -3,7 +3,9 @@ This script shows how to evaluate special points of the Hermite functions, namel
 
 - the x-position of their largest zero (= outermost root where y = 0)
 - the x-position at which the outermost oscillation fades below machine precision
-- the x-position of the maximum of the Hermite functions in their outermost oscillation
+- the x- and y-position of the maximum of the Hermite functions in their outermost
+    oscillation
+- the Gaussian approximation of the outermost oscillation
 
 """
 
@@ -14,12 +16,7 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from robust_fourier import (
-    approximate_hermite_funcs_fadeout_x,
-    approximate_hermite_funcs_largest_extrema_x,
-    approximate_hermite_funcs_largest_zeros_x,
-    single_hermite_function,
-)
+from robust_fourier import hermite_approx, single_hermite_function
 
 plt.style.use(
     os.path.join(os.path.dirname(__file__), "../docs/robust_fourier.mplstyle")
@@ -59,23 +56,33 @@ if __name__ == "__main__":
     # its special points are evaluated
     # 1) the x-positions at which the outermost oscillation fades below machine
     # precision
-    x_fadeout = approximate_hermite_funcs_fadeout_x(
+    x_fadeout = hermite_approx.x_fadeout(
         n=ORDER,
         alpha=ALPHA,
         x_center=MU,
     )
     # 2) the x-positions of the largest zeros
-    x_largest_zero = approximate_hermite_funcs_largest_zeros_x(
+    x_largest_zero = hermite_approx.x_largest_zeros(
         n=ORDER,
         alpha=ALPHA,
         x_center=MU,
     )
     # 3) the x-positions of the largest extrema
-    x_largest_extremum = approximate_hermite_funcs_largest_extrema_x(
+    x_largest_extremum, y_largest_extremum = hermite_approx.x_and_y_largest_extrema(
         n=ORDER,
         alpha=ALPHA,
         x_center=MU,
     )
+
+    # 4) the Gaussian approximation of the outermost oscillation ...
+    left_gaussian, right_gaussian = hermite_approx.tail_gauss_fit(
+        n=ORDER,
+        alpha=ALPHA,
+        x_center=MU,
+    )
+    # ... which is solved for the 50% level
+    x_left_fifty_percent = left_gaussian.solve_for_y_fraction(y_fraction=0.5)
+    x_right_fifty_percent = right_gaussian.solve_for_y_fraction(y_fraction=0.5)
 
     # the Hermite function and its special points are plotted
     ax.axvline(
@@ -98,6 +105,24 @@ if __name__ == "__main__":
         linewidth=2.0,
         zorder=3,
     )
+    ax.plot(
+        x_values,
+        left_gaussian(x=x_values),
+        label="Gaussian approximation",
+        color="#990000",
+        linewidth=2.0,
+        linestyle="--",
+        zorder=4,
+    )
+    ax.plot(
+        x_values,
+        right_gaussian(x=x_values),
+        color="#990000",
+        linewidth=2.0,
+        linestyle="--",
+        zorder=4,
+    )
+
     ax.scatter(
         x_fadeout,
         np.zeros_like(x_fadeout),
@@ -107,7 +132,7 @@ if __name__ == "__main__":
         linewidths=3.0,
         s=150,
         label="Numerical Fadeouts",
-        zorder=4,
+        zorder=5,
     )
     ax.scatter(
         x_largest_zero,
@@ -118,23 +143,29 @@ if __name__ == "__main__":
         linewidths=3.0,
         s=200,
         label="Largest Zeros",
-        zorder=5,
+        zorder=6,
     )
     ax.scatter(
         x_largest_extremum,
-        single_hermite_function(
-            x=x_largest_extremum,
-            n=ORDER,
-            alpha=ALPHA,
-            x_center=MU,
-        ),
+        y_largest_extremum,
         marker="X",
         facecolor="none",
         edgecolors="blue",
         linewidths=3.0,
         label="Largest Extrema",
         s=200,
-        zorder=6,
+        zorder=7,
+    )
+    ax.scatter(
+        np.array([x_left_fifty_percent, x_right_fifty_percent]),
+        np.array([0.5, 0.5]) * y_largest_extremum,
+        marker="P",
+        facecolor="none",
+        edgecolors="#FF007F",
+        linewidths=3.0,
+        s=200,
+        label="Gaussian 50% Level Approximation",
+        zorder=8,
     )
 
     psi_label = (
@@ -153,7 +184,8 @@ if __name__ == "__main__":
     ax.legend(
         ncol=2,
         loc=8,
-        bbox_to_anchor=(0.2925, 0.845),
+        bbox_to_anchor=(0.35, 0.85),
+        fontsize=12,
     )
 
     ax.set_xlim(X_FROM + MU, X_TO + MU)

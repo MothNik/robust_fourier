@@ -16,9 +16,7 @@ from .chebyshev_polynomials import (  # noqa: F401
 )
 from .hermite_functions import (  # noqa: F401
     HermiteFunctionBasis,
-    approximate_hermite_funcs_fadeout_x,
-    approximate_hermite_funcs_largest_extrema_x,
-    approximate_hermite_funcs_largest_zeros_x,
+    hermite_approx,
     hermite_function_vander,
     single_hermite_function,
 )

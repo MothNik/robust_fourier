@@ -166,31 +166,43 @@ special points of the Hermite functions, namely the x-positions of their
 - the point where they numerically fade to zero.
 
 ```python
-from robust_fourier import (
-    approximate_hermite_funcs_fadeout_x,
-    approximate_hermite_funcs_largest_extrema_x,
-    approximate_hermite_funcs_largest_zeros_x,
-)
+from robust_fourier import hermite_approx
+
+N = 25
+ALPHA = 20.0
+MU = 150.0
 
 # 1) the x-positions at which the outermost oscillation fades below machine
 # precision
-x_fadeout = approximate_hermite_funcs_fadeout_x(
-    n=25,
-    alpha=20.0,
-    x_center=150.0,
+x_fadeout = hermite_approx.x_fadeout(
+    n=ORDER,
+    alpha=ALPHA,
+    x_center=MU,
 )
 # 2) the x-positions of the largest zeros
-x_largest_zero = approximate_hermite_funcs_largest_zeros_x(
-    n=25,
-    alpha=20.0,
-    x_center=150.0,
+x_largest_zero = hermite_approx.x_largest_zeros(
+    n=ORDER,
+    alpha=ALPHA,
+    x_center=MU,
 )
 # 3) the x-positions of the largest extrema
-x_largest_extremum = approximate_hermite_funcs_largest_extrema_x(
-    n=25,
-    alpha=20.0,
-    x_center=150.0,
+x_largest_extremum = hermite_approx.x_largest_extrema(
+    n=ORDER,
+    alpha=ALPHA,
+    x_center=MU,
 )
+
+# 4) the Gaussian approximation of the outermost oscillation ...
+left_gaussian, right_gaussian = hermite_approx.tail_gauss_fit(
+    n=ORDER,
+    alpha=ALPHA,
+    x_center=MU,
+)
+# ... which is solved for the 50% level
+x_left_fifty_percent = left_gaussian.solve_for_y_fraction(y_fraction=0.5)
+x_right_fifty_percent = right_gaussian.solve_for_y_fraction(y_fraction=0.5)
+
+
 ```
 
 <p align="center">

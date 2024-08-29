@@ -12,12 +12,7 @@ import numpy as np
 import pytest
 from scipy.optimize import minimize_scalar
 
-from robust_fourier import (
-    approximate_hermite_funcs_fadeout_x,
-    approximate_hermite_funcs_largest_extrema_x,
-    approximate_hermite_funcs_largest_zeros_x,
-    single_hermite_function,
-)
+from robust_fourier import hermite_approx, single_hermite_function
 
 # === Constants ===
 
@@ -104,7 +99,7 @@ def test_hermite_funcs_largest_zero_approximation(
 ) -> None:
     """
     This test checks the approximation of the largest zero of the Hermite functions
-    via :func:`approximate_hermite_funcs_largest_zeros_x`.
+    via :func:`hermite_approx.x_largest_zeros`.
 
     It does so by comparing checking if the Hermite functions change their sign at two
     points that are located around the estimated largest zero and only a small numerical
@@ -113,7 +108,7 @@ def test_hermite_funcs_largest_zero_approximation(
     """
 
     # the largest zeros are estimated
-    x_largest_zeros = approximate_hermite_funcs_largest_zeros_x(
+    x_largest_zeros = hermite_approx.x_largest_zeros(
         n=n,
         alpha=alpha,
         x_center=x_center,
@@ -177,7 +172,7 @@ def test_hermite_funcs_fadeout_approximation(
 ) -> None:
     """
     This test checks the approximation of the fadeout point of the Hermite functions
-    via :func:`approximate_hermite_funcs_fadeout_x`.
+    via :func:`hermite_approx.x_fadeout`.
 
     It does so by checking if the Hermite functions are numerically zero at the
     estimated fadeout points.
@@ -185,7 +180,7 @@ def test_hermite_funcs_fadeout_approximation(
     """
 
     # the fadeout points are estimated
-    x_fadeouts = approximate_hermite_funcs_fadeout_x(
+    x_fadeouts = hermite_approx.x_fadeout(
         n=n,
         alpha=alpha,
         x_center=x_center,
@@ -241,7 +236,7 @@ def test_hermite_funcs_largest_extrema_approximation(
 ) -> None:
     """
     This test checks the approximation of the largest extrema of the Hermite functions
-    via :func:`approximate_hermite_funcs_largest_extrema_x`.
+    via :func:`hermite_approx.x_largest_extrema`.
 
     It does so by spanning an interval around the estimated largest extrema and checking
     that ``scipy.optimize.minimize_scalar`` does not find a minimum or maximum within
@@ -250,7 +245,7 @@ def test_hermite_funcs_largest_extrema_approximation(
     """
 
     # the largest extrema are estimated
-    x_largest_extrema = approximate_hermite_funcs_largest_extrema_x(
+    x_largest_extrema = hermite_approx.x_largest_extrema(
         n=n,
         alpha=alpha,
         x_center=x_center,

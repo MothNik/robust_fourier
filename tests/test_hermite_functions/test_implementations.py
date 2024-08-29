@@ -19,7 +19,7 @@ import pytest
 from pandas import Series as PandasSeries
 
 from robust_fourier import (
-    approximate_hermite_funcs_fadeout_x,
+    hermite_approx,
     hermite_function_vander,
     single_hermite_function,
 )
@@ -262,7 +262,7 @@ def test_dilated_hermite_function_basis_orthonormal_and_bounded(
     # values per oscillation (plus a safety margin for the outermost oscillations);
     # with this number of x-values the span from the leftmost to the rightmost numerical
     # fadeout point of the Hermite functions is covered
-    x_fadeouts = approximate_hermite_funcs_fadeout_x(n=n, alpha=alpha)
+    x_fadeouts = hermite_approx.x_fadeout(n=n, alpha=alpha)
     num_x_values = int(
         (1.0 + ORTHONORMALITY_TEST_X_VALUES_SAFETY_MARGIN)
         * (n + 1)
