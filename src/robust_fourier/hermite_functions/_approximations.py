@@ -330,7 +330,6 @@ def x_largest_zeros(
     )
 
 
-# TODO: make all output equally sized independent of the order
 def x_largest_extrema(
     n: IntScalar,
     alpha: RealScalar = 1.0,
@@ -421,7 +420,6 @@ def x_largest_extrema(
     )
 
 
-# TODO: make all output equally sized independent of the order
 def y_largest_extrema(
     n: IntScalar,
     alpha: RealScalar = 1.0,
@@ -512,7 +510,6 @@ def y_largest_extrema(
     )
 
 
-# TODO: make all output equally sized independent of the order
 def x_and_y_largest_extrema(
     n: IntScalar,
     alpha: RealScalar = 1.0,
