@@ -210,14 +210,6 @@ x_one_percent = hermite_approx.x_tail_drop_to_fraction(
     alpha=ALPHA,
     x_center=MU,
 ).ravel()
-y_one_percent = np.array(
-    [
-        left_gaussian(x=x_one_percent[0]),
-        right_gaussian(x=x_one_percent[1]),
-    ]
-)
-
-
 
 ```
 
