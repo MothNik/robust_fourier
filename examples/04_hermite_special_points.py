@@ -75,7 +75,7 @@ if __name__ == "__main__":
     )
 
     # 4) the Gaussian approximation of the outermost oscillation ...
-    left_gaussian, right_gaussian = hermite_approx.tail_gauss_fit(
+    left_gaussian, right_gaussian = hermite_approx.get_tail_gauss_fit(
         n=ORDER,
         alpha=ALPHA,
         x_center=MU,
@@ -83,6 +83,21 @@ if __name__ == "__main__":
     # ... which is solved for the 50% level
     x_left_fifty_percent = left_gaussian.solve_for_y_fraction(y_fraction=0.5)
     x_right_fifty_percent = right_gaussian.solve_for_y_fraction(y_fraction=0.5)
+
+    # 5) the Gaussian approximation is also solved for the 1% interval as a more
+    # realistic (less conservative) approximation of the fadeout point
+    x_one_percent = hermite_approx.x_tail_drop_to_fraction(
+        n=ORDER,
+        y_fraction=0.01,
+        alpha=ALPHA,
+        x_center=MU,
+    ).ravel()
+    y_one_percent = np.array(
+        [
+            left_gaussian(x=x_one_percent[0]),
+            right_gaussian(x=x_one_percent[1]),
+        ]
+    )
 
     # the Hermite function and its special points are plotted
     ax.axvline(
@@ -167,6 +182,17 @@ if __name__ == "__main__":
         label="Gaussian 50% Level Approximation",
         zorder=8,
     )
+    ax.scatter(
+        x_one_percent,
+        y_one_percent,
+        marker="s",
+        facecolor="none",
+        edgecolors="#999900",
+        linewidths=3.0,
+        s=200,
+        label="Gaussian 1% Level Approximation",
+        zorder=9,
+    )
 
     psi_label = (
         r"$\psi_{"
@@ -178,13 +204,14 @@ if __name__ == "__main__":
     ax.set_title(
         "Special Points of the Hermite function " + psi_label,
         fontsize=18,
+        y=1.14,
     )
     ax.set_xlabel("x")
     ax.set_ylabel(psi_label)
     ax.legend(
-        ncol=2,
+        ncol=3,
         loc=8,
-        bbox_to_anchor=(0.35, 0.85),
+        bbox_to_anchor=(0.5, 1.005),
         fontsize=12,
     )
 

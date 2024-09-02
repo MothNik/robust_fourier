@@ -188,7 +188,11 @@ class TailSquaredExponentialApprox:
         """
 
         # the y-values are validated
-        y_internal = get_validated_grid_points(grid_points=y_fraction, dtype=np.float64)
+        y_internal = get_validated_grid_points(
+            grid_points=y_fraction,
+            dtype=np.float64,
+            name="y_fraction",
+        )
 
         # the x-positions are solved for the given y-values
         sign = -1.0 if self.side == "left" else 1.0
@@ -673,7 +677,7 @@ def x_fadeout(
     )
 
 
-def tail_gauss_fit(
+def get_tail_gauss_fit(
     n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
@@ -771,3 +775,64 @@ def tail_gauss_fit(
     )
 
     return left_tail, right_tail
+
+
+def x_tail_drop_to_fraction(
+    n: IntScalar,
+    y_fraction: Union[RealScalar, ArrayLike],
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
+) -> np.ndarray:
+    """
+    Approximates the x-position at which the outermost tail of the dilated Hermite
+    functions drops below a given y-value as a fraction of the maximum value.
+    Please refer to the Notes for further details on the approximation.
+
+    Parameters
+    ----------
+    n : :class:`int`
+        The order of the dilated Hermite functions.
+        It must be a non-negative integer ``>= 0``.
+    y_fraction : :class:`float` or :class:`int` or Array-like of shape (m,)
+        The y-values for which the x-position is solved as a fraction of the maximum
+        value that the ``n``-th order Hermite function reaches.
+        Each value will have 2 solutions, one for the left and one for the right side.
+    alpha : :class:`float` or :class:`int`, default=``1.0``
+        The scaling factor of the independent variable ``x`` for
+        ``x_scaled = x / alpha``.
+        It must be a positive number ``> 0``.
+    x_center : :class:`float` or :class:`int` or ``None``, default=``None``
+        The center of the dilated Hermite function.
+        If ``None`` or ``0``, the function is centered at the origin.
+        Otherwise, the center is shifted to the given value.
+
+    Returns
+    -------
+    x_drop : :class:`numpy.ndarray` of shape (m, 2)
+        The x-positions of the left and right points at which the outermost tail of the
+        Hermite functions drops below the given ``y_fraction``.
+        Its first column corresponds to the left while the second column corresponds to
+        the right solution, even if ``y_fraction`` is a scalar.
+
+    Notes
+    -----
+    The approximation is based on the Gaussian tail approximation that is computed by
+    :func:`get_tail_gauss_fit`. The x-positions are then solved for the given
+    y-value as a fraction of the maximum value.
+
+    """
+
+    # the Gaussian fit of the tails is obtained
+    left_tail, right_tail = get_tail_gauss_fit(
+        n=n,
+        alpha=alpha,
+        x_center=x_center,
+    )
+
+    # the x-positions are solved for the given y-value
+    return np.column_stack(
+        (
+            left_tail.solve_for_y_fraction(y_fraction=y_fraction),
+            right_tail.solve_for_y_fraction(y_fraction=y_fraction),
+        )
+    )

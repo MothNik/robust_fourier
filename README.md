@@ -193,7 +193,7 @@ x_largest_extremum = hermite_approx.x_largest_extrema(
 )
 
 # 4) the Gaussian approximation of the outermost oscillation ...
-left_gaussian, right_gaussian = hermite_approx.tail_gauss_fit(
+left_gaussian, right_gaussian = hermite_approx.get_tail_gauss_fit(
     n=ORDER,
     alpha=ALPHA,
     x_center=MU,
@@ -201,6 +201,22 @@ left_gaussian, right_gaussian = hermite_approx.tail_gauss_fit(
 # ... which is solved for the 50% level
 x_left_fifty_percent = left_gaussian.solve_for_y_fraction(y_fraction=0.5)
 x_right_fifty_percent = right_gaussian.solve_for_y_fraction(y_fraction=0.5)
+
+# 5) the Gaussian approximation is also solved for the 1% interval as a more
+# realistic (less conservative) approximation of the fadeout point
+x_one_percent = hermite_approx.x_tail_drop_to_fraction(
+    n=ORDER,
+    y_fraction=0.01,
+    alpha=ALPHA,
+    x_center=MU,
+).ravel()
+y_one_percent = np.array(
+    [
+        left_gaussian(x=x_one_percent[0]),
+        right_gaussian(x=x_one_percent[1]),
+    ]
+)
+
 
 
 ```
