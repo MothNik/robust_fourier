@@ -112,11 +112,11 @@ def chebyshev_polyvander(
     n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
-    kind: Literal[1, 2, "first", "second"] = "second",
+    kind: Optional[Literal["both"]] = "both",
     allow_both_kinds: bool = True,
     jit: bool = True,
     validate_parameters: bool = True,
-) -> NDArray[np.float64]: ...
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]: ...
 
 
 @overload
@@ -125,11 +125,11 @@ def chebyshev_polyvander(
     n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
-    kind: Optional[Literal["both"]] = "both",
+    kind: Literal[1, 2, "first", "second"] = "second",
     allow_both_kinds: bool = True,
     jit: bool = True,
     validate_parameters: bool = True,
-) -> Tuple[NDArray[np.float64], NDArray[np.float64]]: ...
+) -> NDArray[np.float64]: ...
 
 
 def chebyshev_polyvander(

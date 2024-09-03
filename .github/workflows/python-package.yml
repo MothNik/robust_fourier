@@ -38,6 +38,10 @@ jobs:
         run: |
           make isort-check
 
+      - name: Run pyright static type check
+        run: |
+          make pyright-check
+
       - name: Run mypy static type check
         run: |
           make mypy-check
