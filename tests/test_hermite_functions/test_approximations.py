@@ -5,6 +5,7 @@ This test suite implements the tests for the module :mod:`hermite_functions._app
 
 # === Imports ===
 
+from math import isclose
 from math import sqrt as pysqrt
 from typing import Optional
 
@@ -32,8 +33,26 @@ LARGEST_EXTREMUM_TEST_NUMMINIM_X_ATOL = 1e-13
 # the maximum number of iterations for the numerical minimisation for the largest
 # extrema
 LARGEST_EXTREMUM_TEST_NUMMINIM_MAX_ITER = 100_000
-# the relative y-tolerance for testing the largest extrema
-LARGEST_EXTREMUM_TEST_Y_RTOL = 1e-10
+# the relative y-tolerance for testing the largest extrema for the true evaluation ...
+LARGEST_EXTREMUM_TEST_TRUE_EVAL_Y_RTOL = 1e-10
+# ... and the spline approximation
+LARGEST_EXTREMUM_TEST_SPLINE_APPROX_Y_RTOL = 1e-9
+
+# the relative tolerance for the amplitude comparison of the Gaussian approximations
+# of the outermost oscillation
+GAUSSIAN_APPROX_TEST_AMPLITUDE_RTOL = 1e-15
+# the percentages to test the Gaussian approximation of the outermost oscillation in %
+GAUSSIAN_APPROX_TEST_PERCENTAGES = [1.0, 5.0, 10.0, 50.0]
+# the relative y-tolerance for testing the Gaussian approximation of the outermost
+# oscillation against the Hermite function
+# NOTE: the tolerance is really crude because the Gaussian approximation was not meant
+#       to be very accurate
+GAUSSIAN_APPROX_TEST_AGAINST_HERMITE_Y_RTOL = 1e-3
+# the relative y-tolerance for testing the Gaussian approximation solution against the
+# evaluation of the Gaussian itself
+# NOTE: this is fairly strict because the Gaussian should be consistent in its own
+#       evaluation
+GAUSSIAN_APPROX_TEST_AGAINST_GAUSS_Y_RTOL = 1e-11
 
 # the scales alpha to test
 TEST_SCALES_ALPHA = [0.05, 0.5, 1.0, 2.0, 20.0]
@@ -159,6 +178,8 @@ def test_hermite_funcs_largest_zero_approximation(
             f"does not change its sign at the approximated largest zero {x_lgz:.10f}."
         )
 
+    return
+
 
 @pytest.mark.parametrize("x_center", TEST_X_CENTERS_MU)
 @pytest.mark.parametrize("alpha", TEST_SCALES_ALPHA)
@@ -206,6 +227,8 @@ def test_hermite_funcs_fadeout_approximation(
         f"does not fade out at the approximated fadeout point {x_fadeouts:.10f}."
     )
 
+    return
+
 
 @pytest.mark.parametrize("x_center", TEST_X_CENTERS_MU)
 @pytest.mark.parametrize("alpha", TEST_SCALES_ALPHA)
@@ -236,7 +259,7 @@ def test_hermite_funcs_largest_extrema_approximation(
 ) -> None:
     """
     This test checks the approximation of the largest extrema of the Hermite functions
-    via :func:`hermite_approx.x_largest_extrema`.
+    via :func:`hermite_approx.x_and_y_largest_extrema`.
 
     It does so by spanning an interval around the estimated largest extrema and checking
     that ``scipy.optimize.minimize_scalar`` does not find a minimum or maximum within
@@ -245,7 +268,7 @@ def test_hermite_funcs_largest_extrema_approximation(
     """
 
     # the largest extrema are estimated
-    x_largest_extrema = hermite_approx.x_largest_extrema(
+    x_largest_extrema, y_largest_extrema = hermite_approx.x_and_y_largest_extrema(
         n=n,
         alpha=alpha,
         x_center=x_center,
@@ -255,7 +278,11 @@ def test_hermite_funcs_largest_extrema_approximation(
     # returned
     assert x_largest_extrema.size == num_extrema, (
         f"Expected {num_extrema=} largest extrema for {n=}, {alpha=}, {x_center=}, "
-        f"but got {x_largest_extrema.size}."
+        f"but got {x_largest_extrema.size} (for x)."
+    )
+    assert y_largest_extrema.size == num_extrema, (
+        f"Expected {num_extrema=} largest extrema for {n=}, {alpha=}, {x_center=}, "
+        f"but got {y_largest_extrema.size} (for y)."
     )
 
     # the Hermite function is evaluated at the estimated largest extrema because they
@@ -265,6 +292,15 @@ def test_hermite_funcs_largest_extrema_approximation(
         n=n,
         alpha=alpha,
         x_center=x_center,
+    )
+    # the sign is checked because it will not be considered anymore for the following
+    # checks
+    assert np.array_equal(
+        np.sign(hermite_extrema_values),
+        np.sign(y_largest_extrema),
+    ), (
+        f"The Hermite function of order {n} with {alpha=} and {x_center=} "
+        f"have sign deviations between the estimated and the numerical largest extrema."
     )
 
     # then, the largest extrema are checked
@@ -288,10 +324,307 @@ def test_hermite_funcs_largest_extrema_approximation(
         # the resulting extremum values is checked against the Hermite function
         # values at the estimated extremum (with the numerical minimisation as reference
         # for the tolerance)
-        tolerance = LARGEST_EXTREMUM_TEST_Y_RTOL * np.abs(reference_result.fun)
+        tolerance = LARGEST_EXTREMUM_TEST_TRUE_EVAL_Y_RTOL * abs(reference_result.fun)
         extremum_y_difference = abs(herm_lge) - abs(reference_result.fun)
-        assert extremum_y_difference <= tolerance, (
+        assert abs(extremum_y_difference) <= tolerance, (
             f"The Hermite function of order {n} with {alpha=} and {x_center=} "
             f"does not have the largest extremum at the approximated position "
             f"{x_lge:.10f}, but at {reference_result.x:.10f}."
         )
+
+        del tolerance, extremum_y_difference
+
+        # the resulting extremum is also checked against the spline approximation
+        tolerances = LARGEST_EXTREMUM_TEST_SPLINE_APPROX_Y_RTOL * abs(
+            reference_result.fun
+        )
+        extremum_y_differences = np.abs(y_largest_extrema) - abs(reference_result.fun)
+        assert (np.abs(extremum_y_differences) <= tolerances).all(), (
+            f"The Hermite function of order {n} with {alpha=} and {x_center=} "
+            f"spline approximation for the y-position of the largest extremum failed."
+        )
+
+    return
+
+
+@pytest.mark.parametrize("x_center", TEST_X_CENTERS_MU)
+@pytest.mark.parametrize("alpha", TEST_SCALES_ALPHA)
+@pytest.mark.parametrize(
+    "n",
+    [
+        0,  # special case of only 1 extremum
+        1,  # small odd
+        2,  # small even
+        3,  # small odd
+        4,  # small even
+        5,  # small odd
+        10,  # small even
+        11,  # small odd
+        999,  # medium odd
+        1_000,  # medium even
+        9_999,  # large odd
+        10_000,  # large even
+        99_999,  # very large odd
+        100_000,  # very large even
+    ],
+)
+def test_hermite_funcs_tail_gauss_approximation_scalar_fractions(
+    n: int,
+    alpha: float,
+    x_center: Optional[float],
+) -> None:
+    """
+    This test checks the approximation of the Gaussian tail of the Hermite functions
+    via :func:`hermite_approx.get_tail_gauss_fit` and :func:`x_tail_drop_to_fraction`.
+
+    It does so by checking if the Hermite functions drop below a percentage of their
+    respective maxima at the points estimated by the Gaussian approximation because they
+    were meant to be a conservative estimate.
+
+    The test is performed for scalar fractions because they require different handling
+    of the results.
+    An equivalent test for array fractions is implemented in the next test.
+
+    """
+
+    # the Gaussian approximations of the outermost oscillation are estimated
+    left_gaussian, right_gaussian = hermite_approx.get_tail_gauss_fit(
+        n=n,
+        alpha=alpha,
+        x_center=x_center,
+    )
+
+    # both amplitudes are checked for being equal
+    # NOTE: since the left Gaussian can have a negative amplitude, the absolute value is
+    #       taken for the comparison and compared with a relative tolerance to avoid
+    #       floating point issues
+    assert isclose(
+        abs(left_gaussian.amplitude),  # type: ignore
+        abs(right_gaussian.amplitude),  # type: ignore
+        abs_tol=0.0,
+        rel_tol=GAUSSIAN_APPROX_TEST_AMPLITUDE_RTOL,
+    ), (
+        f"The left and right Gaussian approximations of the Hermite function of order "
+        f"{n} with {alpha=} and {x_center=} have different amplitudes."
+    )
+
+    # the largest extrema are estimated as well
+    _, y_largest_extrema = hermite_approx.x_and_y_largest_extrema(
+        n=n,
+        alpha=alpha,
+        x_center=x_center,
+    )
+
+    # they are compared to be equal to the amplitude values because they were derived
+    # from them (again with a relative tolerance)
+    assert np.allclose(
+        np.array([left_gaussian.amplitude, right_gaussian.amplitude]),
+        y_largest_extrema,
+        atol=0.0,
+        rtol=GAUSSIAN_APPROX_TEST_AMPLITUDE_RTOL,
+    ), (
+        f"The Gaussian approximations of the Hermite function of order {n} with "
+        f"{alpha=} and {x_center=} have amplitudes that differ from the largest "
+        f"extrema."
+    )
+
+    y_largest_extrema = np.abs(y_largest_extrema)
+
+    # now, the approximations for all the percentages are tested INDIVIDUALLY
+    for percentage in GAUSSIAN_APPROX_TEST_PERCENTAGES:
+        # the Gaussian approximation is solved for the percentage level
+        y_fraction = percentage / 100.0
+        x_drop_to_percentage = hermite_approx.x_tail_drop_to_fraction(
+            n=n,
+            y_fraction=y_fraction,
+            alpha=alpha,
+            x_center=x_center,
+        )
+
+        # the Gaussians are evaluated at the drop points and compared against their
+        # maximum to check if the Gaussian-internal solution is consistent
+        left_gaussian_value = left_gaussian(x=x_drop_to_percentage[0, 0])
+        right_gaussian_value = right_gaussian(x=x_drop_to_percentage[0, 1])
+
+        assert isclose(
+            left_gaussian_value,
+            y_fraction * left_gaussian.amplitude,
+            abs_tol=0.0,
+            rel_tol=GAUSSIAN_APPROX_TEST_AGAINST_GAUSS_Y_RTOL,
+        ), (
+            f"The left Gaussian approximation of the Hermite function of order {n} "
+            f"with {alpha=} and {x_center=} has inconsistent Gaussian solution at "
+            f"{percentage}% level."
+        )
+        assert isclose(
+            right_gaussian_value,
+            y_fraction * right_gaussian.amplitude,
+            abs_tol=0.0,
+            rel_tol=GAUSSIAN_APPROX_TEST_AGAINST_GAUSS_Y_RTOL,
+        ), (
+            f"The right Gaussian approximation of the Hermite function of order {n} "
+            f"with {alpha=} and {x_center=} has inconsistent Gaussian solution at "
+            f"{percentage}% level."
+        )
+
+        # then, the solution is checked against the Hermite function evaluation
+        hermite_values_drop_to_percentage = single_hermite_function(
+            x=x_drop_to_percentage.ravel(),
+            n=n,
+            alpha=alpha,
+            x_center=x_center,
+        )
+
+        # first, the signs are checked because it will not be considered anymore for the
+        # following checks
+        assert np.array_equal(
+            np.sign(hermite_values_drop_to_percentage),
+            np.sign(np.array([left_gaussian_value, right_gaussian_value])),
+        ), (
+            f"The Hermite function of order {n} with {alpha=} and {x_center=} "
+            f"have sign deviations between the estimated and the numerical drop points."
+        )
+
+        # finally, it is checked that the Hermite functions are below the percentage
+        # level estimated by the Gaussian approximation because this was the purpose of
+        # the approximation to be more conservative
+        y_drop_to_percentage_target = (
+            y_fraction + GAUSSIAN_APPROX_TEST_AGAINST_HERMITE_Y_RTOL
+        ) * y_largest_extrema
+        assert (
+            np.abs(hermite_values_drop_to_percentage) <= y_drop_to_percentage_target
+        ).all(), (
+            f"The Hermite function of order {n} with {alpha=} and {x_center=} "
+            f"does not drop below {percentage}% of its maximum at the approximated "
+            f"drop points {x_drop_to_percentage}."
+        )
+
+    return
+
+
+@pytest.mark.parametrize("x_center", TEST_X_CENTERS_MU)
+@pytest.mark.parametrize("alpha", TEST_SCALES_ALPHA)
+@pytest.mark.parametrize(
+    "n",
+    [
+        0,  # special case of only 1 extremum
+        1,  # small odd
+        2,  # small even
+        3,  # small odd
+        4,  # small even
+        5,  # small odd
+        10,  # small even
+        11,  # small odd
+        999,  # medium odd
+        1_000,  # medium even
+        9_999,  # large odd
+        10_000,  # large even
+        99_999,  # very large odd
+        100_000,  # very large even
+    ],
+)
+def test_hermite_funcs_tail_gauss_approximation_array_fractions(
+    n: int,
+    alpha: float,
+    x_center: Optional[float],
+) -> None:
+    """
+    This test is equivalent to the previous test
+    :func:`test_hermite_funcs_tail_gauss_approximation_scalar_fractions`, but it is
+    implemented for Array fractions.
+
+
+    """
+
+    # the Gaussian approximations of the outermost oscillation are estimated
+    left_gaussian, right_gaussian = hermite_approx.get_tail_gauss_fit(
+        n=n,
+        alpha=alpha,
+        x_center=x_center,
+    )
+
+    # the largest extrema are estimated as well
+    _, y_largest_extrema = hermite_approx.x_and_y_largest_extrema(
+        n=n,
+        alpha=alpha,
+        x_center=x_center,
+    )
+
+    # NOTE: no amplitude tests are performed because this happened in the scalar test
+    #       already
+
+    # afterwards, all the percentages are tested TOGETHER
+    y_fractions = np.array(GAUSSIAN_APPROX_TEST_PERCENTAGES) / 100.0
+    x_drop_to_percentage = hermite_approx.x_tail_drop_to_fraction(
+        n=n,
+        y_fraction=y_fractions,
+        alpha=alpha,
+        x_center=x_center,
+    )
+
+    # a shape check is carried out to ensure that the correct number of drop points is
+    # returned
+    assert x_drop_to_percentage.shape == (len(GAUSSIAN_APPROX_TEST_PERCENTAGES), 2), (
+        f"Expected {len(GAUSSIAN_APPROX_TEST_PERCENTAGES)} drop points for {n=}, "
+        f"{alpha=}, {x_center=}, but got {x_drop_to_percentage.shape}."
+    )
+
+    # the Gaussians are evaluated at the drop points and compared against their maximum
+    # to check if the Gaussian-internal solution is consistent
+    left_gaussian_values = left_gaussian(x=x_drop_to_percentage[::, 0])
+    right_gaussian_values = right_gaussian(x=x_drop_to_percentage[::, 1])
+
+    assert np.allclose(
+        left_gaussian_values,
+        y_fractions * left_gaussian.amplitude,
+        atol=0.0,
+        rtol=GAUSSIAN_APPROX_TEST_AGAINST_GAUSS_Y_RTOL,
+    ), (
+        f"The left Gaussian approximation of the Hermite function of order {n} with "
+        f"{alpha=} and {x_center=} has inconsistent Gaussian solution at "
+        f"{GAUSSIAN_APPROX_TEST_PERCENTAGES}% levels."
+    )
+    assert np.allclose(
+        right_gaussian_values,
+        y_fractions * right_gaussian.amplitude,
+        atol=0.0,
+        rtol=GAUSSIAN_APPROX_TEST_AGAINST_GAUSS_Y_RTOL,
+    ), (
+        f"The right Gaussian approximation of the Hermite function of order {n} with "
+        f"{alpha=} and {x_center=} has inconsistent Gaussian solution at "
+        f"{GAUSSIAN_APPROX_TEST_PERCENTAGES}% levels."
+    )
+
+    # then, the evaluation is checked against the Hermite function evaluation
+    hermite_values_drop_to_percentage = single_hermite_function(
+        x=x_drop_to_percentage.ravel(),
+        n=n,
+        alpha=alpha,
+        x_center=x_center,
+    ).reshape((-1, 2))
+
+    # the sign is checked because it will not be considered anymore for the following
+    # checks
+    assert np.array_equal(
+        np.sign(hermite_values_drop_to_percentage),
+        np.sign(np.column_stack([left_gaussian_values, right_gaussian_values])),
+    ), (
+        f"The Hermite function of order {n} with {alpha=} and {x_center=} "
+        f"have sign deviations between the estimated and the numerical drop points."
+    )
+
+    # finally, it is checked that the Hermite functions are below the percentage level
+    # estimated by the Gaussian approximation because this was the purpose of the
+    # approximation to be more conservative
+    y_drop_to_percentage_targets = (
+        y_fractions[::, np.newaxis] + GAUSSIAN_APPROX_TEST_AGAINST_HERMITE_Y_RTOL
+    ) * np.abs(y_largest_extrema)[np.newaxis, ::]
+    assert (
+        np.abs(hermite_values_drop_to_percentage) <= y_drop_to_percentage_targets
+    ).all(), (
+        f"The Hermite function of order {n} with {alpha=} and {x_center=} "
+        f"does not drop below {GAUSSIAN_APPROX_TEST_PERCENTAGES}% of its maximum at "
+        f"the approximated drop points {x_drop_to_percentage}."
+    )
+
+    return
