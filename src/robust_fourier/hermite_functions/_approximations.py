@@ -736,7 +736,7 @@ def get_tail_gauss_fit(
         x_center=x_center,
     )
 
-    # if the order is 0, the there would only be one fit that fits perfectly over the
+    # if the order is 0, then there would only be one fit that fits perfectly over the
     # whole curve; yet 2 peaks are required, so the extrema are simply repeated
     if n == 0:
         x_extrema = np.repeat(x_extrema, repeats=2)
