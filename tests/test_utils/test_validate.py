@@ -324,6 +324,7 @@ def test_dilated_chebpoly_hermfunc_input_validation(
         with pytest.raises(type(expected), match=str(expected)):
             _ = get_validated_chebpoly_or_hermfunc_input(
                 x=x,
+                x_dtype=np.float64,
                 n=n,
                 alpha=alpha,
                 x_center=x_center,
@@ -335,6 +336,7 @@ def test_dilated_chebpoly_hermfunc_input_validation(
     # test is passed
     _ = get_validated_chebpoly_or_hermfunc_input(
         x=x,
+        x_dtype=np.float64,
         n=n,
         alpha=alpha,
         x_center=x_center,

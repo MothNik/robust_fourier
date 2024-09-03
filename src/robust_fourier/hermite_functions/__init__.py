@@ -20,15 +20,7 @@ They have two nice properties:
 
 # === Imports ===
 
-from ._approximations import (  # noqa: F401
-    hermite_funcs_fadeout_x as approximate_hermite_funcs_fadeout_x,
-)
-from ._approximations import (  # noqa: F401
-    hermite_funcs_largest_extrema_x as approximate_hermite_funcs_largest_extrema_x,
-)
-from ._approximations import (  # noqa: F401
-    hermite_funcs_largest_zeros_x as approximate_hermite_funcs_largest_zeros_x,
-)
+from . import _approximations as hermite_approx  # noqa: F401
 from ._class_interface import HermiteFunctionBasis  # noqa: F401
 from ._func_interface import (  # noqa: F401
     hermite_function_vander,

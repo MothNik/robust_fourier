@@ -21,7 +21,7 @@ from .._utils import (
     IntScalar,
     RealScalar,
     get_validated_chebpoly_or_hermfunc_input,
-    get_validated_x_values,
+    get_validated_grid_points,
     normalise_x_values,
 )
 from ._numba_funcs import nb_chebyshev_polyvander as _nb_chebyshev_polyvander
@@ -112,10 +112,11 @@ def chebyshev_polyvander(
     n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
-    kind: Literal[1, 2, "first", "second"] = "second",
     allow_both_kinds: bool = True,
     jit: bool = True,
     validate_parameters: bool = True,
+    *,
+    kind: Literal[1, 2, "first", "second"] = "second",
 ) -> NDArray[np.float64]: ...
 
 
@@ -125,10 +126,25 @@ def chebyshev_polyvander(
     n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
-    kind: Optional[Literal["both"]] = "both",
     allow_both_kinds: bool = True,
     jit: bool = True,
     validate_parameters: bool = True,
+    *,
+    kind: Literal["both"],
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]: ...
+
+
+@overload
+def chebyshev_polyvander(
+    x: Union[RealScalar, ArrayLike],
+    n: IntScalar,
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
+    allow_both_kinds: bool = True,
+    jit: bool = True,
+    validate_parameters: bool = True,
+    *,
+    kind: None,
 ) -> Tuple[NDArray[np.float64], NDArray[np.float64]]: ...
 
 
@@ -137,10 +153,11 @@ def chebyshev_polyvander(
     n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
-    kind: Optional[Literal[1, 2, "first", "second", "both"]] = "second",
     allow_both_kinds: bool = True,
     jit: bool = True,
     validate_parameters: bool = True,
+    *,
+    kind: Optional[Literal[1, 2, "first", "second", "both"]] = "second",
 ) -> Union[NDArray[np.float64], Tuple[NDArray[np.float64], NDArray[np.float64]]]:
     """
     Computes the basis (Vandermonde matrix) of dilated Chebyshev polynomials up to order
@@ -173,6 +190,8 @@ def chebyshev_polyvander(
         - ``"both"`` or ``None`` for both kinds simultaneously (no significant
             performance impact due to the combined recursion formula; only available if
             ``allow_both_kinds`` is ``True``).
+
+        This is a keyword-only argument.
 
     allow_both_kinds : :class:`bool`, default=``True``
         Whether to allow the computation of both kinds of Chebyshev polynomials
@@ -249,13 +268,14 @@ def chebyshev_polyvander(
             x_center,
         ) = get_validated_chebpoly_or_hermfunc_input(
             x=x,
+            x_dtype=np.float64,
             n=n,
             alpha=alpha,
             x_center=x_center,
         )
 
     else:  # pragma: no cover
-        x_internal = get_validated_x_values(x=x)
+        x_internal = get_validated_grid_points(grid_points=x, dtype=np.float64)
 
     kind_internal = get_validated_chebyshev_kind(
         kind=kind,

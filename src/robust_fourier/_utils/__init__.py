@@ -21,8 +21,8 @@ from ._validate import (  # noqa: F401
     RealScalar,
     get_validated_alpha,
     get_validated_chebpoly_or_hermfunc_input,
+    get_validated_grid_points,
     get_validated_offset_along_axis,
     get_validated_order,
-    get_validated_x_values,
 )
 from ._x_preprocessing import normalise_x_values  # noqa: F401

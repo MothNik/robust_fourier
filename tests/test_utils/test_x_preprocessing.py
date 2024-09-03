@@ -76,6 +76,7 @@ def test_is_data_linked_identified_correctly_after_input_validation(
     # the input validation is called and the data copying is checked
     modified = get_validated_chebpoly_or_hermfunc_input(
         x=original,
+        x_dtype=np.float64,
         n=1,
         alpha=1.0,
         x_center=None,
