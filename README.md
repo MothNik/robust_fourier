@@ -128,13 +128,13 @@ After a slight modification of the definitions in [[1]](#references), the Hermit
 functions can be written as
 
 <p align="center">
-  <img src="docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.png" />
+  <img src="docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg" />
 </p>
 
 with the Hermite polynomials
 
 <p align="center">
-  <img src="docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.png" />
+  <img src="docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg" />
 </p>
 
 With `robust_fourier`, the Hermite functions can be evaluated for arbitrary orders
@@ -170,13 +170,13 @@ results.
 For doing so, the relation between the dilated and the non-dilated Hermite functions
 
 <p align="center">
-  <img src="docs/hermite_functions/equations/HF-03-Hermite_Functions_Dilated_to_Undilated.png" />
+  <img src="docs/hermite_functions/equations/HF-03-Hermite_Functions_Dilated_to_Undilated.svg" />
 </p>
 
 and the recurrence relation for the Hermite functions
 
 <p align="center">
-  <img src="docs/hermite_functions/equations/HF-04-Hermite_Functions_Recurrence_Relation.png" />
+  <img src="docs/hermite_functions/equations/HF-04-Hermite_Functions_Recurrence_Relation.svg" />
 </p>
 
 are used, but not directly. Instead, the latest evaluated Hermite function is kept at a
@@ -277,12 +277,12 @@ only defined on the interval $[-1, 1]$ and can be scaled and shifted to fit the
 interval $[\mu - \alpha, \mu + \alpha]$ like
 
 <p align="center">
-  <img src="docs/chebyshev_polynomials/equations/CP-01-Chebyshev_Polynomials_Recurrence_Relation_First_Kind.png" />
+  <img src="docs/chebyshev_polynomials/equations/CP-01-Chebyshev_Polynomials_Recurrence_Relation_First_Kind.svg" />
 
 for the first kind and
 
 <p align="center">
-  <img src="docs/chebyshev_polynomials/equations/CP-02-Chebyshev_Polynomials_Recurrence_Relation_Second_Kind.png" />
+  <img src="docs/chebyshev_polynomials/equations/CP-02-Chebyshev_Polynomials_Recurrence_Relation_Second_Kind.svg" />
 
 for the second kind. In [[3]](#references) the second kind $U$ is used, but the first
 kind $T$ is also implemented in `robust_fourier`
