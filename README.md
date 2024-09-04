@@ -13,11 +13,9 @@
 
 You want to compute the Fourier transform of a signal, but your signal can be corrupted by outliers? If so, this package is for you even though you will have to say goodbye to the _"fast"_ in _Fast Fourier Transform_ 🏃🙅‍♀️
 
-## ⚙️ Setup and 🪛 Development
+## 🎁 Installation
 
-### 🎁 Installation
-
-#### 🐍☁️ PyPI
+### 🐍☁️ PyPI
 
 The package can be installed from PyPI with
 
@@ -32,7 +30,7 @@ If speed matters for you, you can also install the package with the optional dep
 pip install robust_fourier[fast]
 ```
 
-#### 🐙📦 GitHub
+### 🐙📦 GitHub
 
 To install the package from GitHub, you can simply clone the repository
 
@@ -61,6 +59,8 @@ make install-dev
 # equivalent to
 pip install --upgrade .["dev"]
 ```
+
+## ⚙️ Setup and 🪛 Development
 
 When working in developer mode, an environment variable has to be added to run certain
 scripts.
