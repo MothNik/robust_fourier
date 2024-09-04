@@ -174,7 +174,7 @@ EQUATION_SPECIFICATIONS = {
 # the fontsize of the equations
 FONTSIZE: float = 10
 # the resolution of the images in dots per inch
-DPI: int = 300
+DPI: int = 1200
 
 # whether to show only the preview of the specified equations
 # if None, all equations will be generated and saved
