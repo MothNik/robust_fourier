@@ -6,7 +6,7 @@ namely
 
 - the x-position of their largest zero (= outermost root where y = 0)
 - the x-position at which the outermost tail fades below machine precision
-- the x-position of the maximum of the Hermite functions in their outermost
+- the x- and y-position of the maximum of the Hermite functions in their outermost
     oscillation
 
 """
@@ -15,31 +15,196 @@ namely
 
 from math import log as pylog
 from math import sqrt as pysqrt
-from typing import Optional
+from typing import Literal, Optional, Tuple, Union
 
 import numpy as np
+from numpy.typing import ArrayLike
 from scipy.interpolate import splev
 
+from .._utils import (
+    IntScalar,
+    RealScalar,
+    get_validated_alpha,
+    get_validated_grid_points,
+    get_validated_offset_along_axis,
+    get_validated_order,
+)
 from ._hermite_largest_extrema_spline import (
     HERMITE_LARGEST_EXTREMA_MAX_ORDER,
-    HERMITE_LARGEST_EXTREMA_SPLINE_TCK,
+    X_HERMITE_LARGEST_EXTREMA_SPLINE_TCK,
+    Y_HERMITE_LARGEST_EXTREMA_SPLINE_TCK,
 )
 from ._hermite_largest_roots_spline import (
     HERMITE_LARGEST_ZEROS_MAX_ORDER,
     HERMITE_LARGEST_ZEROS_SPLINE_TCK,
 )
-from ._validate import (
-    IntScalar,
-    RealScalar,
-    get_validated_alpha,
-    get_validated_offset_along_axis,
-    get_validated_order,
+from ._hermite_tail_gauss_sigma_spline import (
+    HERMITE_TAIL_GAUSS_APPROX_MAX_ORDER,
+    HERMITE_TAIL_GAUSS_SIGMA_SPLINE_TCK,
 )
 
 # === Constants ===
 
 # the logarithm of the machine precision for float64
 _LOG_DOUBLE_EPS = pylog(np.finfo(np.float64).eps)
+
+
+# === Models ===
+
+
+# a class that represents a squared exponential peak that can be evaluated at a given
+# x-position
+
+
+class TailSquaredExponentialApprox:
+    """
+    A class that represents a squared exponential or scaled Gaussian peak to approximate
+    the outermost tail of the Hermite functions. It can be evaluated at a given
+    x-position and also solve for the x-position at which the peak reaches a given
+    y-value.
+
+    Parameters
+    ----------
+    center_mu : :class:`float` or :class:`int`
+        The center at which the y-value of the peak is ``amplitude``.
+    stddev_sigma : :class:`float` or :class:`int`
+        The standard deviation of the peak.
+    amplitude : :class:`float` or :class:`int`
+        The amplitude of the peak that is reached at the ``center_mu``.
+    side: ``{"left", "right"}``
+        The side of the Hermite function for which the peak is approximated.
+        The fadeout point of the Hermite functions will be located at this side from
+        the ``center_mu``.
+
+    Attributes
+    ----------
+    center_mu, stddev_sigma, amplitude : :class:`float`
+        The center, standard deviation, and amplitude of the peak.
+    side : ``{"left", "right"}``
+        The side of the Hermite function for which the peak is approximated.
+
+    Methods
+    -------
+    __call__(x)
+        Evaluates the peak at the given x-position.
+    solve_for_y_fraction(y_fraction)
+        Solves for the x-position at which the peak reaches the given y-value as a
+        fraction of the amplitude.
+
+    """
+
+    def __init__(
+        self,
+        center_mu: RealScalar,
+        stddev_sigma: RealScalar,
+        amplitude: RealScalar,
+        side: Literal["left", "right"],
+    ) -> None:
+        self.center_mu: RealScalar = center_mu
+        self.stddev_sigma: RealScalar = stddev_sigma
+        self.amplitude: RealScalar = amplitude
+        self.side: Literal["left", "right"] = side
+
+    def __call__(
+        self,
+        x: Union[RealScalar, ArrayLike],
+    ) -> Union[float, np.ndarray]:
+        """
+        Evaluates the peak at the given x-position.
+
+        Parameters
+        ----------
+        x : :class:`float` or :class:`int` or Array-like of shape (m,)
+            The points at which the peak is evaluated.
+            Internally, it will be promoted to ``np.float64``.
+            It has to contain at least one element.
+
+        Returns
+        -------
+        peak_values : :class:`float` or :class:`numpy.ndarray` of shape (m,)
+            The y-values of the peak at the given x-positions.
+            For scalar ``x``, the result is a also a scalar while for array-like ``x``,
+            the result is an Array as well.
+
+        Raises
+        ------
+        TypeError
+            If ``x`` is not of the expected type.
+        ValueError
+            If ``x`` is not 1-dimensional after conversion to a NumPy array.
+
+        """
+        # the x-values are validated
+        x_internal = get_validated_grid_points(grid_points=x, dtype=np.float64)
+
+        # the peak is evaluated at the given x-values
+        peak_values = self.amplitude * np.exp(
+            np.negative(
+                0.5 * np.square((x_internal - self.center_mu) / self.stddev_sigma)
+            )
+        )
+
+        if np.isscalar(x):
+            return float(peak_values[0])
+
+        return peak_values
+
+    def solve_for_y_fraction(
+        self,
+        y_fraction: Union[RealScalar, ArrayLike],
+    ) -> Union[float, np.ndarray]:
+        """
+        Solves for the x-position at which the peak reaches the given y-value as a
+        fraction of the amplitude.
+        For a ``"left"`` side peak, the x-position will be the leftmost of both possible
+        solutions while for a ``"right"`` side peak, it will be the rightmost.
+
+        Parameters
+        ----------
+        y_fraction : :class:`float` or :class:`int` or Array-like of shape (m,)
+            The y-values for which the x-positions are solved as a fraction of the
+            amplitude.
+            Internally, it will be promoted to ``np.float64``.
+            It has to contain at least one element.
+
+        Returns
+        -------
+        x_positions : :class:`float` or :class:`numpy.ndarray` of shape (m,)
+            The x-positions at which the peak reaches the fraction of the amplitude.
+            It will be the left or right solution for the ``"left"`` or ``"right"``
+            side, respectively.
+            For scalar ``y``, the result is a also a scalar while for array-like ``y``,
+            the result is an Array as well.
+            It will contain ``NaN``-values for y-values that are not in the range of the
+            peak.
+
+        Raises
+        ------
+        TypeError
+            If ``y`` is not of the expected type.
+        ValueError
+            If ``y`` is not 1-dimensional after conversion to a NumPy array.
+
+        """
+
+        # the y-values are validated
+        y_internal = get_validated_grid_points(
+            grid_points=y_fraction,
+            dtype=np.float64,
+            name="y_fraction",
+        )
+
+        # the x-positions are solved for the given y-values
+        sign = -1.0 if self.side == "left" else 1.0
+        x_positions = self.center_mu + sign * self.stddev_sigma * np.sqrt(
+            -2.0 * np.log(y_internal)
+        )
+
+        if np.isscalar(y_fraction):
+            return float(x_positions[0])
+
+        return x_positions
+
 
 # === Auxiliary Functions ===
 
@@ -68,7 +233,7 @@ def _apply_centering_and_scaling(
 # === Functions ===
 
 
-def hermite_funcs_largest_zeros_x(
+def x_largest_zeros(
     n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
@@ -165,7 +330,7 @@ def hermite_funcs_largest_zeros_x(
     )
 
 
-def hermite_funcs_largest_extrema_x(
+def x_largest_extrema(
     n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
@@ -234,7 +399,7 @@ def hermite_funcs_largest_extrema_x(
     if n > 0:
         x_largest_extrema_positive = splev(
             x=n,
-            tck=HERMITE_LARGEST_EXTREMA_SPLINE_TCK,
+            tck=X_HERMITE_LARGEST_EXTREMA_SPLINE_TCK,
         )
         x_largest_extrema = np.array(
             [
@@ -255,7 +420,154 @@ def hermite_funcs_largest_extrema_x(
     )
 
 
-def hermite_funcs_fadeout_x(
+def y_largest_extrema(
+    n: IntScalar,
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
+) -> np.ndarray:
+    """
+    Approximates the y-position of the maximum of the Hermite functions in their
+    outermost oscillation for a given order and scaling factor.
+    Please refer to the Notes for further details on the approximation.
+
+    Parameters
+    ----------
+    n : :class:`int`
+        The order of the Hermite functions.
+        It must be a non-negative integer ``>= 0`` and less than or equal to the maximum
+        order for the spline interpolation (roughly 100 000).
+    alpha : :class:`float` or :class:`int`, default=``1.0``
+        The scaling factor of the independent variable ``x`` for
+        ``x_scaled = x / alpha``.
+        It must be a positive number ``> 0``.
+    x_center : :class:`float` or :class:`int` or ``None``, default=``None``
+        The center of the dilated Hermite function.
+        If ``None`` or ``0``, the function is centered at the origin.
+        Otherwise, the center is shifted to the given value.
+        This value has no effect on the result.
+
+    Returns
+    -------
+    y_largest_extrema : :class:`numpy.ndarray` of shape (1,) or (2,)
+        The y-positions of the maximum of the Hermite functions in their outermost
+        oscillation (in that order) for the given order, scaling factor, and center.
+        It will hold two entries except for
+
+        - order 0 where the maximum is exactly at
+            :math:`\\frac{1}{\\sqrt[4]{\\pi\\cdot\\alpha^{2}}}`
+
+    Raises
+    ------
+    NotImplementedError
+        If the order is larger than the maximum order for the spline interpolation.
+
+    Notes
+    -----
+    The approximation is based on a spline interpolation of the results of a the
+    evaluation of the Hermite functions at the x-position provided by
+    :func:`x_largest_extrema`.
+
+    """
+
+    # --- Input Validation ---
+
+    n = get_validated_order(n=n)
+    alpha = get_validated_alpha(alpha=alpha)
+
+    # --- Computation ---
+
+    # if the order exceeds the maximum order for the spline interpolation, an error is
+    # raised
+    if n > HERMITE_LARGEST_EXTREMA_MAX_ORDER:  # pragma: no cover
+        raise NotImplementedError(
+            f"Order {n} exceeds the maximum order {HERMITE_LARGEST_EXTREMA_MAX_ORDER} "
+            f"for the spline interpolation for the largest extrema."
+        )
+
+    # if the order is exactly zero, the maximum is returned directly
+    if n == 0:
+        return np.array([1.0 / pysqrt(pysqrt(np.pi * alpha * alpha))])
+
+    # otherwise, the spline is evaluated to get the y-position of the maximum
+    y_largest_extrema_positive = splev(
+        x=n,
+        tck=Y_HERMITE_LARGEST_EXTREMA_SPLINE_TCK,
+    )
+    # it still needs to be scaled by the square root of alpha
+    y_largest_extrema_positive /= pysqrt(alpha)  # type: ignore
+
+    # for even orders, both extrema are the same and positive
+    if n % 2 == 0:
+        return np.array([y_largest_extrema_positive, y_largest_extrema_positive])
+
+    # for odd orders, the extrema are the same, but the left one is positive while the
+    # right one is negative
+    return np.array(
+        [
+            -y_largest_extrema_positive,
+            y_largest_extrema_positive,
+        ]
+    )
+
+
+def x_and_y_largest_extrema(
+    n: IntScalar,
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Approximates the x- and y-positions of the maximum of the Hermite functions in their
+    outermost oscillation for a given order and scaling factor.
+    It is a convenience function that combines the results of :func:`x_largest_extrema`
+    and :func:`y_largest_extrema`.
+
+    Parameters
+    ----------
+    n : :class:`int`
+        The order of the Hermite functions.
+        It must be a non-negative integer ``>= 0`` and less than or equal to the maximum
+        order for the spline interpolation (roughly 100 000).
+    alpha : :class:`float` or :class:`int`, default=``1.0``
+        The scaling factor of the independent variable ``x`` for
+        ``x_scaled = x / alpha``.
+        It must be a positive number ``> 0``.
+    x_center : :class:`float` or :class:`int` or ``None``, default=``None``
+        The center of the dilated Hermite function.
+        If ``None`` or ``0``, the function is centered at the origin.
+        Otherwise, the center is shifted to the given value.
+
+    Returns
+    -------
+    x_largest_extrema, y_largest_extrema : :class:`numpy.ndarray` of shape (1,) or (2,)
+        The x- and y-positions of the maximum of the Hermite functions in their outermost
+        oscillation (in that order) for the given order, scaling factor, and center.
+        They will hold two entries each except for
+
+        - order 0 where the maximum is exactly at the x-position ``x_center`` and the
+            y-position is :math:`\\frac{1}{\\sqrt[4]{\\pi\\cdot\\alpha^{2}}}`
+
+    Raises
+    ------
+    NotImplementedError
+        If the order is larger than the maximum order for the spline interpolations.
+
+    """  # noqa: E501
+
+    return (
+        x_largest_extrema(
+            n=n,
+            alpha=alpha,
+            x_center=x_center,
+        ),
+        y_largest_extrema(
+            n=n,
+            alpha=alpha,
+            x_center=x_center,
+        ),
+    )
+
+
+def x_fadeout(
     n: IntScalar,
     alpha: RealScalar = 1.0,
     x_center: Optional[RealScalar] = None,
@@ -359,4 +671,165 @@ def hermite_funcs_fadeout_x(
         values=x_fadeouts,
         alpha=alpha,
         x_center=x_center,
+    )
+
+
+def get_tail_gauss_fit(
+    n: IntScalar,
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
+) -> Tuple[TailSquaredExponentialApprox, TailSquaredExponentialApprox]:
+    """
+    Approximates the outermost tail of the dilated Hermite functions with a squared
+    exponential or scaled Gaussian peak.
+    This is a very crude approximation that is only valid for the respective side that
+    goes towards the fadeout point. One of its characteristics is that the Gaussian peak
+    is too wide in most of the points to get conservative estimates for the tail
+    behaviour.
+
+    Parameters
+    ----------
+    n : :class:`int`
+        The order of the dilated Hermite functions.
+        It must be a non-negative integer ``>= 0``.
+    alpha : :class:`float` or :class:`int`, default=``1.0``
+        The scaling factor of the independent variable ``x`` for
+        ``x_scaled = x / alpha``.
+        It must be a positive number ``> 0``.
+    x_center : :class:`float` or :class:`int` or ``None``, default=``None``
+        The center of the dilated Hermite function.
+        If ``None`` or ``0``, the function is centered at the origin.
+        Otherwise, the center is shifted to the given value.
+
+    Returns
+    -------
+    left_tail, right_tail : :class:`TailSquaredExponentialApprox`
+        The squared exponential or scaled Gaussian peaks that approximate the outermost
+        tail of the Hermite functions on the left and right side of the maximum,
+        respectively.
+        They can be called directly to evaluate the peak at a given x-position or to
+        solve for the x-position at which the peak reaches a given y-value.
+        Please refer to the documentation of the class
+        :class:`TailSquaredExponentialApprox` for further details.
+
+    Raises
+    ------
+    NotImplementedError
+        If the order is larger than the maximum order for the spline interpolations.
+
+    """
+
+    # if the order is larger than the maximum order for the spline interpolation of the
+    # Gaussian standard deviation, an error is raised
+    if n > HERMITE_TAIL_GAUSS_APPROX_MAX_ORDER:  # pragma: no cover
+        raise NotImplementedError(
+            f"Order {n} exceeds the maximum order "
+            f"{HERMITE_TAIL_GAUSS_APPROX_MAX_ORDER} for the spline interpolation for "
+            f"the tail Gaussian approximation."
+        )
+
+    # first, the xy-coordinates of the largest extrema are computed
+    # NOTE: this also performs the input validation
+    x_extrema, y_extrema = x_and_y_largest_extrema(
+        n=n,
+        alpha=alpha,
+        x_center=x_center,
+    )
+
+    # if the order is 0, then there would only be one fit that fits perfectly over the
+    # whole curve; yet 2 peaks are required, so the extrema are simply repeated
+    if n == 0:
+        x_extrema = np.repeat(x_extrema, repeats=2)
+        y_extrema = np.repeat(y_extrema, repeats=2)
+
+    # afterwards, the standard deviation sigma is computed by evaluating the
+    # pre-computed spline curve at the natural logarithm of the order
+    # the spline is only valid for nonzero orders
+    if n > 0:
+        stddev_sigma = splev(
+            x=pylog(n),
+            tck=HERMITE_TAIL_GAUSS_SIGMA_SPLINE_TCK,
+        )
+        # for proper scaling, the standard deviation is multiplied with the alpha value
+        stddev_sigma *= alpha  # type: ignore
+
+    # for order zero, the standard deviation is simply the alpha value
+    else:
+        stddev_sigma = alpha
+
+    # the peaks are created
+    left_tail = TailSquaredExponentialApprox(
+        center_mu=x_extrema[0],
+        stddev_sigma=stddev_sigma,  # type: ignore
+        amplitude=y_extrema[0],
+        side="left",
+    )
+    right_tail = TailSquaredExponentialApprox(
+        center_mu=x_extrema[1],
+        stddev_sigma=stddev_sigma,  # type: ignore
+        amplitude=y_extrema[1],
+        side="right",
+    )
+
+    return left_tail, right_tail
+
+
+def x_tail_drop_to_fraction(
+    n: IntScalar,
+    y_fraction: Union[RealScalar, ArrayLike],
+    alpha: RealScalar = 1.0,
+    x_center: Optional[RealScalar] = None,
+) -> np.ndarray:
+    """
+    Approximates the x-position at which the outermost tail of the dilated Hermite
+    functions drops below a given y-value as a fraction of the maximum value.
+    Please refer to the Notes for further details on the approximation.
+
+    Parameters
+    ----------
+    n : :class:`int`
+        The order of the dilated Hermite functions.
+        It must be a non-negative integer ``>= 0``.
+    y_fraction : :class:`float` or :class:`int` or Array-like of shape (m,)
+        The y-values for which the x-position is solved as a fraction of the maximum
+        value that the ``n``-th order Hermite function reaches.
+        Each value will have 2 solutions, one for the left and one for the right side.
+    alpha : :class:`float` or :class:`int`, default=``1.0``
+        The scaling factor of the independent variable ``x`` for
+        ``x_scaled = x / alpha``.
+        It must be a positive number ``> 0``.
+    x_center : :class:`float` or :class:`int` or ``None``, default=``None``
+        The center of the dilated Hermite function.
+        If ``None`` or ``0``, the function is centered at the origin.
+        Otherwise, the center is shifted to the given value.
+
+    Returns
+    -------
+    x_drop : :class:`numpy.ndarray` of shape (m, 2)
+        The x-positions of the left and right points at which the outermost tail of the
+        Hermite functions drops below the given ``y_fraction``.
+        Its first column corresponds to the left while the second column corresponds to
+        the right solution, even if ``y_fraction`` is a scalar.
+
+    Notes
+    -----
+    The approximation is based on the Gaussian tail approximation that is computed by
+    :func:`get_tail_gauss_fit`. The x-positions are then solved for the given
+    y-value as a fraction of the maximum value.
+
+    """
+
+    # the Gaussian fit of the tails is obtained
+    left_tail, right_tail = get_tail_gauss_fit(
+        n=n,
+        alpha=alpha,
+        x_center=x_center,
+    )
+
+    # the x-positions are solved for the given y-value
+    return np.column_stack(
+        (
+            left_tail.solve_for_y_fraction(y_fraction=y_fraction),
+            right_tail.solve_for_y_fraction(y_fraction=y_fraction),
+        )
     )

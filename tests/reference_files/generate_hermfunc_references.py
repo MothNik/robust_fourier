@@ -143,9 +143,9 @@ def _eval_sym_dilated_hermite_function_basis(
 
     Returns
     -------
-    hermite_function_basis : :class:`np.ndarray` of shape (m, n + 1)
+    hermite_func_vander : :class:`np.ndarray` of shape (m, n + 1)
         The values of the first ``n + 1`` dilated Hermite functions evaluated at the
-        points ``x``.
+        points ``x`` represented as a Vandermonde matrix.
 
     """  # noqa: E501
 
@@ -177,7 +177,7 @@ def _eval_sym_dilated_hermite_function_basis(
         hermite_expressions[iter_j + 1] = h_i
 
     # the Hermite functions are evaluated at the given points
-    hermite_function_basis = np.empty(shape=(x.size, n + 1), dtype=np.float64)
+    hermite_func_vander = np.empty(shape=(x.size, n + 1), dtype=np.float64)
 
     # the evaluation is done in parallel to speed up the process but a progress bar
     # is used to keep track of the progress
@@ -202,9 +202,9 @@ def _eval_sym_dilated_hermite_function_basis(
 
     # the results are stored in the matrix
     for row_idx, row_values in results:
-        hermite_function_basis[row_idx, ::] = row_values
+        hermite_func_vander[row_idx, ::] = row_values
 
-    return hermite_function_basis / pysqrt(alpha)
+    return hermite_func_vander / pysqrt(alpha)
 
 
 # === Main Code ===
@@ -295,7 +295,7 @@ if __name__ == "__main__":
     progress_bar.set_description("Generating Hermite reference data")
     for parameters in N_AND_ALPHA_COMBINATIONS:
         # the basis of the Hermite functions is generated ...
-        hermite_function_basis = _eval_sym_dilated_hermite_function_basis(
+        hermite_func_vander = _eval_sym_dilated_hermite_function_basis(
             x=x_values,
             n=parameters.n,
             alpha=parameters.alpha,
@@ -309,7 +309,7 @@ if __name__ == "__main__":
             alpha=alpha_str,
         )
         filepath = os.path.join(FILE_DIRECTORY, filename)
-        np.save(file=filepath, arr=hermite_function_basis, allow_pickle=False)
+        np.save(file=filepath, arr=hermite_func_vander, allow_pickle=False)
         filename_parameters_mapping[filename] = parameters
 
         progress_bar.update(1)

@@ -1,6 +1,6 @@
 """
-This script shows how to generate plots of different Hermite functions with different
-scales and centers.
+This script shows how to generate plots of different Chebyshev polynomials with
+different scales and centers.
 
 """
 
@@ -11,7 +11,7 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from robust_fourier import hermite_function_vander
+from robust_fourier import chebyshev_polyvander
 
 plt.style.use(
     os.path.join(os.path.dirname(__file__), "../docs/robust_fourier.mplstyle")
@@ -19,21 +19,24 @@ plt.style.use(
 
 # === Constants ===
 
-# the x-values to evaluate the Hermite functions
-X_FROM = -5.0
-X_TO = 5.0
+# the x-values to evaluate the Chebyshev polynomials
+X_FROM = -1.0
+X_TO = 1.0
 NUM_X = 10_001
 
+# the x boundaries for plotting
+PLOT_X_FROM = -1.0
+PLOT_X_TO = 1.0
+
 # the scaling factors alpha and centers mu to use
-ALPHAS_AND_MUS = [(1.0, 0.0), (0.5, 0.0), (0.5, 2.0)]
-# the orders of the Hermite functions to plot
+ALPHAS_AND_MUS = [(1.0, 0.0), (0.5, 0.0), (0.5, 0.5)]
+# the orders of the Chebyshev polynomials to plot
 ORDERS = 6
-# the offset between the individual Hermite functions
-OFFSET = -2.0
 
 # the path where to store the plot (only for developers)
 PLOT_FILEPATH = (
-    "../docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.svg"
+    "../docs/chebyshev_polynomials"
+    "/EX-05-DilatedChebyshevPolynomials_DifferentScales.svg"
 )
 
 # === Main ===
@@ -47,10 +50,8 @@ if __name__ == "__main__":
         figsize=(12, 8),
     )
 
-    # the Hermite functions are evaluated and plotted for each scaling factor alpha
-    x_values = np.linspace(start=X_FROM, stop=X_TO, num=NUM_X)
-
-    colors = plt.cm.winter_r(np.linspace(0, 1, ORDERS + 1))  # type: ignore
+    # the Chebyshev polynomials are evaluated and plotted for each scaling factor alpha
+    colors = plt.cm.cool_r(np.linspace(0, 1, ORDERS + 1))  # type: ignore
     for idx_alpha, (alpha, mu) in enumerate(ALPHAS_AND_MUS):
         # a grid and vertical y-axis line is plotted for orientation
         ax[idx_alpha].axvline(  # type: ignore
@@ -59,28 +60,30 @@ if __name__ == "__main__":
             linewidth=0.5,
             zorder=2,
         )
+        ax[idx_alpha].axhline(  # type: ignore
+            y=0.0,
+            color="black",
+            linewidth=0.5,
+            zorder=2,
+        )
 
-        # the Hermite functions are computed and plotted
-        hermite_basis = hermite_function_vander(
+        # the Chebyshev polynomials are computed and plotted
+        x_values = np.linspace(start=mu - alpha, stop=mu + alpha, num=NUM_X)
+        chebyshev_basis = chebyshev_polyvander(
             x=x_values,
             n=ORDERS,
             alpha=alpha,
             x_center=mu,
+            kind="second",
             jit=True,
         )
 
         # NOTE: x-axis are plotted for orientation
         for idx_order in range(0, ORDERS + 1):
-            ax[idx_alpha].axhline(  # type: ignore
-                y=idx_order * OFFSET,
-                color="black",
-                linewidth=0.5,
-                zorder=2 + idx_order * 2,
-            )
             ax[idx_alpha].plot(  # type: ignore
                 x_values,
-                hermite_basis[::, idx_order] + idx_order * OFFSET,
-                color=colors[idx_order],
+                chebyshev_basis[::, ORDERS - idx_order],
+                color=colors[ORDERS - idx_order],
                 zorder=2 + (idx_order + 1) * 2,
             )
 
@@ -88,17 +91,17 @@ if __name__ == "__main__":
         title = r"$\alpha$ = " + f"{alpha:.1f}\n" + r"$\mu$ = " + f"{mu:.1f}"
         ax[idx_alpha].set_title(title)  # type: ignore
         ax[idx_alpha].set_xlabel(r"$x$")  # type: ignore
-        ax[idx_alpha].set_xlim(X_FROM, X_TO)  # type: ignore
+        ax[idx_alpha].set_xlim(PLOT_X_FROM, PLOT_X_TO)  # type: ignore
 
         # for the first plot, a y-label and a legend are added
         if idx_alpha == 0:
             ax[idx_alpha].set_ylabel(  # type: ignore
-                r"$\psi_{n}^{\left(\alpha;\mu\right)}\left(x\right)$",
+                r"$U_{n}^{\left(\alpha;\mu\right)}\left(x\right)$",
             )
 
     # a colorbar is added for the orders
     sm = plt.cm.ScalarMappable(
-        cmap="winter_r",
+        cmap="cool_r",
         norm=plt.Normalize(vmin=0, vmax=ORDERS),  # type: ignore
     )
     fig.colorbar(
@@ -109,7 +112,7 @@ if __name__ == "__main__":
     )
 
     fig.suptitle(
-        "Dilated Hermite Functions with Different Scales and Centers",
+        "Dilated Chebyshev Polynomials with Different Scales and Centers",
         fontsize=18,
         y=1.05,
     )

@@ -8,7 +8,7 @@ This test suite implements the tests for the module :mod:`hermite_functions._cla
 import numpy as np
 import pytest
 
-from robust_fourier import HermiteFunctionBasis, hermite_function_basis
+from robust_fourier import HermiteFunctionBasis, hermite_function_vander
 
 # === Tests ===
 
@@ -39,7 +39,7 @@ def test_hermite_function_basis_properties_and_len() -> None:
     # results
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        hermite_function_basis(
+        hermite_function_vander(
             x=x_reference,
             n=0,
             alpha=1.0,
@@ -62,7 +62,7 @@ def test_hermite_function_basis_properties_and_len() -> None:
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        hermite_function_basis(
+        hermite_function_vander(
             x=x_reference,
             n=1,
             alpha=1.0,
@@ -85,7 +85,7 @@ def test_hermite_function_basis_properties_and_len() -> None:
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        hermite_function_basis(
+        hermite_function_vander(
             x=x_reference,
             n=1,
             alpha=2.0,
@@ -108,7 +108,7 @@ def test_hermite_function_basis_properties_and_len() -> None:
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        hermite_function_basis(
+        hermite_function_vander(
             x=x_reference,
             n=1,
             alpha=2.0,
@@ -131,7 +131,7 @@ def test_hermite_function_basis_properties_and_len() -> None:
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        hermite_function_basis(
+        hermite_function_vander(
             x=x_reference,
             n=1,
             alpha=2.0,
@@ -154,7 +154,7 @@ def test_hermite_function_basis_properties_and_len() -> None:
     # the direct call is tested
     x_reference = np.arange(start=-2.5, stop=3.0, step=0.5)
     assert np.array_equal(
-        hermite_function_basis(
+        hermite_function_vander(
             x=x_reference,
             n=1,
             alpha=2.0,

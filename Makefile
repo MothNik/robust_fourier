@@ -8,7 +8,7 @@ SRC_DIRS = ./auxiliary_scripts ./examples ./src ./tests
 # Upgrading pip, setuptools and wheel
 .PHONY: upgrade-pip
 upgrade-pip:
-	@echo Upgrading pip, setuptools and wheel ...
+	@echo Upgrading pip, setuptools, and wheel ...
 	python -m pip install --upgrade pip setuptools wheel
 
 # Installing the required dependencies and building the package
@@ -57,7 +57,7 @@ mypy-check:
 .PHONY: pycodestyle-check
 pycodestyle-check:
 	@echo Checking code style with 'pycodestyle' ...
-	pycodestyle $(SRC_DIRS) --max-line-length=88 --ignore=E203,W503
+	pycodestyle $(SRC_DIRS) --max-line-length=88 --ignore=E203,W503,E704
 
 # ruff lint checking
 .PHONY: ruff-check
@@ -71,11 +71,17 @@ check: black-check isort-check pyright-check mypy-check pycodestyle-check ruff-c
 
 # === Test Commands ===
 
-# Running a single test
+# Running a selected test (serial)
 .PHONY: test
 test:
 	@echo Running specific test with pytest ...
 	pytest -k "$(TEST)" -x
+
+# Running a selected test (parallel)
+.PHONY: test-parallel
+test-parallel:
+	@echo Running specific test with pytest in parallel ...
+	pytest -k "$(TEST)" -n="auto" -x
 
 # Running the tests
 .PHONY: test-htmlcov
@@ -95,4 +101,4 @@ test-xmlcov:
 .PHONY: update-equations
 update-equations:
 	@echo Updating the LaTeX equations ...
-	python ./auxiliary_scripts/03_write_docs_equations.py
+	python ./auxiliary_scripts/00_write_docs_equations.py

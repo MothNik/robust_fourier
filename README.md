@@ -76,7 +76,7 @@ isort --check --diff --color ./auxiliary_scripts ./examples ./src ./tests
 pyright ./auxiliary_scripts ./examples ./src ./tests
 mypy ./auxiliary_scripts ./examples ./src ./tests
 ruff check ./auxiliary_scripts ./examples ./src ./tests
-pycodestyle ./auxiliary_scripts ./examples ./src ./tests --max-line-length=88 --ignore=E203,W503
+pycodestyle ./auxiliary_scripts ./examples ./src ./tests --max-line-length=88 --ignore=E203,W503,E704
 ```
 
 ### ✅❌ Tests
@@ -166,35 +166,79 @@ special points of the Hermite functions, namely the x-positions of their
 - the point where they numerically fade to zero.
 
 ```python
-from robust_fourier import (
-    approximate_hermite_funcs_fadeout_x,
-    approximate_hermite_funcs_largest_extrema_x,
-    approximate_hermite_funcs_largest_zeros_x,
-)
+from robust_fourier import hermite_approx
+
+N = 25
+ALPHA = 20.0
+MU = 150.0
 
 # 1) the x-positions at which the outermost oscillation fades below machine
 # precision
-x_fadeout = approximate_hermite_funcs_fadeout_x(
-    n=25,
-    alpha=20.0,
-    x_center=150.0,
+x_fadeout = hermite_approx.x_fadeout(
+    n=ORDER,
+    alpha=ALPHA,
+    x_center=MU,
 )
 # 2) the x-positions of the largest zeros
-x_largest_zero = approximate_hermite_funcs_largest_zeros_x(
-    n=25,
-    alpha=20.0,
-    x_center=150.0,
+x_largest_zero = hermite_approx.x_largest_zeros(
+    n=ORDER,
+    alpha=ALPHA,
+    x_center=MU,
 )
 # 3) the x-positions of the largest extrema
-x_largest_extremum = approximate_hermite_funcs_largest_extrema_x(
-    n=25,
-    alpha=20.0,
-    x_center=150.0,
+x_largest_extremum = hermite_approx.x_largest_extrema(
+    n=ORDER,
+    alpha=ALPHA,
+    x_center=MU,
 )
+
+# 4) the Gaussian approximation of the outermost oscillation ...
+left_gaussian, right_gaussian = hermite_approx.get_tail_gauss_fit(
+    n=ORDER,
+    alpha=ALPHA,
+    x_center=MU,
+)
+# ... which is solved for the 50% level
+x_left_fifty_percent = left_gaussian.solve_for_y_fraction(y_fraction=0.5)
+x_right_fifty_percent = right_gaussian.solve_for_y_fraction(y_fraction=0.5)
+
+# 5) the Gaussian approximation is also solved for the 1% interval as a more
+# realistic (less conservative) approximation of the fadeout point
+x_one_percent = hermite_approx.x_tail_drop_to_fraction(
+    n=ORDER,
+    y_fraction=0.01,
+    alpha=ALPHA,
+    x_center=MU,
+).ravel()
+
 ```
 
 <p align="center">
   <img src="docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.svg" width="1000px" />
+</p>
+
+## 🧮 Chebyshev Polynomials
+
+Even though the [Hermite functions](#〰️-hermite-functions) have some nice properties,
+they are not necessarily the best choice for the Fourier transform. Choosing their
+scaling parameter $\alpha$ can be a bit tricky.
+Therefore [[3]](#references) suggests using Chebyshev polynomials instead. They are
+only defined on the interval $[-1, 1]$ and can be scaled and shifted to fit the
+interval $[\mu - \alpha, \mu + \alpha]$ like
+
+<p align="center">
+  <img src="docs/chebyshev_polynomials/equations/CP-01-Chebyshev_Polynomials_Recurrence_Relation_First_Kind.svg" />
+
+for the first kind and
+
+<p align="center">
+  <img src="docs/chebyshev_polynomials/equations/CP-02-Chebyshev_Polynomials_Recurrence_Relation_Second_Kind.svg" />
+
+for the second kind. In [[3]](#references) the second kind $U$ is used, but the first
+kind $T$ is also implemented in `robust_fourier`.
+
+<p align="center">
+  <img src="docs/chebyshev_polynomials/EX-05-DilatedChebyshevPolynomials_DifferentScales.svg" width="1000px" />
 </p>
 
 ## 📖 References
@@ -205,3 +249,9 @@ x_largest_extremum = approximate_hermite_funcs_largest_extrema_x(
 - [2] Bunck B. F., A fast algorithm for evaluation of normalized Hermite functions,
   _BIT Numer Math_ (2009), 49, pp. 281–295, DOI:
   [https://doi.org/10.1007/s10543-009-0216-1](https://doi.org/10.1007/s10543-009-0216-1)
+- [3] Al Marashly, O., Dobróka, M., Chebyshev polynomial-based Fourier transformation
+  and its use in low pass filter of gravity data, _Acta Geod Geophys_ (2024), 59,
+  pp. 159–181 DOI: [https://doi.org/10.1007/s40328-024-00444-z](https://doi.org/10.1007/s40328-024-00444-z)
+- [4] Hrycak T., Schmutzhard S., Accurate evaluation of Chebyshev polynomials in
+  floating-point arithmetic, _BIT Numer Math_ (2019), 59, pp. 403–416,
+  DOI: [https://doi.org/10.1007/s10543-018-0738-5](https://doi.org/10.1007/s10543-018-0738-5)

@@ -12,20 +12,16 @@ import os
 from array import array as PythonArray
 from dataclasses import dataclass
 from math import sqrt as pysqrt
-from typing import Generator, Literal, Optional, Type, Union
+from typing import Generator, Optional, Type
 
 import numpy as np
 import pytest
 from pandas import Series as PandasSeries
 
 from robust_fourier import (
-    approximate_hermite_funcs_fadeout_x,
-    hermite_function_basis,
+    hermite_approx,
+    hermite_function_vander,
     single_hermite_function,
-)
-from robust_fourier.hermite_functions._func_interface import (
-    _is_data_linked,
-    get_validated_hermite_function_input,
 )
 
 from ..reference_files.generate_hermfunc_references import (
@@ -78,7 +74,7 @@ class ReferenceHermiteFunctionBasis:
     n: int
     alpha: float
     x_values: np.ndarray
-    hermite_function_basis: np.ndarray
+    hermite_func_vander: np.ndarray
     ns_for_single_function: list[int]
 
 
@@ -132,7 +128,7 @@ def reference_dilated_hermite_function_basis() -> (
                 n=parameters.n,
                 alpha=parameters.alpha,
                 x_values=np.array(reference_metadata.x_values, dtype=np.float64),
-                hermite_function_basis=reference_hermite_function_basis,
+                hermite_func_vander=reference_hermite_function_basis,
                 ns_for_single_function=parameters.ns_for_single_function,
             )
 
@@ -143,87 +139,6 @@ def reference_dilated_hermite_function_basis() -> (
 # === Tests ===
 
 
-@pytest.mark.parametrize(
-    "original, expected",
-    [
-        (  # Test 0: a 1D-Array of float64
-            np.array([1.0, 2.0, 3.0], dtype=np.float64),
-            True,
-        ),
-        (  # Test 1: a scalar
-            1.0,
-            False,
-        ),
-        (  # Test 2: a list
-            [1.0, 2.0, 3.0],
-            "auto",
-        ),
-        (  # Test 3: a tuple
-            (1.0, 2.0, 3.0),
-            "auto",
-        ),
-        (  # Test 4: a 1D-Array of float32
-            np.array([1.0, 2.0, 3.0], dtype=np.float32),
-            "auto",
-        ),
-        (  # Test 5: a 1D-Pandas Series of float64
-            PandasSeries([1.0, 2.0, 3.0], dtype=np.float64),
-            "auto",
-        ),
-        (  # Test 6: a 1D-Pandas Series of float32
-            PandasSeries([1.0, 2.0, 3.0], dtype=np.float32),
-            "auto",
-        ),
-        (  # Test 7: a 1D-Python Array of float64
-            PythonArray("d", [1.0, 2.0, 3.0]),
-            "auto",
-        ),
-        (  # Test 8: a 1D-Python Array of float32
-            PythonArray("f", [1.0, 2.0, 3.0]),
-            "auto",
-        ),
-    ],
-)
-def test_is_data_linked_identified_correctly_after_hermite_functions_input_validation(
-    original: np.ndarray,
-    expected: Union[bool, Literal["auto"]],
-) -> None:
-    """
-    This test checks whether the function :func:`_is_data_lined` correctly identifies
-    whether the input data is copied after the same process as for the input validation
-    of the Hermite functions implementations.
-
-    For indexable data types (lists, tuples, NumPy arrays, Pandas Series,
-    Python arrays), the function dynamically checks whether the data is linked or copied
-    by modifying one of the entries in the modified array and checking whether the
-    original array is also modified.
-
-    """
-
-    # the input validation is called and the data copying is checked
-    modified = get_validated_hermite_function_input(
-        x=original,
-        n=1,
-        alpha=1.0,
-        x_center=None,
-    )[0]
-
-    # the data copying is checked
-    result = _is_data_linked(arr=modified, original=original)
-
-    # if the expected is "auto", the modification is checked by setting the second entry
-    # in the modified array to a different value and checking whether the original array
-    # is also modified
-    if expected == "auto":
-        modify_value = -100.0
-        modify_index = 1
-        modified[modify_index] = modify_value
-        expected = original[modify_index] == modify_value
-
-    # the result is checked
-    assert result == expected
-
-
 @pytest.mark.parametrize("dtype", [np.float32, np.float64])
 @pytest.mark.parametrize("array_like_type", [np.ndarray, PandasSeries, PythonArray])
 def test_centered_hermite_functions_do_not_modify_x_values(
@@ -231,8 +146,8 @@ def test_centered_hermite_functions_do_not_modify_x_values(
     dtype: Type,
 ) -> None:
     """
-    This test checks whether the function :func:`hermite_function_basis` does not modify
-    the input x-values when the center is set.
+    This test checks whether the function :func:`hermite_function_vander` does not
+    modify the input x-values when the center is set.
 
     """
 
@@ -246,7 +161,7 @@ def test_centered_hermite_functions_do_not_modify_x_values(
         x_values = PythonArray(dtype_str, x_values.tolist())  # type: ignore
 
     # the function is called with the center set
-    hermite_function_basis(
+    hermite_function_vander(
         x=x_values,
         n=1,
         alpha=1.0,
@@ -255,6 +170,8 @@ def test_centered_hermite_functions_do_not_modify_x_values(
 
     # the x-values are checked to be unchanged
     assert np.array_equal(np.asarray(x_values), x_values_original)
+
+    return
 
 
 @pytest.mark.parametrize("x_dtype", [np.float32, np.float64])
@@ -269,9 +186,8 @@ def test_dilated_hermite_function_basis_against_symbolic_reference(
     x_dtype: Type,
 ) -> None:
     """
-    This test checks the implementation of the function
-    :func:`slow_hermite_function_basis` against the symbolic implementation of the
-    Hermite functions.
+    This test checks the implementations of the Hermite functions against a symbolic
+    reference implementation.
 
     The ``x_center`` is tested in a hacky manner by shifting the x-values and calling
     the function with the shifted values and the center. With this, the function - given
@@ -309,10 +225,12 @@ def test_dilated_hermite_function_basis_against_symbolic_reference(
 
         assert np.allclose(
             numerical_herm_func_basis,
-            reference.hermite_function_basis,
+            reference.hermite_func_vander,
             atol=atol,
             rtol=rtol,
-        ), f"For n = {reference.n} and alpha = {reference.alpha}"
+        ), f"Failed for or n = {reference.n} and alpha = {reference.alpha}"
+
+        return
 
 
 @pytest.mark.parametrize("implementation", ALL_HERMITE_IMPLEMENTATIONS)
@@ -344,7 +262,7 @@ def test_dilated_hermite_function_basis_orthonormal_and_bounded(
     # values per oscillation (plus a safety margin for the outermost oscillations);
     # with this number of x-values the span from the leftmost to the rightmost numerical
     # fadeout point of the Hermite functions is covered
-    x_fadeouts = approximate_hermite_funcs_fadeout_x(n=n, alpha=alpha)
+    x_fadeouts = hermite_approx.x_fadeout(n=n, alpha=alpha)
     num_x_values = int(
         (1.0 + ORTHONORMALITY_TEST_X_VALUES_SAFETY_MARGIN)
         * (n + 1)
@@ -383,6 +301,8 @@ def test_dilated_hermite_function_basis_orthonormal_and_bounded(
     # this product is now compared with the identity matrix
     assert np.allclose(dot_product, np.eye(n + 1), atol=ORTHONORMALITY_TEST_ATOL)
 
+    return
+
 
 def test_single_hermite_functions(
     reference_dilated_hermite_function_basis: Generator[
@@ -415,13 +335,15 @@ def test_single_hermite_functions(
             # the reference values are compared with the numerical results
             assert np.allclose(
                 numerical_herm_func,
-                reference.hermite_function_basis[::, n],
+                reference.hermite_func_vander[::, n],
                 atol=SYMBOLIC_TEST_HERMITE_FUNC_FLOAT64_ATOL,
                 rtol=SYMBOLIC_TEST_HERMITE_FUNC_FLOAT64_RTOL,
             ), f"For n = {n} and alpha = {reference.alpha}"
 
+    return
 
-@pytest.mark.parametrize("x_center", [None, 0.0, 1.0, 2.0])
+
+@pytest.mark.parametrize("x_center", [None, 0.0, 1.0, -1.0])
 @pytest.mark.parametrize("alpha", [0.5, 1.0, 2.0])
 @pytest.mark.parametrize("implementation", ALL_HERMITE_IMPLEMENTATIONS)
 def test_hermite_functions_work_identically_for_all_x_types(
@@ -444,11 +366,11 @@ def test_hermite_functions_work_identically_for_all_x_types(
 
     # the points for the check are set up as a NumPy-Array
     x_center_for_points = x_center if x_center is not None else 0.0
-    x_points_to_check = np.linspace(start=-10.0, stop=10.0, num=1001)
+    x_points_to_check = np.linspace(start=-10.0, stop=10.0, num=1_001)
     x_points_to_check *= alpha
     x_points_to_check += x_center_for_points
 
-    # the Hermite function for the NumPy-Array x-points is computed as a reference
+    # the Hermite functions for the NumPy-Array x-points are computed as a reference
     func, kwargs = setup_hermite_function_basis_implementations(
         implementation=implementation,
         n=1,
@@ -466,40 +388,52 @@ def test_hermite_functions_work_identically_for_all_x_types(
         x=x_points_to_check.tolist(),  # type: ignore
         **kwargs,
     )
+
     assert np.array_equal(
         hermite_basis_reference,
         hermite_basis_from_x_list,
     )
+
+    del hermite_basis_from_x_list
 
     # 2) a tuple
     hermite_basis_from_x_tuple = func(
         x=tuple(x_points_to_check.tolist()),  # type: ignore
         **kwargs,
     )
+
     assert np.array_equal(
         hermite_basis_reference,
         hermite_basis_from_x_tuple,
     )
+
+    del hermite_basis_from_x_tuple
 
     # 3) a Pandas Series
     hermite_basis_from_x_pandas_series = func(
         x=PandasSeries(x_points_to_check.tolist()),  # type: ignore
         **kwargs,
     )
+
     assert np.array_equal(
         hermite_basis_reference,
         hermite_basis_from_x_pandas_series,
     )
+
+    del hermite_basis_from_x_pandas_series
 
     # 4) a Python Array
     hermite_basis_from_x_pyarray = func(
         x=PythonArray("d", x_points_to_check.tolist()),  # type: ignore
         **kwargs,
     )
+
     assert np.array_equal(
         hermite_basis_reference,
         hermite_basis_from_x_pyarray,
     )
+
+    del hermite_basis_from_x_pyarray
 
     # 5) individual Python and NumPy floats
     for float_func in [float, np.float64]:
@@ -512,10 +446,15 @@ def test_hermite_functions_work_identically_for_all_x_types(
                 for x_point in x_points_to_check
             ]
         )
+
         assert np.array_equal(
             hermite_basis_reference,
             hermite_basis_from_x_float,
         )
+
+        del hermite_basis_from_x_float
+
+    return
 
 
 @pytest.mark.parametrize("implementation", ALL_HERMITE_IMPLEMENTATIONS)
@@ -538,12 +477,12 @@ def test_hermite_functions_work_identically_for_all_n_alpha_x_center_types(
     x_center_ref_value = 10
 
     # the x-points for the check are set up as a NumPy-Array
-    x_points_to_check = np.linspace(start=-10.0, stop=10.0, num=1001)
+    x_points_to_check = np.linspace(start=-10.0, stop=10.0, num=1_001)
     x_points_to_check *= float(alpha_ref_value)
     x_points_to_check += float(x_center_ref_value)
 
-    # the Hermite function for the x-points and Python integer parameters is computed as
-    # a reference
+    # the Hermite functions for the x-points and Python integer parameters are computed
+    # as a reference
     func, kwargs = setup_hermite_function_basis_implementations(
         implementation=implementation,
         n=n_ref_value,
@@ -566,10 +505,13 @@ def test_hermite_functions_work_identically_for_all_n_alpha_x_center_types(
         x=x_points_to_check,  # type: ignore
         **kwargs,
     )
+
     assert np.array_equal(
         hermite_basis_reference,
         hermite_basis_from_n_numpy_int,
     )
+
+    del hermite_basis_from_n_numpy_int
 
     # afterwards, ``alpha`` is tested with a NumPy integer, a Python float, and a
     # NumPy float instead of a Python integer
@@ -584,10 +526,13 @@ def test_hermite_functions_work_identically_for_all_n_alpha_x_center_types(
             x=x_points_to_check,  # type: ignore
             **kwargs,
         )
+
         assert np.array_equal(
             hermite_basis_reference,
             hermite_basis_from_alpha_converted,
         )
+
+        del hermite_basis_from_alpha_converted
 
     # finally, ``x_center`` is tested with a NumPy integer, a Python float, and a
     # NumPy float instead of a Python integer
@@ -602,7 +547,12 @@ def test_hermite_functions_work_identically_for_all_n_alpha_x_center_types(
             x=x_points_to_check,  # type: ignore
             **kwargs,
         )
+
         assert np.array_equal(
             hermite_basis_reference,
             hermite_basis_from_x_center_converted,
         )
+
+        del hermite_basis_from_x_center_converted
+
+    return
