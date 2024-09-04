@@ -36,7 +36,7 @@ MU = 150.0
 ORDER = 25
 
 # the path where to store the plot (only for developers)
-PLOT_FILEPATH = "../docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.svg"
+PLOT_FILEPATH = "../docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.png"
 
 # === Main ===
 
@@ -80,9 +80,12 @@ if __name__ == "__main__":
         alpha=ALPHA,
         x_center=MU,
     )
-    # ... which is solved for the 50% level
+    # ... which is solved for the 50% level ...
     x_left_fifty_percent = left_gaussian.solve_for_y_fraction(y_fraction=0.5)
     x_right_fifty_percent = right_gaussian.solve_for_y_fraction(y_fraction=0.5)
+    # ... but can also be evaluated for all x-values
+    left_gaussian_values = left_gaussian(x=x_values)
+    right_gaussian_values = right_gaussian(x=x_values)
 
     # 5) the Gaussian approximation is also solved for the 1% interval as a more
     # realistic (less conservative) approximation of the fadeout point
@@ -116,23 +119,17 @@ if __name__ == "__main__":
         x_values,
         hermite_function,
         label="Hermite function",
-        color="#FF8000",
+        color="#962446",
         linewidth=2.0,
         zorder=3,
     )
+    left_gaussian_values[x_values > left_gaussian.center_mu] = np.nan  # type: ignore
+    right_gaussian_values[x_values < right_gaussian.center_mu] = np.nan  # type: ignore
     ax.plot(
         x_values,
-        left_gaussian(x=x_values),
-        label="Gaussian approximation",
-        color="#990000",
-        linewidth=2.0,
-        linestyle="--",
-        zorder=4,
-    )
-    ax.plot(
-        x_values,
-        right_gaussian(x=x_values),
-        color="#990000",
+        np.column_stack((left_gaussian_values, right_gaussian_values)),
+        label=["Gaussian approximation", None],
+        color="#082C3C",
         linewidth=2.0,
         linestyle="--",
         zorder=4,
@@ -142,10 +139,10 @@ if __name__ == "__main__":
         x_fadeout,
         np.zeros_like(x_fadeout),
         marker="D",
-        facecolor="none",
-        edgecolors="red",
+        facecolors="none",
+        edgecolors="#DB9807",
         linewidths=3.0,
-        s=150,
+        s=200,
         label="Numerical Fadeouts",
         zorder=5,
     )
@@ -153,32 +150,32 @@ if __name__ == "__main__":
         x_largest_zero,
         np.zeros_like(x_largest_zero),
         marker="o",
-        facecolor="none",
-        edgecolors="purple",
+        facecolors="none",
+        edgecolors="#DCCD69",
         linewidths=3.0,
-        s=200,
+        s=285,
         label="Largest Zeros",
         zorder=6,
     )
     ax.scatter(
         x_largest_extremum,
         y_largest_extremum,
-        marker="X",
-        facecolor="none",
-        edgecolors="blue",
+        marker="H",
+        facecolors="none",
+        edgecolors="#36A04F",
         linewidths=3.0,
         label="Largest Extrema",
-        s=200,
+        s=285,
         zorder=7,
     )
     ax.scatter(
         np.array([x_left_fifty_percent, x_right_fifty_percent]),
         np.array([0.5, 0.5]) * y_largest_extremum,
-        marker="P",
-        facecolor="none",
-        edgecolors="#FF007F",
+        marker="p",
+        facecolors="none",
+        edgecolors="#D3453E",
         linewidths=3.0,
-        s=200,
+        s=285,
         label="Gaussian 50% Level Approximation",
         zorder=8,
     )
@@ -186,10 +183,10 @@ if __name__ == "__main__":
         x_one_percent,
         y_one_percent,
         marker="s",
-        facecolor="none",
-        edgecolors="#999900",
+        facecolors="none",
+        edgecolors="#FF3399",
         linewidths=3.0,
-        s=200,
+        s=235,
         label="Gaussian 1% Level Approximation",
         zorder=9,
     )

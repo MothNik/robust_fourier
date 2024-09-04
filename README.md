@@ -13,26 +13,38 @@
 
 You want to compute the Fourier transform of a signal, but your signal can be corrupted by outliers? If so, this package is for you even though you will have to say goodbye to the _"fast"_ in _Fast Fourier Transform_ 🏃🙅‍♀️
 
-🏗️🚧 👷👷‍♂️👷‍♀️🏗️🚧
+## 🎁 Installation
 
-Currently under construction. Please check back later.
+### 🐍☁️ PyPI
 
-## ⚙️ Setup and 🪛 Development
+The package can be installed from PyPI with
 
-### 🎁 Installation
+```bash
+pip install robust_fourier
+```
 
-Currently, the package is not yet available on PyPI. To install it, you can clone the repository
+If speed matters for you, you can also install the package with the optional dependency
+`numba`
+
+```bash
+pip install robust_fourier[fast]
+```
+
+### 🐙📦 GitHub
+
+To install the package from GitHub, you can simply clone the repository
 
 ```bash
 git clone https://github.com/MothNik/robust_fourier.git
 ```
 
-For the following commands, a Makefile is provided to simplify the process. Its use is
+For the following commands, a `Makefile` is provided to simplify the process. Its use is
 optional, but recommended.<br>
 From within the repositories root directory, the package can be installed for normal use
 
 ```bash
-# activate your virtual environment, e.g., source venv/bin/activate
+# ⚠️ first, activate your virtual environment, e.g., source venv/bin/activate
+
 make install
 # equivalent to
 pip install --upgrade .
@@ -41,11 +53,14 @@ pip install --upgrade .
 or for development (with all the development dependencies)
 
 ```bash
-# activate your virtual environment, e.g., source venv/bin/activate
+# ⚠️ first, activate your virtual environment, e.g., source venv/bin/activate
+
 make install-dev
 # equivalent to
 pip install --upgrade .["dev"]
 ```
+
+## ⚙️ Setup and 🪛 Development
 
 When working in developer mode, an environment variable has to be added to run certain
 scripts.
@@ -106,7 +121,7 @@ functions or arbitrary order $n$ and argument - that can be scaled with a factor
 $\alpha$ and shifted by a constant $\mu$:
 
 <p align="center">
-  <img src="docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.svg" width="1000px" />
+  <img src="docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.png" width="1000px" />
 </p>
 
 After a slight modification of the definitions in [[1]](#references), the Hermite
@@ -121,6 +136,31 @@ with the Hermite polynomials
 <p align="center">
   <img src="docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg" />
 </p>
+
+With `robust_fourier`, the Hermite functions can be evaluated for arbitrary orders
+using the function interface `hermite_function_vander`
+
+```python
+import numpy as np
+from robust_fourier import hermite_function_vander
+
+ORDER_MAX = 25  # the maximum order of the Hermite functions
+ALPHA = 2.0  # the scaling factor for the x-variable
+MU = -2.0  # the shift of the x-variable
+
+X_FROM = -20.0
+X_TO = 20.0
+NUM_X = 10_001
+
+x_values = np.linspace(start=X_FROM + MU, stop=X_TO + MU, num=NUM_X)
+hermite_vander = hermite_function_vander(
+    x=x_values,
+    n=ORDER_MAX,
+    alpha=ALPHA,
+    x_center=MU,
+    jit=True,  # will only take effect if Numba is installed
+)
+```
 
 By making use of logarithm tricks, the evaluation that might involve infinitely high
 polynomial values and at the same time infinitely small Gaussians - that are on top of
@@ -151,7 +191,7 @@ evaluated for this anymore. The factorial for example would already have overflo
 orders of 170 in `float64`-precision.
 
 <p align="center">
-  <img src="docs/hermite_functions/EX-02-DilatedHermiteFunctions_Stability.svg" width="1000px" />
+  <img src="docs/hermite_functions/EX-02-DilatedHermiteFunctions_Stability.png" width="1000px" />
 </p>
 
 As a sanity check, their orthogonality is part of the tests together with a test for
@@ -162,15 +202,21 @@ On top of that `robust_fourier` comes with utility functions to approximate some
 special points of the Hermite functions, namely the x-positions of their
 
 - largest root (= outermost zero),
-- largest extrema in the outermost oscillation, and
-- the point where they numerically fade to zero.
+- largest extrema in the outermost oscillation,
+- the point where they numerically fade to zero, and
+- an approximation of the outermost oscillation (tail) by a conservative Gaussian peak.
 
 ```python
+import numpy as np
 from robust_fourier import hermite_approx
 
-N = 25
-ALPHA = 20.0
-MU = 150.0
+ORDER = 25  # the order of the Hermite functions
+ALPHA = 20.0  # the scaling factor for the x-variable
+MU = 150.0  # the shift of the x-variable
+
+X_FROM = -65.0
+X_TO = 65.0
+NUM_X = 100_001
 
 # 1) the x-positions at which the outermost oscillation fades below machine
 # precision
@@ -201,6 +247,10 @@ left_gaussian, right_gaussian = hermite_approx.get_tail_gauss_fit(
 # ... which is solved for the 50% level
 x_left_fifty_percent = left_gaussian.solve_for_y_fraction(y_fraction=0.5)
 x_right_fifty_percent = right_gaussian.solve_for_y_fraction(y_fraction=0.5)
+# ... but can also be evaluated for all x-values
+x_values = np.linspace(start=X_FROM + MU, stop=X_TO + MU, num=NUM_X)
+left_gaussian_values = left_gaussian(x=x_values)
+right_gaussian_values = right_gaussian(x=x_values)
 
 # 5) the Gaussian approximation is also solved for the 1% interval as a more
 # realistic (less conservative) approximation of the fadeout point
@@ -214,7 +264,7 @@ x_one_percent = hermite_approx.x_tail_drop_to_fraction(
 ```
 
 <p align="center">
-  <img src="docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.svg" width="1000px" />
+  <img src="docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.png" width="1000px" />
 </p>
 
 ## 🧮 Chebyshev Polynomials
@@ -235,11 +285,74 @@ for the first kind and
   <img src="docs/chebyshev_polynomials/equations/CP-02-Chebyshev_Polynomials_Recurrence_Relation_Second_Kind.svg" />
 
 for the second kind. In [[3]](#references) the second kind $U$ is used, but the first
-kind $T$ is also implemented in `robust_fourier`.
+kind $T$ is also implemented in `robust_fourier`
+
+```python
+import numpy as np
+from robust_fourier import chebyshev_polyvander
+
+ORDER_MAX = 10  # the maximum order of the Chebyshev polynomials
+ALPHA = 0.5  # the scaling factor for the x-variable
+MU = 0.5  # the shift of the x-variable
+
+X_FROM = -0.5
+X_TO = 0.5
+NUM_X = 10_001
+
+x_values = np.linspace(start=X_FROM + MU, stop=X_TO + MU, num=NUM_X)
+chebyshev_vander_first_kind = chebyshev_polyvander(
+    x=x_values,
+    n=ORDER_MAX,
+    alpha=ALPHA,
+    x_center=MU,
+    kind="first",
+    jit=True,  # will only take effect if Numba is installed
+)
+
+chebyshev_vander_second_kind = chebyshev_polyvander(
+    x=x_values,
+    n=ORDER_MAX,
+    alpha=ALPHA,
+    x_center=MU,
+    kind="second",
+    jit=True,  # will only take effect if Numba is installed
+)
+
+# alternatively, both kinds can be computed in one go because this is how they are
+# computed internally to achieve maximum accuracy
+(
+  chebyshev_vander_first_kind,
+  chebyshev_vander_second_kind,
+) = chebyshev_polyvander(
+    x=x_values,
+    n=ORDER_MAX,
+    alpha=ALPHA,
+    x_center=MU,
+    kind="both",
+    jit=True,  # will only take effect if Numba is installed
+)
+```
 
 <p align="center">
-  <img src="docs/chebyshev_polynomials/EX-05-DilatedChebyshevPolynomials_DifferentScales.svg" width="1000px" />
+  <img src="docs/chebyshev_polynomials/EX-05-DilatedChebyshevPolynomials_DifferentScales.png" width="1000px" />
 </p>
+
+## 📈 Fourier Transform
+
+🏗️🚧 👷👷‍♂️👷‍♀️🏗️🚧
+
+Currently under construction. Please check back later.
+
+## 🙏 Acknowledgements
+
+This package would not have been possible without the - unfortunately apparently
+abandoned - package [`hermite-functions`](https://github.com/Rob217/hermite-functions)
+which was a great inspiration for the implementation of the Hermite functions.
+
+On top of that, I hereby want to thank the anonymous support that patiently listened to
+my endless talks about the greatness of Hermite functions (even though they cannot keep
+up with her) and that also helped me to give the plots the visual appeal they have now
+🤩.
 
 ## 📖 References
 
