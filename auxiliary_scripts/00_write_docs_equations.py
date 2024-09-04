@@ -51,7 +51,7 @@ EQUATION_SPECIFICATIONS = {
     "chebyshev_polynomials_recurrence_relation_first_kind": EquationSpecification(
         image_path=(
             "../docs/chebyshev_polynomials/equations"
-            "/CP-01-Chebyshev_Polynomials_Recurrence_Relation_First_Kind.svg"
+            "/CP-01-Chebyshev_Polynomials_Recurrence_Relation_First_Kind.png"
         ),
         latex_expression=(
             r"$T_{n+1}^{\left(\alpha;\mu\right)}\left(x\right)=2\cdot "
@@ -66,7 +66,7 @@ EQUATION_SPECIFICATIONS = {
     "chebyshev_polynomials_recurrence_relation_second_kind": EquationSpecification(
         image_path=(
             "../docs/chebyshev_polynomials/equations"
-            "/CP-02-Chebyshev_Polynomials_Recurrence_Relation_Second_Kind.svg"
+            "/CP-02-Chebyshev_Polynomials_Recurrence_Relation_Second_Kind.png"
         ),
         latex_expression=(
             r"$U_{n+1}^{\left(\alpha;\mu\right)}\left(x\right)=2\cdot "
@@ -82,7 +82,7 @@ EQUATION_SPECIFICATIONS = {
     "hermite_functions_time_space_domain": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"
-            "/HF-01-Hermite_Functions_TimeSpace_Domain.svg"
+            "/HF-01-Hermite_Functions_TimeSpace_Domain.png"
         ),
         latex_expression=(
             r"$\psi_{n}^{\left(\alpha;\mu\right)}\left(x\right)=\frac{"
@@ -95,7 +95,7 @@ EQUATION_SPECIFICATIONS = {
     "hermite_polynomials_time_space_domain": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"
-            "/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg"
+            "/HF-02-Hermite_Polynomials_TimeSpace_Domain.png"
         ),
         latex_expression=(
             r"$H_{n}^{\left(\alpha;\mu\right)}\left(x\right)=(-1)^{n}\cdot "
@@ -107,7 +107,7 @@ EQUATION_SPECIFICATIONS = {
     "hermite_functions_dilated_to_undilated": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"
-            "/HF-03-Hermite_Functions_Dilated_to_Undilated.svg"
+            "/HF-03-Hermite_Functions_Dilated_to_Undilated.png"
         ),
         latex_expression=(
             r"$\psi_{n}^{\left(\alpha;\mu\right)}\left(x\right)=\frac{1}{\sqrt{\alpha}}"
@@ -117,7 +117,7 @@ EQUATION_SPECIFICATIONS = {
     "hermite_functions_recurrence_relation": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"
-            "/HF-04-Hermite_Functions_Recurrence_Relation.svg"
+            "/HF-04-Hermite_Functions_Recurrence_Relation.png"
         ),
         latex_expression=(
             r"$\psi_{n+1}\left(x\right)=\sqrt{\frac{2}{n+1}}\cdot x\cdot\psi_{n}"
@@ -127,7 +127,7 @@ EQUATION_SPECIFICATIONS = {
     "hermite_function_basic_definition": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"
-            "/HF-05-Hermite_Functions_Basic_Definition.svg"
+            "/HF-05-Hermite_Functions_Basic_Definition.png"
         ),
         latex_expression=(
             r"$\psi_{n}\left(x\right)=\frac{exp\left(-\frac{1}{2}\cdot x^{2}\right)}"
@@ -137,7 +137,7 @@ EQUATION_SPECIFICATIONS = {
     "hermite_polynomial_basic_definition": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"
-            "/HF-06-Hermite_Polynomials_Basic_Definition.svg"
+            "/HF-06-Hermite_Polynomials_Basic_Definition.png"
         ),
         latex_expression=(
             r"$H_{n}\left(x\right)=(-1)^{n}\cdot exp\left(x^{2}\right)\cdot"
@@ -147,7 +147,7 @@ EQUATION_SPECIFICATIONS = {
     "hermite_functions_frequency_domain_part_one": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"
-            "/HF-07-Hermite_Functions_Frequency_Domain_pt_1.svg"
+            "/HF-07-Hermite_Functions_Frequency_Domain_pt_1.png"
         ),
         latex_expression=(
             r"$\Psi_{n}^{\left(\alpha;\mu\right)}\left(\omega\right)="
@@ -158,7 +158,7 @@ EQUATION_SPECIFICATIONS = {
     "hermite_functions_frequency_domain_part_two": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"
-            "/HF-08-Hermite_Functions_Frequency_Domain_pt_2.svg"
+            "/HF-08-Hermite_Functions_Frequency_Domain_pt_2.png"
         ),
         latex_expression=(
             r"$\Psi_{n}^{\left(\alpha;\mu\right)}\left(\omega\right)="

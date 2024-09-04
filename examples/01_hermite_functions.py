@@ -33,7 +33,7 @@ OFFSET = -2.0
 
 # the path where to store the plot (only for developers)
 PLOT_FILEPATH = (
-    "../docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.svg"
+    "../docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.png"
 )
 
 # === Main ===

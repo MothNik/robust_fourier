@@ -21,7 +21,24 @@ Currently under construction. Please check back later.
 
 ### 🎁 Installation
 
-Currently, the package is not yet available on PyPI. To install it, you can clone the repository
+#### 🐍☁️ PyPI
+
+The package can be installed from PyPI with
+
+```bash
+pip install robust_fourier
+```
+
+If speed matters for you, you can also install the package with the optional dependency
+`numba`
+
+```bash
+pip install robust_fourier[fast]
+```
+
+#### 🐙📦 GitHub
+
+To install the package from GitHub, you can simply clone the repository
 
 ```bash
 git clone https://github.com/MothNik/robust_fourier.git
@@ -106,20 +123,20 @@ functions or arbitrary order $n$ and argument - that can be scaled with a factor
 $\alpha$ and shifted by a constant $\mu$:
 
 <p align="center">
-  <img src="docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.svg" width="1000px" />
+  <img src="docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.png" width="1000px" />
 </p>
 
 After a slight modification of the definitions in [[1]](#references), the Hermite
 functions can be written as
 
 <p align="center">
-  <img src="docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg" />
+  <img src="docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.png" />
 </p>
 
 with the Hermite polynomials
 
 <p align="center">
-  <img src="docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg" />
+  <img src="docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.png" />
 </p>
 
 By making use of logarithm tricks, the evaluation that might involve infinitely high
@@ -130,13 +147,13 @@ results.
 For doing so, the relation between the dilated and the non-dilated Hermite functions
 
 <p align="center">
-  <img src="docs/hermite_functions/equations/HF-03-Hermite_Functions_Dilated_to_Undilated.svg" />
+  <img src="docs/hermite_functions/equations/HF-03-Hermite_Functions_Dilated_to_Undilated.png" />
 </p>
 
 and the recurrence relation for the Hermite functions
 
 <p align="center">
-  <img src="docs/hermite_functions/equations/HF-04-Hermite_Functions_Recurrence_Relation.svg" />
+  <img src="docs/hermite_functions/equations/HF-04-Hermite_Functions_Recurrence_Relation.png" />
 </p>
 
 are used, but not directly. Instead, the latest evaluated Hermite function is kept at a
@@ -151,7 +168,7 @@ evaluated for this anymore. The factorial for example would already have overflo
 orders of 170 in `float64`-precision.
 
 <p align="center">
-  <img src="docs/hermite_functions/EX-02-DilatedHermiteFunctions_Stability.svg" width="1000px" />
+  <img src="docs/hermite_functions/EX-02-DilatedHermiteFunctions_Stability.png" width="1000px" />
 </p>
 
 As a sanity check, their orthogonality is part of the tests together with a test for
@@ -166,11 +183,16 @@ special points of the Hermite functions, namely the x-positions of their
 - the point where they numerically fade to zero.
 
 ```python
+import numpy as np
 from robust_fourier import hermite_approx
 
-N = 25
-ALPHA = 20.0
-MU = 150.0
+ORDER = 25  # the order of the Hermite functions
+ALPHA = 20.0  # the scaling factor for the x-variable
+MU = 150.0  # the shift of the x-variable
+
+X_FROM = -65.0
+X_TO = 65.0
+NUM_X = 100_001
 
 # 1) the x-positions at which the outermost oscillation fades below machine
 # precision
@@ -201,6 +223,10 @@ left_gaussian, right_gaussian = hermite_approx.get_tail_gauss_fit(
 # ... which is solved for the 50% level
 x_left_fifty_percent = left_gaussian.solve_for_y_fraction(y_fraction=0.5)
 x_right_fifty_percent = right_gaussian.solve_for_y_fraction(y_fraction=0.5)
+# ... but can also be evaluated for all x-values
+x_values = np.linspace(start=X_FROM + MU, stop=X_TO + MU, num=NUM_X)
+left_gaussian_values = left_gaussian(x=x_values)
+right_gaussian_values = right_gaussian(x=x_values)
 
 # 5) the Gaussian approximation is also solved for the 1% interval as a more
 # realistic (less conservative) approximation of the fadeout point
@@ -214,7 +240,7 @@ x_one_percent = hermite_approx.x_tail_drop_to_fraction(
 ```
 
 <p align="center">
-  <img src="docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.svg" width="1000px" />
+  <img src="docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.png" width="1000px" />
 </p>
 
 ## 🧮 Chebyshev Polynomials
@@ -227,18 +253,18 @@ only defined on the interval $[-1, 1]$ and can be scaled and shifted to fit the
 interval $[\mu - \alpha, \mu + \alpha]$ like
 
 <p align="center">
-  <img src="docs/chebyshev_polynomials/equations/CP-01-Chebyshev_Polynomials_Recurrence_Relation_First_Kind.svg" />
+  <img src="docs/chebyshev_polynomials/equations/CP-01-Chebyshev_Polynomials_Recurrence_Relation_First_Kind.png" />
 
 for the first kind and
 
 <p align="center">
-  <img src="docs/chebyshev_polynomials/equations/CP-02-Chebyshev_Polynomials_Recurrence_Relation_Second_Kind.svg" />
+  <img src="docs/chebyshev_polynomials/equations/CP-02-Chebyshev_Polynomials_Recurrence_Relation_Second_Kind.png" />
 
 for the second kind. In [[3]](#references) the second kind $U$ is used, but the first
 kind $T$ is also implemented in `robust_fourier`.
 
 <p align="center">
-  <img src="docs/chebyshev_polynomials/EX-05-DilatedChebyshevPolynomials_DifferentScales.svg" width="1000px" />
+  <img src="docs/chebyshev_polynomials/EX-05-DilatedChebyshevPolynomials_DifferentScales.png" width="1000px" />
 </p>
 
 ## 📖 References

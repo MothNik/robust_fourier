@@ -36,7 +36,7 @@ ORDERS = 6
 # the path where to store the plot (only for developers)
 PLOT_FILEPATH = (
     "../docs/chebyshev_polynomials"
-    "/EX-05-DilatedChebyshevPolynomials_DifferentScales.svg"
+    "/EX-05-DilatedChebyshevPolynomials_DifferentScales.png"
 )
 
 # === Main ===
