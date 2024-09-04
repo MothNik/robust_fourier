@@ -11,8 +11,9 @@ description = "Noise- and Outlier-Robust Fourier Transform with Hermite Function
 authors = [{name = "Niklas Zell", email = "nik.zoe@web.de"}]
 requires-python = ">=3.9"
 keywords = ["Fourier Transform", "Hermite Functions", "Robust", "Noise", "Outliers", "NumPy", "Numba"]
+readme = "README.md"
 license = {file = "LICENSE"}
-dynamic = ["version", "readme", "dependencies", "optional-dependencies"]
+dynamic = ["version", "dependencies", "optional-dependencies"]
 
 [tool.setuptools]
 include-package-data = true
@@ -20,7 +21,6 @@ package-data = {"*" = ["AUTHORS.txt", "VERSION.txt"]}
 
 [tool.setuptools.dynamic]
 version = {file = "src/robust_fourier/VERSION.txt"}
-readme = {file = ["README.md"]}
 dependencies = {file = "requirements/base.txt"}
 optional-dependencies = {fast = {file = "requirements/fast.txt"}, dev = {file = "requirements/dev.txt"}, examples = {file = "requirements/examples.txt"}, git_ci = {file = "requirements/git_ci.txt"}}
 
