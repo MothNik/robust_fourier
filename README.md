@@ -121,20 +121,20 @@ functions or arbitrary order $n$ and argument - that can be scaled with a factor
 $\alpha$ and shifted by a constant $\mu$:
 
 <p align="center">
-  <img src="docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.png" width="1000px" />
+  <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/hermite_functions/EX-01-DilatedHermiteFunctions_DifferentScales.png" width="1000px" />
 </p>
 
 After a slight modification of the definitions in [[1]](#references), the Hermite
 functions can be written as
 
 <p align="center">
-  <img src="docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg" />
+  <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg" />
 </p>
 
 with the Hermite polynomials
 
 <p align="center">
-  <img src="docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg" />
+  <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg" />
 </p>
 
 With `robust_fourier`, the Hermite functions can be evaluated for arbitrary orders
@@ -170,13 +170,13 @@ results.
 For doing so, the relation between the dilated and the non-dilated Hermite functions
 
 <p align="center">
-  <img src="docs/hermite_functions/equations/HF-03-Hermite_Functions_Dilated_to_Undilated.svg" />
+  <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/hermite_functions/equations/HF-03-Hermite_Functions_Dilated_to_Undilated.svg" />
 </p>
 
 and the recurrence relation for the Hermite functions
 
 <p align="center">
-  <img src="docs/hermite_functions/equations/HF-04-Hermite_Functions_Recurrence_Relation.svg" />
+  <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/hermite_functions/equations/HF-04-Hermite_Functions_Recurrence_Relation.svg" />
 </p>
 
 are used, but not directly. Instead, the latest evaluated Hermite function is kept at a
@@ -191,7 +191,7 @@ evaluated for this anymore. The factorial for example would already have overflo
 orders of 170 in `float64`-precision.
 
 <p align="center">
-  <img src="docs/hermite_functions/EX-02-DilatedHermiteFunctions_Stability.png" width="1000px" />
+  <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/hermite_functions/EX-02-DilatedHermiteFunctions_Stability.png" width="1000px" />
 </p>
 
 As a sanity check, their orthogonality is part of the tests together with a test for
@@ -264,7 +264,7 @@ x_one_percent = hermite_approx.x_tail_drop_to_fraction(
 ```
 
 <p align="center">
-  <img src="docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.png" width="1000px" />
+  <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/hermite_functions/EX-04-HermiteFunctions_SpecialPoints.png" width="1000px" />
 </p>
 
 ## 🧮 Chebyshev Polynomials
@@ -277,12 +277,12 @@ only defined on the interval $[-1, 1]$ and can be scaled and shifted to fit the
 interval $[\mu - \alpha, \mu + \alpha]$ like
 
 <p align="center">
-  <img src="docs/chebyshev_polynomials/equations/CP-01-Chebyshev_Polynomials_Recurrence_Relation_First_Kind.svg" />
+  <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/chebyshev_polynomials/equations/CP-01-Chebyshev_Polynomials_Recurrence_Relation_First_Kind.svg" />
 
 for the first kind and
 
 <p align="center">
-  <img src="docs/chebyshev_polynomials/equations/CP-02-Chebyshev_Polynomials_Recurrence_Relation_Second_Kind.svg" />
+  <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/chebyshev_polynomials/equations/CP-02-Chebyshev_Polynomials_Recurrence_Relation_Second_Kind.svg" />
 
 for the second kind. In [[3]](#references) the second kind $U$ is used, but the first
 kind $T$ is also implemented in `robust_fourier`
@@ -334,7 +334,7 @@ chebyshev_vander_second_kind = chebyshev_polyvander(
 ```
 
 <p align="center">
-  <img src="docs/chebyshev_polynomials/EX-05-DilatedChebyshevPolynomials_DifferentScales.png" width="1000px" />
+  <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/chebyshev_polynomials/EX-05-DilatedChebyshevPolynomials_DifferentScales.png" width="1000px" />
 </p>
 
 ## 📈 Fourier Transform
