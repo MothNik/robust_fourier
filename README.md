@@ -128,13 +128,13 @@ After a slight modification of the definitions in [[1]](#references), the Hermit
 functions can be written as
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg" />
+  <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/hermite_functions/equations/HF-01-Hermite_Functions_OfGenericX.svg" />
 </p>
 
 with the Hermite polynomials
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg" />
+  <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/hermite_functions/equations/HF-02-Hermite_Polynomials_OfGenericX.svg" />
 </p>
 
 With `robust_fourier`, the Hermite functions can be evaluated for arbitrary orders

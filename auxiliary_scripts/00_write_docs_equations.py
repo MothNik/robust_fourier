@@ -82,7 +82,7 @@ EQUATION_SPECIFICATIONS = {
     "hermite_functions_time_space_domain": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"
-            "/HF-01-Hermite_Functions_TimeSpace_Domain.svg"
+            "/HF-01-Hermite_Functions_OfGenericX.svg"
         ),
         latex_expression=(
             r"$\psi_{n}^{\left(\alpha;\mu\right)}\left(x\right)=\frac{"
@@ -95,7 +95,7 @@ EQUATION_SPECIFICATIONS = {
     "hermite_polynomials_time_space_domain": EquationSpecification(
         image_path=(
             "../docs/hermite_functions/equations"
-            "/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg"
+            "/HF-02-Hermite_Polynomials_OfGenericX.svg"
         ),
         latex_expression=(
             r"$H_{n}^{\left(\alpha;\mu\right)}\left(x\right)=(-1)^{n}\cdot "

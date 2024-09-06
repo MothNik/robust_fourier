@@ -93,11 +93,11 @@ def hermite_function_vander(
     -----
     The dilated Hermite functions are defined as
 
-    .. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg
+    .. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_OfGenericX.svg
 
     with the Hermite polynomials
 
-    .. image:: docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg
+    .. image:: docs/hermite_functions/equations/HF-02-Hermite_Polynomials_OfGenericX.svg
 
     Internally, they are computed in a numerically stable way that relies on a
     logarithmic scaling trick to avoid over- and underflow in the recursive calculation
@@ -219,11 +219,11 @@ def single_hermite_function(
     -----
     The dilated Hermite functions are defined as
 
-    .. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg
+    .. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_OfGenericX.svg
 
     with the Hermite polynomials
 
-    .. image:: docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg
+    .. image:: docs/hermite_functions/equations/HF-02-Hermite_Polynomials_OfGenericX.svg
 
     For their computation, the function does not rely on recursion, but a direct
     evaluation of the Hermite functions via a complex integral.

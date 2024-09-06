@@ -124,7 +124,7 @@ def _eval_sym_dilated_hermite_function_basis(
     Evaluates the first ``n + 1`` dilated Hermite functions at the given points ``x``.
     They are defined as
 
-    .. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg
+    .. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_OfGenericX.svg
 
     Parameters
     ----------
