@@ -9,6 +9,7 @@
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 [![codecov](https://codecov.io/gh/MothNik/robust_fourier/branch/10-improve-and-add-coverage-to-CI/graph/badge.svg)](https://codecov.io/gh/MothNik/robust_fourier/branch/10-improve-and-add-coverage-to-CI)
 ![tests](https://github.com/MothNik/robust_fourier/actions/workflows/python-package.yml/badge.svg)
+[![Downloads](https://static.pepy.tech/badge/robust_fourier)](https://pepy.tech/project/robust_fourier)
 <br><br>
 
 You want to compute the Fourier transform of a signal, but your signal can be corrupted by outliers? If so, this package is for you even though you will have to say goodbye to the _"fast"_ in _Fast Fourier Transform_ 🏃🙅‍♀️
