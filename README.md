@@ -351,8 +351,8 @@ which was a great inspiration for the implementation of the Hermite functions.
 
 On top of that, I hereby want to thank the anonymous support that patiently listened to
 my endless talks about the greatness of Hermite functions (even though they cannot keep
-up with her) and that also helped me to give the plots the visual appeal they have now
-🤩.
+up with her ❤️‍🔥) and that also helped me to give the plots the visual appeal they have
+now 🤩.
 
 ## 📖 References
 
