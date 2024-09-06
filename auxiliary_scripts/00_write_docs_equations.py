@@ -11,9 +11,11 @@ NOTE: THIS SCRIPT CAN ONLY BE RUN IF THE DEVELOPER MODE IS ENABLED BY SETTING TH
 
 # === Imports ===
 
+import json
 import os
-from dataclasses import dataclass
-from typing import List, Optional, Union
+from dataclasses import asdict, dataclass
+from hashlib import md5
+from typing import Dict, List
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -39,11 +41,23 @@ class EquationSpecification:
     def full_image_path(self) -> str:
         return os.path.join(os.path.dirname(__file__), self.image_path)
 
-    def __iter__(self):
-        return iter((self.latex_expression, self.full_image_path))
+    def __hash__(self) -> int:
+        return int(
+            md5(
+                json.dumps(
+                    asdict(self),
+                    sort_keys=True,
+                ).encode()
+            ).hexdigest(),
+            16,
+        )
 
 
 # === Constants ===
+
+# the file path where the hashes of the previous equation specifications are stored
+# (relative to the current file)
+PREVIOUS_EQUATION_SPECS_HASHES_FILE_PATH = "_equation_specs_hashes.json"
 
 # the paths to there the images will be stored (relative to the current file) and their
 # respective LaTeX expressions
@@ -176,38 +190,71 @@ FONTSIZE: float = 22
 # the resolution of the images in dots per inch
 DPI: int = 100
 
-# whether to show only the preview of the specified equations
-# if None, all equations will be generated and saved
-# otherwise, only the equations with the specified indices will be shown as previews
-PREVIEW_ONLY_NAMES: Union[str, List[str], None] = None
+# the list of plots where only the preview of the equation is shown
+# if this is empty, all equations are saved as images
+# otherwise, only a preview of the equations in this list is shown and nothing is saved
+FIG_NAMES_TO_PREVIEW: List[str] = list()
 
 # === Functions ===
 
 
+def load_previous_equation_specs_hashes(file_path: str) -> Dict[str, int]:
+    """
+    Loads the hashes of the previous equation specifications.
+
+    """
+
+    if not os.path.exists(file_path):
+        return dict()
+
+    with open(file_path, "r") as file:
+        previous_hashes = json.load(file)
+
+    return previous_hashes
+
+
+def save_equation_specs_hashes(
+    file_path: str,
+    equation_specs_hashes: Dict[str, int],
+) -> None:
+    """
+    Saves the hashes of the equation specifications.
+
+    """
+
+    with open(file_path, "w") as file:
+        json.dump(
+            equation_specs_hashes,
+            file,
+            indent=4,
+        )
+
+    return
+
+
 def latex2image(
-    latex_expression: str,
-    image_path: str,
+    equation_name: str,
+    equation_specification: EquationSpecification,
     fontsize: float,
     dpi: int,
-    preview_name: Optional[str] = None,
+    preview_only: bool,
 ) -> None:
     """
     A simple function to generate an image from a LaTeX language string.
 
     Parameters
     ----------
-    latex_expression : :class:`str`
-        The equation in LaTeX markup language.
-    image_path : str or path-like
-        The full path to the image file including the file name and extension.
+    equation_name : :class:`str`
+        The name of the equation.
+    equation_specification : :class:`EquationSpecification`
+        The specification of the equation.
     fontsize : :class:`float`
         The font size of the equation.
     dpi : :class:`int`
         The resolution of the image in dots per inch.
-    preview_name : :class:`str` or ``None``, default=``None``
-        The name of the equation. If specified, only this equation will be shown with
-        this name as a title. Further execution will be blocked until the plot is
-        closed.
+    preview_only : :class:`bool`
+        Whether to show only the preview of the equation (``True``) or to save the image
+        (``False``).
 
     """
 
@@ -215,7 +262,7 @@ def latex2image(
     _ = fig.text(
         x=0.5,
         y=0.5,
-        s=latex_expression,
+        s=equation_specification.latex_expression,
         horizontalalignment="center",
         verticalalignment="center",
         fontsize=fontsize,
@@ -223,15 +270,15 @@ def latex2image(
     fig.tight_layout()
 
     # if this is only a preview, the plot is shown and the function returns
-    if preview_name is not None:
-        fig.suptitle(f"Equation {preview_name}")
+    if preview_only:
+        fig.suptitle(f"Equation {equation_name}")
         plt.show()
 
         return
 
     # otherwise, the plot is saved
     plt.savefig(
-        image_path,
+        equation_specification.full_image_path,
         bbox_inches="tight",
         dpi=dpi,
         transparent=False,
@@ -244,34 +291,84 @@ def latex2image(
 
 if __name__ == "__main__" and os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":
 
-    # the previews are enabled for the specified indices or disabled if None
-    preview_names = [None] * len(EQUATION_SPECIFICATIONS)
-    make_fig_names = list(EQUATION_SPECIFICATIONS.keys())
-    if PREVIEW_ONLY_NAMES is not None:
-        if isinstance(PREVIEW_ONLY_NAMES, str):
-            preview_names = [PREVIEW_ONLY_NAMES]  # type: ignore
-        else:
-            preview_names = PREVIEW_ONLY_NAMES  # type: ignore
+    # the previews are handled
+    # if there are previews, only these plots will be generated and no hashes are
+    # required because no updates are performed
+    if len(FIG_NAMES_TO_PREVIEW) > 0:
+        fig_names_to_generate = list(set(FIG_NAMES_TO_PREVIEW))
+        previous_hashes_file_path = ""
+        previous_hashes = dict()
 
-        make_fig_names = preview_names  # type: ignore
+    # if there are no previews, all plots will be generated and the hashes of the
+    # previous equation specifications are required to check whether the equations have
+    # changed and need to be updated
+    else:
+        fig_names_to_generate = list(EQUATION_SPECIFICATIONS.keys())
+        previous_hashes_file_path = os.path.join(
+            os.path.dirname(__file__),
+            PREVIOUS_EQUATION_SPECS_HASHES_FILE_PATH,
+        )
+        previous_hashes = load_previous_equation_specs_hashes(
+            file_path=previous_hashes_file_path,
+        )
 
-    progress_bar = tqdm(total=len(make_fig_names), desc="Generating equation images")
+    # all the equations are generated
+    progress_bar = tqdm(
+        total=len(fig_names_to_generate),
+        desc="Generating equation images",
+    )
     index = 0
-    for name, (latex_expression, image_path) in EQUATION_SPECIFICATIONS.items():
-        if name not in make_fig_names:
+    for name, specification in EQUATION_SPECIFICATIONS.items():
+        # if the equation is not in the list of equations to be generated, it is skipped
+        if name not in fig_names_to_generate:
             continue
 
+        # it is checked whether the equation should only be previewed
+        preview_only = name in FIG_NAMES_TO_PREVIEW
+
+        # if this is not a preview, it has to be checked whether the equation has
+        # changed and an update of the saved image is necessary
+        if not preview_only:
+            # the hash of the current equation specification is computed and
+            # compared to the hash of the previous equation specification (if available)
+            current_hash = hash(specification)
+            previous_hash = previous_hashes.get(name, None)
+
+            # if both hashes coincide AND the file of the image exists, the equation
+            # has not changed and will not be updated
+            if current_hash == previous_hash and os.path.exists(
+                specification.full_image_path
+            ):
+                tqdm.write(
+                    f"Equation '{name}' has not changed and will not be updated."
+                )
+                index += 1
+                progress_bar.update(1)
+                continue
+
+        # the image of the equation is generated
         latex2image(
-            latex_expression=latex_expression,
-            image_path=image_path,
+            equation_name=name,
+            equation_specification=specification,
             fontsize=FONTSIZE,
             dpi=DPI,
-            preview_name=preview_names[index],
+            preview_only=preview_only,
         )
 
         index += 1
         progress_bar.update(1)
 
+    # if there were no previews, the hashes of the current equation specifications are
+    # saved
+    if len(FIG_NAMES_TO_PREVIEW) < 1:
+        current_equation_specs_hashes = {
+            name: hash(specification)
+            for name, specification in EQUATION_SPECIFICATIONS.items()
+        }
+        save_equation_specs_hashes(
+            file_path=previous_hashes_file_path,
+            equation_specs_hashes=current_equation_specs_hashes,
+        )
 
 elif __name__ == "__main__":
     print(
