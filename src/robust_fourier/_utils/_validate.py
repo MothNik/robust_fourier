@@ -132,6 +132,7 @@ def get_validated_alpha(alpha: Any) -> float:
 def get_validated_offset_along_axis(
     offset: Any,
     which_axis: str,
+    make_absolute: bool = False,
 ) -> float:
     """
     Validates the input for the center (shift) along the an axis, e.g., the x-center
@@ -153,7 +154,8 @@ def get_validated_offset_along_axis(
     else:
         offset = 0.0
 
-    return offset
+    # if required, the offset is made absolute
+    return offset if not make_absolute else abs(offset)
 
 
 def get_validated_chebpoly_or_hermfunc_input(

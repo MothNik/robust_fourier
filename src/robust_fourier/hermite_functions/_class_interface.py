@@ -25,7 +25,44 @@ from ._func_interface import hermite_function_vander
 # === Classes ===
 
 
-class HermiteFunctionBasis:
+class HermiteFunctionBase:
+    """
+    This class represents the base class from which all the classes related to the
+    Hermite functions are derived.
+
+    """
+
+    def __init__(
+        self,
+        n: IntScalar,
+        jit: bool = True,
+    ) -> None:
+        self._n: int = get_validated_order(n=n)
+        self._jit: bool = jit
+
+    # --- Properties ---
+
+    @property
+    def n(self) -> int:
+        return self._n
+
+    @n.setter
+    def n(self, value: IntScalar) -> None:
+        self._n = get_validated_order(n=value)
+
+    # --- Magic Methods ---
+
+    def __len__(self):
+        """
+        Returns the number of Hermite basis functions that will be computed, i.e.,
+        ``n + 1``.
+
+        """
+
+        return self._n + 1
+
+
+class HermiteFunctionBasis(HermiteFunctionBase):
     """
     This class represents a basis of Hermite functions which are defined by their
 
@@ -46,7 +83,7 @@ class HermiteFunctionBasis:
         It must be a positive number ``> 0``.
     x_center : :class:`float` or :class:`int` or ``None``, default=``None``
         The center of the dilated Hermite functions.
-        If ``None`` or ``0``, the function is centered at the origin.
+        If ``None`` or ``0``, the functions are centered at the origin.
         Otherwise, the center is shifted to the given value.
     jit : :class:`bool`, default=``True``
         Whether to use the Numba-accelerated implementation (``True``) or the
@@ -62,6 +99,9 @@ class HermiteFunctionBasis:
         The scaling factor of the independent variables.
     x_center : :class:`float`
         The x-center mu of the Hermite functions.
+    jit : :class:`bool`
+        Whether to use the Numba-accelerated implementation (``True``) or the
+        NumPy-based implementation (``False``).
 
     Methods
     -------
@@ -85,11 +125,11 @@ class HermiteFunctionBasis:
     -----
     The dilated Hermite functions are defined as
 
-    .. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg
+    .. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_OfGenericX.svg
 
     with the Hermite polynomials
 
-    .. image:: docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg
+    .. image:: docs/hermite_functions/equations/HF-02-Hermite_Polynomials_OfGenericX.svg
 
     Internally, they are computed in a numerically stable way that relies on a
     logarithmic scaling trick to avoid over- and underflow in the recursive calculation
@@ -114,23 +154,15 @@ class HermiteFunctionBasis:
         x_center: Optional[RealScalar] = None,
         jit: bool = True,
     ):
-        self._n: int = get_validated_order(n=n)
+        super().__init__(n=n, jit=jit)
         self._alpha: float = get_validated_alpha(alpha=alpha)
         self._x_center: float = get_validated_offset_along_axis(
             offset=x_center,
             which_axis="x",
+            make_absolute=False,
         )
-        self._jit: bool = jit
 
     # --- Properties ---
-
-    @property
-    def n(self) -> int:
-        return self._n
-
-    @n.setter
-    def n(self, value: IntScalar) -> None:
-        self._n = get_validated_order(n=value)
 
     @property
     def alpha(self) -> float:
@@ -150,20 +182,6 @@ class HermiteFunctionBasis:
             offset=value,
             which_axis="x",
         )
-
-    @property
-    def jit(self) -> bool:
-        return self._jit
-
-    @jit.setter
-    def jit(self, value: bool) -> None:
-        if not isinstance(value, bool):
-            raise TypeError(
-                f"Expected 'jit' to be a boolean but it is of type "
-                f"'{type(value).__name__}'."
-            )
-
-        self._jit = value
 
     # --- Public Methods ---
 
@@ -231,15 +249,6 @@ class HermiteFunctionBasis:
         )
 
     # --- Magic Methods ---
-
-    def __len__(self):
-        """
-        Returns the number of Hermite basis functions that will be computed, i.e.,
-        ``n + 1``.
-
-        """
-
-        return self._n + 1
 
     def __call__(
         self,
