@@ -162,7 +162,7 @@ if __name__ == "__main__":
         y_largest_extremum,
         marker="H",
         facecolors="none",
-        edgecolors="#36A04F",
+        edgecolors="#36A07F",
         linewidths=3.0,
         label="Largest Extrema",
         s=285,
