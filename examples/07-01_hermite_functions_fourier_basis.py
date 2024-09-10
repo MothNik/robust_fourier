@@ -102,7 +102,11 @@ for index, order in enumerate(ORDERS):
 
     # the Hermite function and its Fourier transform are plotted
 
-    fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
+    fig, ax = plt.subplots(
+        nrows=2,
+        ncols=2,
+        figsize=(12, 12),
+    )
     ax[0, 0].sharex(ax[1, 0])  # type: ignore
     ax[0, 1].sharex(ax[1, 1])  # type: ignore
 
@@ -195,7 +199,7 @@ for index, order in enumerate(ORDERS):
         + f"{FREQUENCY_GAMMA:.0f}"
         + r", $t_{0}=0$, $\omega_{0}=0$",
         fontsize=18,
-        y=1.10,
+        y=1.05,
     )
 
     # a legend is added for the analytical and numerical Fourier transform

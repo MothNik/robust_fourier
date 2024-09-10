@@ -368,10 +368,12 @@ with
   frequency $\omega = 2\cdot\pi\cdot f$ where $f$ is the frequency in Hz or 1/m,
 - $\mathcal{F}$ being the Fourier transform operator,
 - $\mathcal{F}^{-1}$ being the inverse Fourier transform operator,
-- $\lambda_{n}^{\left(\beta; t_{0}\right)}$ being the $n$-th basis function in the
-  time/space domain centered at $t_{0}$ and scaled in x-direction by $\beta$ , and
-- $\Lambda_{n}^{\left(\gamma;\omega_{0}\right)}$ being the $n$-th basis function in the
-  frequency domain centered at $\omega_{0}$ and scaled in x-direction by $\gamma$.
+- $\lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}$ being the $n$-th basis
+  function in the time/space domain centered at $t_{0}$ and scaled in x-direction by
+  $\beta$, and
+- $\Lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}$ being the $n$-th basis
+  function in the frequency domain centered at $\omega_{0}$ and scaled in x-direction
+  \beta;\gamma; t*{0};\omega*{0}\rightby $\gamma$.
 
 For fitting signals defined in the time/space domain, we need to fit the basis
 $\lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}$ to it. Subsequently, its
@@ -400,7 +402,7 @@ $\beta=\frac{1}{\gamma}$:
 So, which kind of signals is this basis suitable for? The answer is band-limited signals
 that are centered at the origin $t_{0} = 0$ and whose frequencies have nonzero
 coefficients only within the interval $\left[-\omega_{u}, \omega_{u}\right]$ where
-$\omega_{u}$ is the upper band limit of the signal.
+$\omega_{u}\ge0$ is the upper band limit of the signal.
 
 When fitted with the aforementioned basis, the order $n$ and the scaling factor $\gamma$
 determine the point $\omega_{u}$ beyond which the coefficients of the signal are zero.
@@ -421,7 +423,7 @@ domain. In general, it can be located at any point $t_{0}$ and the basis functio
 to be shifted accordingly.
 
 In the time/space domain, such a shift is achieved in a fairly straightforward manner
-by shifting the basis functions by $t_{0}$:
+by shifting the basis functions to $t_{0}$:
 
 <p align="center">
   <img src="docs/hermite_functions/equations/HF-09-Hermite_Functions_Derived_Basis_Time_Space_from_Frequency_at_Origin_TimeSpace_Shifted.svg" />
@@ -470,11 +472,11 @@ exponential factor in the time/space domain:
 Note that once again **a shift in the frequency domain introduces a phase shift in the
 time/space domain but keeps the center of the basis functions at $t_{0}$ unchanged**.
 
-There is not much to be sad about this choice of basis functions because their frequency
-domain representation is not symmetric around the origin anymore. The even/odd symmetry
-of the even/odd Hermite functions is lost. Therefore, this basis is not suitable for
-real signals in the time/space domain whose Fourier transforms show even symmetry around
-the origin for the real part and odd symmetry for the imaginary part.
+There is not much to be said about this choice of basis functions because their
+frequency domain representation is not symmetric around the origin anymore. The even/odd
+symmetry of the even/odd order Hermite functions is lost. Therefore, this basis is not
+suitable for real signals in the time/space domain whose Fourier transforms show even
+symmetry around the origin for the real part and odd symmetry for the imaginary part.
 
 Yet, real signals in the time/space domain are the most common use case. Thus, this
 basis has to be extended to its final form for being useful in practice and this is
@@ -508,16 +510,17 @@ with a yet simple analytical form via _symmetrization_.
 From what was discussed in [the previous sections](#⬅️🔊➡️-shifts-in-frequency---a-mostly-useless-hermite-function-basis),
 the problem of a shift in the frequency domain is the loss of symmetry. Such a shift
 can nevertheless be advantageous in some cases, e.g., when the signal's frequency
-representation only has nonzero coefficients between the intervals
+representation only has nonzero coefficients within the intervals
 $\left[-\omega_{u},-\omega_{l}\right]$ and $\left[\omega_{l},\omega_{u}\right]$ (due
 to symmetry) where $\omega_{l}\ge0$ and $\omega_{u}\ge0$ are the lower and upper band
-limits of the signal, respectively (note that $\omega_{l}$ was assumed to be 0 until
-now).
+limits of the signal's frequency representation, respectively (note that $\omega_{l}$
+was assumed to be 0 until now).
+
 Consequently, some sort of symmetrization has to be applied to the basis functions in
-the frequency domain to make them cover the relevant range on both the negative and the
-positive side of the frequency axis. The following approach for doing so is more
-oriented on the final result that should be achieved rather than mathematical
-principles.
+the frequency domain in a manner that makes them cover the relevant range on both the
+negative and the positive side of the frequency axis while retaining symmetry. The
+following approach for doing so is more oriented on the final result that should be
+achieved rather than mathematical principles.
 
 Let's recall the basis functions in the frequency domain that are centered at
 $\omega_{0}$ which is restricted to be non-negative due to symmetry. Their time/space
@@ -541,9 +544,9 @@ they are not perfect mirror images of each other. To be more specific, the even 
 orders (1, 3, 5, ...) are not. At this point, the result oriented approach is employed.
 If the even orders are assumed to be linked to the real part of the Fourier transform,
 it makes sense that they also have even symmetry. When applying this logic to the odd
-order and linking them to the imaginary part of the Fourier transform, they should have
+orders and linking them to the imaginary part of the Fourier transform, they should have
 odd symmetry. This is achieved by flipping the sign of odd orders in the negative
-counterpart of the frequency domain which simplifies to:
+counterpart of the frequency domain which simplifies the expression to:
 
 <p align="center">
   <img src="docs/hermite_functions/equations/HF-15-Hermite_Functions_Derived_Basis_Frequency_Complementary_Flipped_Odd_Orders_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
@@ -558,8 +561,6 @@ In sum, these two bases can be combined to their final form in the frequency dom
 All that is left to do is to take the Inverse Fourier Transform (IFT) of this basis to
 obtain the basis in the time/space domain. For this, the fact that the IFT of a sum is
 the sum of the individual IFTs can be exploited:
-
-
 
 ## 🙏 Acknowledgements
 
