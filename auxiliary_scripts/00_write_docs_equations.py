@@ -62,6 +62,42 @@ PREVIOUS_EQUATION_SPECS_HASHES_FILE_PATH = "_equation_specs_hashes.json"
 # the paths to there the images will be stored (relative to the current file) and their
 # respective LaTeX expressions
 EQUATION_SPECIFICATIONS = {
+    "generic_fourier_basis_pair": EquationSpecification(
+        image_path=("../docs/general/equations/GEN-01-Generic_Fourier_Basis_Pair.svg"),
+        latex_expression=(
+            r"$\lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+            r"\left( t\right)="
+            r"\mathcal{F}^{-1}\left\{\Lambda_{n}^"
+            r"{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+            r"\left(\omega\right)\right\}\left( t\right)$"
+            + "\n\n"
+            + r"$\Lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+            r"\left(\omega\right)="
+            r"\mathcal{F}\left\{\lambda_{n}^{"
+            r"\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+            r"\left( t\right)\right\}\left(\omega\right)$"
+        ),
+    ),
+    "eulers_formula": EquationSpecification(
+        image_path=("../docs/general/equations/GEN-02-Eulers_Formula.svg"),
+        latex_expression=(r"$e^{i\cdot x}=cos\left(x\right)+i\cdot sin\left(x\right)$"),
+    ),
+    "eulers_formula_add_opposite_sign_arguments": EquationSpecification(
+        image_path=(
+            "../docs/general/equations"
+            "/GEN-03-Eulers_Formula_Add_Opposite_Sign_Arguments.svg"
+        ),
+        latex_expression=(r"$e^{i\cdot x}+e^{-i\cdot x}=2\cdot cos\left(x\right)$"),
+    ),
+    "eulers_formula_subtract_opposite_sign_arguments": EquationSpecification(
+        image_path=(
+            "../docs/general/equations"
+            "/GEN-04-Eulers_Formula_Subtract_Opposite_Sign_Arguments.svg"
+        ),
+        latex_expression=(
+            r"$e^{i\cdot x}-e^{-i\cdot x}=2\cdot i\cdot sin\left(x\right)$"
+        ),
+    ),
     "chebyshev_polynomials_recurrence_relation_first_kind": EquationSpecification(
         image_path=(
             "../docs/chebyshev_polynomials/equations"
@@ -124,7 +160,8 @@ EQUATION_SPECIFICATIONS = {
             "/HF-03-Hermite_Functions_Dilated_to_Undilated.svg"
         ),
         latex_expression=(
-            r"$\psi_{n}^{\left(\alpha;\mu\right)}\left(x\right)=\frac{1}{\sqrt{\alpha}}"
+            r"$\psi_{n}^{\left(\alpha;\mu\right)}\left(x\right)="
+            r"\frac{1}{\sqrt{\alpha}}"
             r"\cdot\psi_{n}\left(\frac{x-\mu}{\alpha}\right)$"
         ),
     ),
@@ -158,30 +195,223 @@ EQUATION_SPECIFICATIONS = {
             r"\left(\frac{d}{dx}\right)^{n}\cdot exp\left(-x^{2}\right)$"
         ),
     ),
-    "hermite_functions_frequency_domain_part_one": EquationSpecification(
-        image_path=(
-            "../docs/hermite_functions/equations"
-            "/HF-07-Hermite_Functions_Frequency_Domain_pt_1.svg"
-        ),
-        latex_expression=(
-            r"$\Psi_{n}^{\left(\alpha;\mu\right)}\left(\omega\right)="
-            r"\left(-j\right)^{n}\cdot exp\left(-j\cdot\mu\cdot\omega\right)\cdot"
-            r"\psi_{n}^{\left(\frac{1}{\alpha};\mu=0\right)}\left(\omega\right)$"
-        ),
+    (
+        "hermite_functions_derived_basis_frequency_from_freq_at_origin_time_space_at_"
+        "origin"
+    ): (
+        EquationSpecification(
+            image_path=(
+                "../docs/hermite_functions/equations"
+                "/HF-07-Hermite_Functions_Derived_Basis_Frequency_from_Frequency_at_"
+                "Origin_TimeSpace_at_Origin.svg"
+            ),
+            latex_expression=(
+                r"$\Lambda_{n}^{\left(\beta;\gamma; t_{0}=0;\omega_{0}=0\right)}"
+                r"\left(\omega\right)="
+                r"\left(-i\right)^{n}\cdot\psi_{n}^{\left(\alpha=\gamma;\mu=0\right)}"
+                r"\left(\omega\right)=\left(-i\right)^{n}"
+                r"\cdot\frac{exp\left(-\frac{1}{2}"
+                r"\cdot\left(\frac{\omega}{\gamma}\right)^{2}\right)}"
+                r"{\sqrt[4]{\pi\cdot\gamma^{2}}\cdot\sqrt{n!\cdot"
+                r"\left(\frac{2}{\gamma^{2}}\right)^{n}}}"
+                r"\cdot H_{n}^{\left(\alpha=\gamma;\mu=0\right)}\left(\omega\right)$"
+            ),
+        )
     ),
-    "hermite_functions_frequency_domain_part_two": EquationSpecification(
-        image_path=(
-            "../docs/hermite_functions/equations"
-            "/HF-08-Hermite_Functions_Frequency_Domain_pt_2.svg"
-        ),
-        latex_expression=(
-            r"$\Psi_{n}^{\left(\alpha;\mu\right)}\left(\omega\right)="
-            r"\left(-j\right)^{n}\cdot\frac{exp\left(-\frac{1}{2}\cdot"
-            r"\left(\alpha\cdot\omega\right)^{2}-j\cdot\mu\cdot\omega\right)}"
-            r"{\sqrt[4]{\frac{\pi}{\alpha^{2}}}\cdot\sqrt{n!\cdot\left("
-            r"2\cdot\alpha^{2}\right)^{n}}}"
-            r"\cdot H_{n}^{\left(\frac{1}{\alpha};\mu=0\right)}\left(\omega\right)$"
-        ),
+    (
+        "hermite_functions_derived_basis_time_space_from_freq_at_origin_time_space_"
+        "at_origin"
+    ): (
+        EquationSpecification(
+            image_path=(
+                "../docs/hermite_functions/equations"
+                "/HF-08-Hermite_Functions_Derived_Basis_TimeSpace_from_Frequency_at_"
+                "Origin_TimeSpace_at_Origin.svg"
+            ),
+            latex_expression=(
+                r"$\lambda_{n}^{\left(\beta;\gamma; t_{0}=0;\omega_{0}=0\right)}"
+                r"\left( t\right)="
+                r"\psi_{n}^{\left(\alpha=\beta;\mu=0\right)}\left( t\right)$"
+                + "\n\n"
+                + r"$\beta=\frac{1}{\gamma}$"
+            ),
+        )
+    ),
+    (
+        "hermite_functions_derived_basis_time_space_from_freq_at_origin_time_space_"
+        "shifted"
+    ): (
+        EquationSpecification(
+            image_path=(
+                "../docs/hermite_functions/equations"
+                "/HF-09-Hermite_Functions_Derived_Basis_Time_Space_from_Frequency_at_"
+                "Origin_TimeSpace_Shifted.svg"
+            ),
+            latex_expression=(
+                r"$\lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}=0\right)}"
+                r"\left( t\right)="
+                r"\psi_{n}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)$"
+            ),
+        )
+    ),
+    (
+        "hermite_functions_derived_basis_frequency_from_freq_at_origin_time_"
+        "space_shifted"
+    ): (
+        EquationSpecification(
+            image_path=(
+                "../docs/hermite_functions/equations"
+                "/HF-10-Hermite_Functions_Derived_Basis_Frequency_from_Frequency_at_"
+                "Origin_TimeSpace_Shifted.svg"
+            ),
+            latex_expression=(
+                r"$\Lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}=0\right)}"
+                r"\left(\omega\right)="
+                r"(-i)^{n}\cdot exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
+                r"\psi_{n}^{\left(\alpha=\gamma;\mu=0\right)}\left(\omega\right)$"
+            ),
+        )
+    ),
+    (
+        "hermite_functions_derived_basis_frequency_from_freq_shifted_time_space_"
+        "at_origin"
+    ): (
+        EquationSpecification(
+            image_path=(
+                "../docs/hermite_functions/equations"
+                "/HF-11-Hermite_Functions_Derived_Basis_Frequency_from_Frequency_"
+                "Shifted_TimeSpace_at_Origin.svg"
+            ),
+            latex_expression=(
+                r"$\Lambda_{n}^{\left(\beta;\gamma; t_{0}=0;\omega_{0}\right)}"
+                r"\left(\omega\right)="
+                r"(-i)^{n}\cdot\psi_{n}^{\left(\alpha=\gamma;\mu=\omega_{0}\right)}"
+                r"\left(\omega\right)$"
+            ),
+        )
+    ),
+    (
+        "hermite_functions_derived_basis_time_space_from_freq_shifted_time_space_"
+        "at_origin"
+    ): (
+        EquationSpecification(
+            image_path=(
+                "../docs/hermite_functions/equations"
+                "/HF-12-Hermite_Functions_Derived_Basis_TimeSpace_from_Frequency_"
+                "Shifted_TimeSpace_at_Origin.svg"
+            ),
+            latex_expression=(
+                r"$\lambda_{n}^{\left(\beta;\gamma; t_{0}=0;\omega_{0}\right)}"
+                r"\left( t\right)="
+                r"exp\left(i\cdot 2\cdot\pi\cdot\omega_{0}\cdot t\right)\cdot"
+                r"\psi_{n}^{\left(\alpha=\beta;\mu=0\right)}\left( t\right)$"
+            ),
+        )
+    ),
+    (
+        "hermite_functions_derived_basis_frequency_from_freq_shifted_"
+        "time_space_shifted"
+    ): (
+        EquationSpecification(
+            image_path=(
+                "../docs/hermite_functions/equations"
+                "/HF-13-Hermite_Functions_Derived_Basis_Frequency_from_Frequency_"
+                "Shifted_TimeSpace_Shifted.svg"
+            ),
+            latex_expression=(
+                r"$\Lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"\left(\omega\right)="
+                r"(-i)^{n}\cdot exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
+                r"\psi_{n}^{\left(\alpha=\gamma;\mu=\omega_{0}\right)}"
+                r"\left(\omega\right)$"
+            ),
+        )
+    ),
+    (
+        "hermite_functions_derived_basis_frequency_complementary_from_freq_shifted_"
+        "time_space_shifted"
+    ): (
+        EquationSpecification(
+            image_path=(
+                "../docs/hermite_functions/equations"
+                "/HF-14-Hermite_Functions_Derived_Basis_Frequency_Complementary_from_"
+                "Frequency_Shifted_TimeSpace_Shifted.svg"
+            ),
+            latex_expression=(
+                r"$\tilde{\Lambda}_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}="
+                r"\left(\omega\right)="
+                r"(-i)^{n}\cdot exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
+                r"\psi_{n}^{\left(\alpha=\gamma;\mu=-\omega_{0}\right)}"
+                r"\left(\omega\right)$"
+            ),
+        )
+    ),
+    (
+        "hermite_functions_derived_basis_frequency_complementary_flipped_odd_orders_"
+        "from_freq_shifted_time_space_shifted"
+    ): (
+        EquationSpecification(
+            image_path=(
+                "../docs/hermite_functions/equations"
+                "/HF-15-Hermite_Functions_Derived_Basis_Frequency_Complementary_"
+                "Flipped_Odd_Orders_from_Frequency_Shifted_TimeSpace_Shifted.svg"
+            ),
+            latex_expression=(
+                r"$\tilde{\Lambda}_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}="
+                r"\left(\omega\right)="
+                r"i^{n}\cdot exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
+                r"\psi_{n}^{\left(\alpha=\gamma;\mu=-\omega_{0}\right)}"
+                r"\left(\omega\right)$"
+            ),
+        )
+    ),
+    (
+        "hermite_functions_derived_basis_frequency_symmetrized_from_freq_shifted_time_"
+        "space_shifted"
+    ): (
+        EquationSpecification(
+            image_path=(
+                "../docs/hermite_functions/equations"
+                "/HF-16-Hermite_Functions_Derived_Basis_Frequency_Symmetrized_from_"
+                "Frequency_Shifted_TimeSpace_Shifted.svg"
+            ),
+            latex_expression=(
+                r"$\widehat{\Lambda}_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}"
+                r"\right)}\left(\omega\right)="
+                r"\Lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"\left(\omega\right)+"
+                r"\tilde{\Lambda}_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"\left(\omega\right)=$" + "\n\n"
+                r"$exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
+                r"\left(i^{n}\cdot\psi_{n}^{\left(\alpha=\gamma;\mu=-\omega_{0}\right)}"
+                r"\left(\omega\right)+"
+                r"(-i)^{n}\cdot\psi_{n}^{\left(\alpha=\gamma;\mu=\omega_{0}\right)}"
+                r"\left(\omega\right)\right)$"
+            ),
+        )
+    ),
+    (
+        "hermite_functions_derived_basis_time_space_single_bases_symmetrized_from_freq_"
+        "shifted_time_space_shifted"
+    ): (
+        EquationSpecification(
+            image_path=(
+                "../docs/hermite_functions/equations"
+                "/HF-17-Hermite_Functions_Derived_Basis_TimeSpace_Single_Bases_"
+                "Symmetrized_from_Frequency_Shifted_TimeSpace_Shifted.svg"
+            ),
+            latex_expression=(
+                r"$\lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"\left( t\right)="
+                r"exp\left(i\cdot 2\cdot\pi\cdot\omega_{0}\cdot t\right)\cdot"
+                r"\psi_{n}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)$"
+                + "\n\n"
+                r"$\tilde{\lambda}_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"\left( t\right)="
+                r"exp\left(-i\cdot 2\cdot\pi\cdot\omega_{0}\cdot t\right)\cdot"
+                r"\psi_{n}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)$"
+            ),
+        )
     ),
 }
 
@@ -193,7 +423,64 @@ DPI: int = 100
 # the list of plots where only the preview of the equation is shown
 # if this is empty, all equations are saved as images
 # otherwise, only a preview of the equations in this list is shown and nothing is saved
-FIG_NAMES_TO_PREVIEW: List[str] = list()
+FIG_NAMES_TO_PREVIEW: List[str] = [
+    # "generic_fourier_basis_pair",
+    # "eulers_formula",
+    # "eulers_formula_add_opposite_sign_arguments",
+    # "eulers_formula_subtract_opposite_sign_arguments",
+    # "chebyshev_polynomials_recurrence_relation_first_kind",
+    # "chebyshev_polynomials_recurrence_relation_second_kind",
+    # "hermite_functions_time_space_domain",
+    # "hermite_polynomials_time_space_domain",
+    # "hermite_functions_dilated_to_undilated",
+    # "hermite_functions_recurrence_relation",
+    # "hermite_function_basic_definition",
+    # "hermite_polynomial_basic_definition",
+    # (
+    #     "hermite_functions_derived_basis_frequency_from_freq_at_origin_time_space_"
+    #     "at_origin"
+    # ),
+    # (
+    #     "hermite_functions_derived_basis_time_space_from_freq_at_origin_time_space_"
+    #     "at_origin"
+    # ),
+    # (
+    #     "hermite_functions_derived_basis_time_space_from_freq_at_origin_time_space_"
+    #     "shifted"
+    # ),
+    # (
+    #     "hermite_functions_derived_basis_frequency_from_freq_at_origin_time_"
+    #     "space_shifted"
+    # ),
+    # (
+    #     "hermite_functions_derived_basis_frequency_from_freq_shifted_time_space_"
+    #     "at_origin"
+    # ),
+    # (
+    #     "hermite_functions_derived_basis_time_space_from_freq_shifted_time_space_"
+    #     "at_origin"
+    # ),
+    # (
+    #     "hermite_functions_derived_basis_frequency_from_freq_shifted_"
+    #     "time_space_shifted"
+    # ),
+    # (
+    #     "hermite_functions_derived_basis_frequency_complementary_from_freq_shifted_"
+    #     "time_space_shifted"
+    # ),
+    # (
+    #     "hermite_functions_derived_basis_frequency_complementary_flipped_odd_orders_"
+    #     "from_freq_shifted_time_space_shifted"
+    # ),
+    # (
+    #     "hermite_functions_derived_basis_frequency_symmetrized_from_freq_shifted_"
+    #     "time_space_shifted"
+    # ),
+    # (
+    #     "hermite_functions_derived_basis_time_space_single_bases_symmetrized_from_"
+    #     "freq_shifted_time_space_shifted"
+    # ),
+]
 
 # === Functions ===
 

@@ -111,9 +111,9 @@ pytest --cov=robust_fourier ./tests -n="auto" --cov-report=html -x --no-jit
 for parallelized testing whose coverage report will be stored in the file
 `./coverage.xml` or in the folder `./htmlcov`, respectively.
 
-## 〰️ Hermite functions
+## 〰️ Hermite Functions
 
-Being the eigenfunctions of the Fourier transform, Hermite functions are excellent
+Being the eigenfunctions of the Fourier transform, Hermite Functions are excellent
 candidates for the basis functions for a Least Squares Regression approach to the Fourier
 transform. However, their evaluation can be a bit tricky.
 
@@ -138,14 +138,14 @@ with the Hermite polynomials
   <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/hermite_functions/equations/HF-02-Hermite_Polynomials_OfGenericX.svg" />
 </p>
 
-With `robust_fourier`, the Hermite functions can be evaluated for arbitrary orders
+With `robust_fourier`, the Hermite Functions can be evaluated for arbitrary orders
 using the function interface `hermite_function_vander`
 
 ```python
 import numpy as np
 from robust_fourier import hermite_function_vander
 
-ORDER_MAX = 25  # the maximum order of the Hermite functions
+ORDER_MAX = 25  # the maximum order of the Hermite Functions
 ALPHA = 2.0  # the scaling factor for the x-variable
 MU = -2.0  # the shift of the x-variable
 
@@ -168,13 +168,13 @@ polynomial values and at the same time infinitely small Gaussians - that are on 
 that scaled by an infinitely high factorial - can be computed safely and yield accurate
 results.
 
-For doing so, the relation between the dilated and the non-dilated Hermite functions
+For doing so, the relation between the dilated and the non-dilated Hermite Functions
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/hermite_functions/equations/HF-03-Hermite_Functions_Dilated_to_Undilated.svg" />
 </p>
 
-and the recurrence relation for the Hermite functions
+and the recurrence relation for the Hermite Functions
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/MothNik/robust_fourier/main/docs/hermite_functions/equations/HF-04-Hermite_Functions_Recurrence_Relation.svg" />
@@ -196,11 +196,11 @@ orders of 170 in `float64`-precision.
 </p>
 
 As a sanity check, their orthogonality is part of the tests together with a test for
-the fact that the absolute values of the Hermite functions for real input cannot exceed
+the fact that the absolute values of the Hermite Functions for real input cannot exceed
 the value $\frac{1}{\sqrt[4]{\pi\cdot\alpha^{2}}}$.
 
 On top of that `robust_fourier` comes with utility functions to approximate some
-special points of the Hermite functions, namely the x-positions of their
+special points of the Hermite Functions, namely the x-positions of their
 
 - largest root (= outermost zero),
 - largest extrema in the outermost oscillation,
@@ -211,7 +211,7 @@ special points of the Hermite functions, namely the x-positions of their
 import numpy as np
 from robust_fourier import hermite_approx
 
-ORDER = 25  # the order of the Hermite functions
+ORDER = 25  # the order of the Hermite Functions
 ALPHA = 20.0  # the scaling factor for the x-variable
 MU = 150.0  # the shift of the x-variable
 
@@ -270,7 +270,7 @@ x_one_percent = hermite_approx.x_tail_drop_to_fraction(
 
 ## 🧮 Chebyshev Polynomials
 
-Even though the [Hermite functions](#〰️-hermite-functions) have some nice properties,
+Even though the [Hermite Functions](#〰️-hermite-functions) have some nice properties,
 they are not necessarily the best choice for the Fourier transform. Choosing their
 scaling parameter $\alpha$ can be a bit tricky.
 Therefore [[3]](#references) suggests using Chebyshev polynomials instead. They are
@@ -340,18 +340,235 @@ chebyshev_vander_second_kind = chebyshev_polyvander(
 
 ## 📈 Fourier Transform
 
-🏗️🚧 👷👷‍♂️👷‍♀️🏗️🚧
+The key to Robust Fourier Transforms by Least Squares Regression is the evaluation of
+a suitable function basis at the data points. Since both the
+[Hermite Functions](#〰️-hermite-functions) and the
+[Chebyshev polynomials](#🧮-chebyshev-polynomials) are limited to a certain interval, it
+makes sense to make the form the basis in the frequency rather than the time/space
+domain.
 
-Currently under construction. Please check back later.
+A signal whose frequency domain is only nonzero in a particular interval is called
+_band-limited_. An example for this would be spectra in Fourier Transform Spectroscopy
+where the signal is only nonzero in a certain frequency range where, e.g., the light
+source emits its characteristic radiation. While the time/space representation of such
+signals may be infinitely wide without ever fading to zero, the band-limited nature in
+the frequency domain allows for a finite representation by band-limited basis functions.
+
+Now, the only question remaining is how these basis functions are constructed. For this,
+the following generic relation between the time/space domain and the frequency domain
+representation of such a basis is defined:
+
+<p align="center">
+  <img src="docs/general/equations/GEN-01-Generic_Fourier_Basis_Pair.svg" />
+
+with
+
+- $t$ being the independent variable in the time/space domain,
+- $\omega$ being the independent variable in the frequency domain, i. e., the angular
+  frequency $\omega = 2\cdot\pi\cdot f$ where $f$ is the frequency in Hz or 1/m,
+- $\mathcal{F}$ being the Fourier transform operator,
+- $\mathcal{F}^{-1}$ being the inverse Fourier transform operator,
+- $\lambda_{n}^{\left(\beta; t_{0}\right)}$ being the $n$-th basis function in the
+  time/space domain centered at $t_{0}$ and scaled in x-direction by $\beta$ , and
+- $\Lambda_{n}^{\left(\gamma;\omega_{0}\right)}$ being the $n$-th basis function in the
+  frequency domain centered at $\omega_{0}$ and scaled in x-direction by $\gamma$.
+
+For fitting signals defined in the time/space domain, we need to fit the basis
+$\lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}$ to it. Subsequently, its
+Fourier transform can then be computed analytically using
+$\Lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}$.
+
+### 🏄 A simple basis based on Hermite Functions
+
+With this in mind, a basis can be constructed using the Hermite Functions starting
+from a basis in the frequency domain that is centered at $\omega_{0} = 0$ and scaled by
+$\gamma$:
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-07-Hermite_Functions_Derived_Basis_Frequency_from_Frequency_at_Origin_TimeSpace_at_Origin.svg" />
+
+Here, $i=\sqrt{-1}$ is the imaginary unit which is introduced to make the basis in the
+time/space domain purely real-valued (for now at least).
+
+Taking the Inverse Fourier Transform (IFT) yields the basis in the time/space domain,
+which turns out to be the Hermite Functions centered at $t_{0} = 0$ and scaled by
+$\beta=\frac{1}{\gamma}$:
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-08-Hermite_Functions_Derived_Basis_TimeSpace_from_Frequency_at_Origin_TimeSpace_at_Origin.svg" />
+
+So, which kind of signals is this basis suitable for? The answer is band-limited signals
+that are centered at the origin $t_{0} = 0$ and whose frequencies have nonzero
+coefficients only within the interval $\left[-\omega_{u}, \omega_{u}\right]$ where
+$\omega_{u}$ is the upper band limit of the signal.
+
+When fitted with the aforementioned basis, the order $n$ and the scaling factor $\gamma$
+determine the point $\omega_{u}$ beyond which the coefficients of the signal are zero.
+This point can be approximated as, e.g., the 1% drop off point of the Gaussian tail
+approximation of the outermost oscillation as described in the
+[Hermite Functions](#〰️-hermite-functions) section.
+
+<p align="center">
+  <img src="docs/hermite_functions/EX-07-01-01-HermiteFunctionsFourierBasis_Frequency_at_Origin_Time_Space_at_Origin_Order_09.png" width="1000px" />
+
+<p align="center">
+  <img src="docs/hermite_functions/EX-07-01-02-HermiteFunctionsFourierBasis_Frequency_at_Origin_Time_Space_at_Origin_Order_10.png" width="1000px" />
+
+### ⬅️🕰️➡️ Introducing shifts in time and space - A more versatile Hermite Function basis
+
+It's not always the case that the signal is centered at the origin of the time/space
+domain. In general, it can be located at any point $t_{0}$ and the basis functions have
+to be shifted accordingly.
+
+In the time/space domain, such a shift is achieved in a fairly straightforward manner
+by shifting the basis functions by $t_{0}$:
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-09-Hermite_Functions_Derived_Basis_Time_Space_from_Frequency_at_Origin_TimeSpace_Shifted.svg" />
+
+For the frequency domain on the other hand, the shift is a bit more complicated because
+it involves the shift property of the Fourier transform which introduces a complex
+exponential factor:
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-10-Hermite_Functions_Derived_Basis_Frequency_from_Frequency_at_Origin_TimeSpace_Shifted.svg" />
+
+Note that **a shift in the time/space domain introduces a phase shift in the frequency
+domain but keeps the center of the basis functions at $\omega_{0}$ unchanged**.
+
+The field of applications remains the same as for
+[the simple basis based on Hermite](#🏄-a-simple-basis-based-on-hermite-functions)
+except for the fact that now the signal can be located at any point $t_{0}$ which
+might be of more practical interest.
+
+Again, the order $n$ and the scaling factor $\gamma$ determine the point $\omega_{u}$
+beyond which the coefficients of the signal are zero just as in the simple basis.
+
+<p align="center">
+  <img src="docs/hermite_functions/EX-07-02-01-HermiteFunctionsFourierBasis_Frequency_at_Origin_Time_Space_Shifted_Order_09.png" width="1000px" />
+
+<p align="center">
+  <img src="docs/hermite_functions/EX-07-02-02-HermiteFunctionsFourierBasis_Frequency_at_Origin_Time_Space_Shifted_Order_10.png" width="1000px" />
+
+### ⬅️🔊➡️ Shifts in frequency - A mostly useless Hermite Function basis
+
+Not only the time/space domain can be shifted, but also the frequency domain. Assuming
+that there is no shift in the time domain, i.e., $t_{0} = 0$, the basis functions in the
+frequency domain can be shifted by $\omega_{0}$ by simply shifting the center of the
+basis functions:
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-11-Hermite_Functions_Derived_Basis_Frequency_from_Frequency_Shifted_TimeSpace_at_Origin.svg" />
+
+In analogy to the [previous sections](#⬅️🕰️➡️-introducing-shifts-in-time-and-space---a-more-versatile-hermite-function-basis),
+the shift property of the Inverse Fourier Transform (IFT) introduces a complex
+exponential factor in the time/space domain:
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-12-Hermite_Functions_Derived_Basis_TimeSpace_from_Frequency_Shifted_TimeSpace_at_Origin.svg" />
+
+Note that once again **a shift in the frequency domain introduces a phase shift in the
+time/space domain but keeps the center of the basis functions at $t_{0}$ unchanged**.
+
+There is not much to be sad about this choice of basis functions because their frequency
+domain representation is not symmetric around the origin anymore. The even/odd symmetry
+of the even/odd Hermite functions is lost. Therefore, this basis is not suitable for
+real signals in the time/space domain whose Fourier transforms show even symmetry around
+the origin for the real part and odd symmetry for the imaginary part.
+
+Yet, real signals in the time/space domain are the most common use case. Thus, this
+basis has to be extended to its final form for being useful in practice and this is
+where _symmetrization_ comes into play.
+
+### 📖 Interlude - Euler's formula
+
+Before proceeding, it is worth mentioning Euler's formula which relates the complex
+exponential function to the trigonometric functions:
+
+<p align="center">
+  <img src="docs/general/equations/GEN-02-Eulers_Formula.svg" />
+
+When two of these expressions with opposite sign of the argument are added, the
+imaginary parts cancel out and the real parts add up:
+
+<p align="center">
+  <img src="docs/general/equations/GEN-03-Eulers_Formula_Add_Opposite_Sign_Arguments.svg" />
+
+For a subtraction on the other hand, the real parts cancel out and the imaginary parts
+add up:
+
+<p align="center">
+  <img src="docs/general/equations/GEN-04-Eulers_Formula_Subtract_Opposite_Sign_Arguments.svg" />
+
+This is a very useful property that will be exploited for deriving a very generic basis
+with a yet simple analytical form via _symmetrization_.
+
+### 🪞 Symmetrization - The generalized Hermite Function basis
+
+From what was discussed in [the previous sections](#⬅️🔊➡️-shifts-in-frequency---a-mostly-useless-hermite-function-basis),
+the problem of a shift in the frequency domain is the loss of symmetry. Such a shift
+can nevertheless be advantageous in some cases, e.g., when the signal's frequency
+representation only has nonzero coefficients between the intervals
+$\left[-\omega_{u},-\omega_{l}\right]$ and $\left[\omega_{l},\omega_{u}\right]$ (due
+to symmetry) where $\omega_{l}\ge0$ and $\omega_{u}\ge0$ are the lower and upper band
+limits of the signal, respectively (note that $\omega_{l}$ was assumed to be 0 until
+now).
+Consequently, some sort of symmetrization has to be applied to the basis functions in
+the frequency domain to make them cover the relevant range on both the negative and the
+positive side of the frequency axis. The following approach for doing so is more
+oriented on the final result that should be achieved rather than mathematical
+principles.
+
+Let's recall the basis functions in the frequency domain that are centered at
+$\omega_{0}$ which is restricted to be non-negative due to symmetry. Their time/space
+domain representation is centered at $t_{0}$:
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-13-Hermite_Functions_Derived_Basis_Frequency_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
+
+This basis already meets the requirements for the positive side of the frequency axis
+if $\gamma$ is chosen such that the basis functions are band-limited to the interval
+$\left[\omega_{l},\omega_{u}\right]$. Hence, a basis centered at $-\omega_{0}$ covers
+the negative counterpart of this interval, namely
+$\left[-\omega_{u},-\omega_{l}\right]$:
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-14-Hermite_Functions_Derived_Basis_Frequency_Complementary_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
+
+Now, only a little trick is needed to combine these two bases because at the moment
+they are not perfect mirror images of each other. To be more specific, the even orders
+(0, 2, 4, ...) of both bases are already mirror images of each other, but the odd
+orders (1, 3, 5, ...) are not. At this point, the result oriented approach is employed.
+If the even orders are assumed to be linked to the real part of the Fourier transform,
+it makes sense that they also have even symmetry. When applying this logic to the odd
+order and linking them to the imaginary part of the Fourier transform, they should have
+odd symmetry. This is achieved by flipping the sign of odd orders in the negative
+counterpart of the frequency domain which simplifies to:
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-15-Hermite_Functions_Derived_Basis_Frequency_Complementary_Flipped_Odd_Orders_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
+
+Here, the only change is the sign of the prefactor $(-i)^{n}$ being flipped.
+
+In sum, these two bases can be combined to their final form in the frequency domain:
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-16-Hermite_Functions_Derived_Basis_Frequency_Symmetrized_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
+
+All that is left to do is to take the Inverse Fourier Transform (IFT) of this basis to
+obtain the basis in the time/space domain. For this, the fact that the IFT of a sum is
+the sum of the individual IFTs can be exploited:
+
+
 
 ## 🙏 Acknowledgements
 
 This package would not have been possible without the - unfortunately apparently
 abandoned - package [`hermite-functions`](https://github.com/Rob217/hermite-functions)
-which was a great inspiration for the implementation of the Hermite functions.
+which was a great inspiration for the implementation of the Hermite Functions.
 
 On top of that, I hereby want to thank the anonymous support that patiently listened to
-my endless talks about the greatness of Hermite functions (even though they cannot keep
+my endless talks about the greatness of Hermite Functions (even though they cannot keep
 up with her ❤️‍🔥) and that also helped me to give the plots the visual appeal they have
 now 🤩.
 
