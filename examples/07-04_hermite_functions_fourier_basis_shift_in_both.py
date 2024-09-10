@@ -2,8 +2,8 @@
 This script serves as a demonstration of the Fourier basis functions that are based on
 the Hermite functions.
 
-It demonstrates the where the time/space domain is shifted in the x-direction while the
-frequency domain remains centered at the origin.
+It demonstrates the most general case where both the time/space and frequency domains
+are shifted in the x-direction.
 
 """
 
@@ -14,7 +14,7 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from robust_fourier import hermite_approx, hermite_function_vander
+from robust_fourier import hermite_approx, single_hermite_function
 from robust_fourier.fourier_transform import (
     TimeSpaceSignal,
     convert_discrete_to_continuous_ft,
@@ -34,6 +34,8 @@ ORDERS = [
 ]
 # the scaling factor gamma for the x-direction in the frequency domain
 FREQUENCY_GAMMA = 2.0
+# the center in the frequency domain
+FREQUENCY_CENTER = 15.0
 # the center in the time/space domain
 TIME_SPACE_CENTER = 2.0
 # the number of points in the time/space domain
@@ -77,37 +79,52 @@ for index, order in enumerate(ORDERS):
     )
 
     # the Hermite functions are evaluated at the given points
-    hermite_basis_time_space = hermite_function_vander(
+    time_space_hermite_function_original = single_hermite_function(
         x=t_values,
         n=order,
         alpha=time_space_beta,
         x_center=TIME_SPACE_CENTER,
     )
-    hermite_function_time_space = TimeSpaceSignal(
-        y=hermite_basis_time_space[::, order],
+
+    # the pre-factors to account for the shift in the frequency domain and the
+    # symmetrization are computed
+    time_space_prefactor = 2.0 * np.cos(
+        FREQUENCY_CENTER * (t_values - TIME_SPACE_CENTER)
+    )
+
+    time_space_hermite_function = TimeSpaceSignal(
+        y=time_space_prefactor * time_space_hermite_function_original,
         x=t_values,
     )
 
-    # the continuous Fourier transform is computed for the highest order
+    # the continuous Fourier transform is computed
     hermite_function_cft = convert_discrete_to_continuous_ft(
-        dft=discrete_ft(signal=hermite_function_time_space),
+        dft=discrete_ft(signal=time_space_hermite_function),
     )
 
     # aside from this numerical computation, the analytical Fourier transform is
     # computed for comparison
-    hermite_function_ft_analytical = (
-        ((-1.0j) ** order)
-        * np.exp(
-            -1.0j
-            * TIME_SPACE_CENTER
-            * np.fft.fftshift(hermite_function_cft.angular_frequencies)
-        )
-        * hermite_function_vander(
-            x=np.fft.fftshift(hermite_function_cft.angular_frequencies),
-            n=order,
-            alpha=FREQUENCY_GAMMA,
-            x_center=None,
-        )[::, order]
+    # a prefactor is computed to account for the shift in the time/space domain
+    ft_prefactor = ((-1.0j) ** order) * np.exp(
+        -1.0j
+        * TIME_SPACE_CENTER
+        * np.fft.fftshift(hermite_function_cft.angular_frequencies)
+    )
+
+    hermite_function_ft_analytical = ft_prefactor * single_hermite_function(
+        x=np.fft.fftshift(hermite_function_cft.angular_frequencies),
+        n=order,
+        alpha=FREQUENCY_GAMMA,
+        x_center=FREQUENCY_CENTER,
+    )
+
+    # a mirrored version of the Hermite functions has to be added to the analytical
+    # Fourier transform to account for the symmetrization
+    hermite_function_ft_analytical += ft_prefactor * single_hermite_function(
+        x=np.fft.fftshift(hermite_function_cft.angular_frequencies),
+        n=order,
+        alpha=FREQUENCY_GAMMA,
+        x_center=-FREQUENCY_CENTER,
     )
 
     # the Hermite function and its Fourier transform are plotted
@@ -137,15 +154,15 @@ for index, order in enumerate(ORDERS):
 
     # the time/space domain is plotted
     ax[0, 0].plot(  # type: ignore
-        hermite_function_time_space.x,
-        hermite_function_time_space.y,
+        time_space_hermite_function.x,
+        time_space_hermite_function.y.real,
         color=COLORS[index][0],
         linewidth=3.0,
         zorder=3,
     )
     ax[1, 0].plot(  # type: ignore
-        hermite_function_time_space.x,
-        np.zeros_like(hermite_function_time_space.y),
+        time_space_hermite_function.x,
+        time_space_hermite_function.y.imag,
         color=COLORS[index][1],
         linewidth=3.0,
         zorder=3,
@@ -200,14 +217,22 @@ for index, order in enumerate(ORDERS):
     ax[0, 1].set_title("Frequency domain")  # type: ignore
 
     fig.suptitle(
-        "Hermite Function Basis Fourier Pair with Shift in the Time/Space Domain\n\n"
-        + r"$n = $"
-        + f"{order} "
-        + r", $\beta = $"
+        "Hermite Function Basis Fourier Pair with Shifts in BOTH domains\n\n"
+        + r"$n = "
+        + f"{order}"
+        + r"$"
+        + r", $\beta = "
         + f"{time_space_beta:.1f}"
-        + r", $\gamma = $"
+        + r"$"
+        + r", $\gamma = "
         + f"{FREQUENCY_GAMMA:.0f}"
-        + r", $t_{0}=0$, $\omega_{0}=0$",
+        + r"$"
+        + r", $t_{0}="
+        + f"{TIME_SPACE_CENTER:.0f}"
+        + r"$"
+        + r", $\omega_{0}="
+        + f"{FREQUENCY_CENTER:.0f}"
+        + r"$",
         fontsize=18,
         y=1.05,
     )
@@ -225,22 +250,22 @@ for index, order in enumerate(ORDERS):
         n=order,
         y_fraction=0.01,
         alpha=FREQUENCY_GAMMA,
-        x_center=None,
+        x_center=FREQUENCY_CENTER,
     ).ravel()
     omega_fadeout_difference = omega_fadeout[1] - omega_fadeout[0]
     ax[0, 1].set_xlim(  # type: ignore
-        omega_fadeout[0] - 0.2 * omega_fadeout_difference,
+        -(omega_fadeout[1] + 0.2 * omega_fadeout_difference),
         omega_fadeout[1] + 0.2 * omega_fadeout_difference,
     )
 
     # the plot is stored
-    if os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":
-        plot_file_path = PLOT_FILEPATH.format(
-            index=index + 1,
-            order=order,
-        )
-        plt.savefig(
-            os.path.join(os.path.dirname(__file__), plot_file_path),
-        )
+    # if os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":
+    #     plot_file_path = PLOT_FILEPATH.format(
+    #         index=index + 1,
+    #         order=order,
+    #     )
+    #     plt.savefig(
+    #         os.path.join(os.path.dirname(__file__), plot_file_path),
+    #     )
 
 plt.show()

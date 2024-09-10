@@ -1,4 +1,8 @@
 {
+    "generic_fourier_basis_pair": 1908276249175190330,
+    "eulers_formula": 1842239196892709536,
+    "eulers_formula_add_opposite_sign_arguments": 460795470688229132,
+    "eulers_formula_subtract_opposite_sign_arguments": 2288750881532310239,
     "chebyshev_polynomials_recurrence_relation_first_kind": 397516539825219096,
     "chebyshev_polynomials_recurrence_relation_second_kind": 1499775333800270328,
     "hermite_functions_time_space_domain": 198283703023879038,
@@ -7,6 +11,15 @@
     "hermite_functions_recurrence_relation": 613601779754143752,
     "hermite_function_basic_definition": 1759480359216311043,
     "hermite_polynomial_basic_definition": 994689793364990375,
-    "hermite_functions_frequency_domain_part_one": 315127560148084018,
-    "hermite_functions_frequency_domain_part_two": 1655948873050715831
+    "hermite_functions_derived_basis_frequency_from_freq_at_origin_time_space_at_origin": 2036984477654568399,
+    "hermite_functions_derived_basis_time_space_from_freq_at_origin_time_space_at_origin": 361990041794543810,
+    "hermite_functions_derived_basis_time_space_from_freq_at_origin_time_space_shifted": 1532235861061289565,
+    "hermite_functions_derived_basis_frequency_from_freq_at_origin_time_space_shifted": 1573358776472541467,
+    "hermite_functions_derived_basis_frequency_from_freq_shifted_time_space_at_origin": 347903487743604269,
+    "hermite_functions_derived_basis_time_space_from_freq_shifted_time_space_at_origin": 266230796501932474,
+    "hermite_functions_derived_basis_frequency_from_freq_shifted_time_space_shifted": 1339710657851653280,
+    "hermite_functions_derived_basis_frequency_complementary_from_freq_shifted_time_space_shifted": 1606174559153847759,
+    "hermite_functions_derived_basis_frequency_symmetrized_from_freq_shifted_time_space_shifted": 2233036548958008102,
+    "hermite_functions_derived_basis_time_space_single_bases_symmetrized_from_freq_shifted_time_space_shifted": 2096502936767589257,
+    "hermite_functions_derived_basis_time_symmetrized_from_freq_shifted_time_space_shifted": 956320868927823061
 }

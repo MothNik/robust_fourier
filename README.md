@@ -482,6 +482,12 @@ Yet, real signals in the time/space domain are the most common use case. Thus, t
 basis has to be extended to its final form for being useful in practice and this is
 where _symmetrization_ comes into play.
 
+<p align="center">
+  <img src="docs/hermite_functions/EX-07-03-01-HermiteFunctionsFourierBasis_Frequency_Shifted_Time_Space_at_Origin_Order_09.png" width="1000px" />
+
+<p align="center">
+  <img src="docs/hermite_functions/EX-07-03-02-HermiteFunctionsFourierBasis_Frequency_Shifted_Time_Space_at_Origin_Order_10.png" width="1000px" />
+
 ### 📖 Interlude - Euler's formula
 
 Before proceeding, it is worth mentioning Euler's formula which relates the complex
@@ -529,7 +535,7 @@ domain representation is centered at $t_{0}$:
 <p align="center">
   <img src="docs/hermite_functions/equations/HF-13-Hermite_Functions_Derived_Basis_Frequency_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
 
-This basis already meets the requirements for the positive side of the frequency axis
+This basis is already sufficient to describe the positive side of the frequency axis
 if $\gamma$ is chosen such that the basis functions are band-limited to the interval
 $\left[\omega_{l},\omega_{u}\right]$. Hence, a basis centered at $-\omega_{0}$ covers
 the negative counterpart of this interval, namely
@@ -538,29 +544,28 @@ $\left[-\omega_{u},-\omega_{l}\right]$:
 <p align="center">
   <img src="docs/hermite_functions/equations/HF-14-Hermite_Functions_Derived_Basis_Frequency_Complementary_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
 
-Now, only a little trick is needed to combine these two bases because at the moment
-they are not perfect mirror images of each other. To be more specific, the even orders
-(0, 2, 4, ...) of both bases are already mirror images of each other, but the odd
-orders (1, 3, 5, ...) are not. At this point, the result oriented approach is employed.
-If the even orders are assumed to be linked to the real part of the Fourier transform,
-it makes sense that they also have even symmetry. When applying this logic to the odd
-orders and linking them to the imaginary part of the Fourier transform, they should have
-odd symmetry. This is achieved by flipping the sign of odd orders in the negative
-counterpart of the frequency domain which simplifies the expression to:
+Fortunately, this basis meets all the symmetry requirements for the negative side of the
+frequency axis because all even orders show even symmetry while all odd orders show odd
+symmetry. The only thing that is left to do is to combine the two bases to their final
+form in the frequency domain:
 
 <p align="center">
-  <img src="docs/hermite_functions/equations/HF-15-Hermite_Functions_Derived_Basis_Frequency_Complementary_Flipped_Odd_Orders_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
+  <img src="docs/hermite_functions/equations/HF-15-Hermite_Functions_Derived_Basis_Frequency_Symmetrized_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
 
-Here, the only change is the sign of the prefactor $(-i)^{n}$ being flipped.
-
-In sum, these two bases can be combined to their final form in the frequency domain:
-
-<p align="center">
-  <img src="docs/hermite_functions/equations/HF-16-Hermite_Functions_Derived_Basis_Frequency_Symmetrized_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
-
-All that is left to do is to take the Inverse Fourier Transform (IFT) of this basis to
+Finally, it's about time to take the Inverse Fourier Transform (IFT) of this basis to
 obtain the basis in the time/space domain. For this, the fact that the IFT of a sum is
-the sum of the individual IFTs can be exploited:
+the sum of the individual IFTs can be exploited for the following two expressions:
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-16-Hermite_Functions_Derived_Basis_TimeSpace_Single_Bases_Symmetrized_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
+
+Admittedly, the sum of this expression will be a bit complicated with the two complex
+exponentials, but when looking closer at, it becomes evident that the addition
+expression derived from [Euler's formula](#📖-interlude---eulers-formula) can be
+applied for an extreme simplification after summing up the two bases:
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-17-Hermite_Functions_Derived_Basis_Time_Symmetrized_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
 
 ## 🙏 Acknowledgements
 

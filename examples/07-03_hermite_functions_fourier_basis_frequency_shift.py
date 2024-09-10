@@ -2,8 +2,8 @@
 This script serves as a demonstration of the Fourier basis functions that are based on
 the Hermite functions.
 
-It demonstrates the simplest case where both the time/space and frequency domains are
-centered at the origin.
+It demonstrates the where the frequency domain is shifted in the x-direction while the
+time/space domain remains centered at the origin.
 
 """
 
@@ -14,7 +14,7 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from robust_fourier import hermite_approx, hermite_function_vander
+from robust_fourier import hermite_approx, single_hermite_function
 from robust_fourier.fourier_transform import (
     TimeSpaceSignal,
     convert_discrete_to_continuous_ft,
@@ -34,6 +34,8 @@ ORDERS = [
 ]
 # the scaling factor gamma for the x-direction in the frequency domain
 FREQUENCY_GAMMA = 2.0
+# the center in the frequency domain
+FREQUENCY_CENTER = 5.0
 # the number of points in the time/space domain
 TIME_SPACE_NUM_POINTS = 10_001
 
@@ -45,8 +47,8 @@ COLORS = [
 
 # the path where to store the plot (only for developers)
 PLOT_FILEPATH = (
-    "../docs/hermite_functions/EX-07-01-{index:02d}-HermiteFunctionsFourierBasis_"
-    "Frequency_at_Origin_Time_Space_at_Origin_Order_{order:02d}.png"
+    "../docs/hermite_functions/EX-07-03-{index:02d}-HermiteFunctionsFourierBasis_"
+    "Frequency_Shifted_Time_Space_at_Origin_Order_{order:02d}.png"
 )
 
 
@@ -75,30 +77,33 @@ for index, order in enumerate(ORDERS):
     )
 
     # the Hermite functions are evaluated at the given points
-    hermite_basis_time_space = hermite_function_vander(
+    time_space_hermite_function_original = single_hermite_function(
         x=t_values,
         n=order,
         alpha=time_space_beta,
         x_center=None,
     )
-    hermite_function_time_space = TimeSpaceSignal(
-        y=hermite_basis_time_space[::, order],
+
+    # a prefactor is required to account for the shift in the frequency domain
+    time_space_prefactor = np.exp(1.0j * FREQUENCY_CENTER * t_values)
+    time_space_hermite_function = TimeSpaceSignal(
+        y=time_space_prefactor * time_space_hermite_function_original,
         x=t_values,
     )
 
     # the continuous Fourier transform is computed for the highest order
     hermite_function_cft = convert_discrete_to_continuous_ft(
-        dft=discrete_ft(signal=hermite_function_time_space),
+        dft=discrete_ft(signal=time_space_hermite_function),
     )
 
     # aside from this numerical computation, the analytical Fourier transform is
     # computed for comparison
-    hermite_function_ft_analytical = ((-1.0j) ** order) * hermite_function_vander(
+    hermite_function_ft_analytical = ((-1.0j) ** order) * single_hermite_function(
         x=np.fft.fftshift(hermite_function_cft.angular_frequencies),
         n=order,
         alpha=FREQUENCY_GAMMA,
-        x_center=None,
-    )[::, order]
+        x_center=FREQUENCY_CENTER,
+    )
 
     # the Hermite function and its Fourier transform are plotted
 
@@ -127,15 +132,15 @@ for index, order in enumerate(ORDERS):
 
     # the time/space domain is plotted
     ax[0, 0].plot(  # type: ignore
-        hermite_function_time_space.x,
-        hermite_function_time_space.y,
+        time_space_hermite_function.x,
+        time_space_hermite_function.y.real,
         color=COLORS[index][0],
         linewidth=3.0,
         zorder=3,
     )
     ax[1, 0].plot(  # type: ignore
-        hermite_function_time_space.x,
-        np.zeros_like(hermite_function_time_space.y),
+        time_space_hermite_function.x,
+        time_space_hermite_function.y.imag,
         color=COLORS[index][1],
         linewidth=3.0,
         zorder=3,
@@ -190,14 +195,19 @@ for index, order in enumerate(ORDERS):
     ax[0, 1].set_title("Frequency domain")  # type: ignore
 
     fig.suptitle(
-        "Hermite Function Basis Fourier Pair without Shifts\n\n"
-        + r"$n = $"
-        + f"{order} "
-        + r", $\beta = $"
+        "Hermite Function Basis Fourier Pair with Shift in the FREQUENCY Domain\n\n"
+        + r"$n = "
+        + f"{order}"
+        + r"$"
+        + r", $\beta = "
         + f"{time_space_beta:.1f}"
-        + r", $\gamma = $"
+        + r"$"
+        + r", $\gamma = "
         + f"{FREQUENCY_GAMMA:.0f}"
-        + r", $t_{0}=0$, $\omega_{0}=0$",
+        + r"$"
+        + r", $t_{0}=0$, $\omega_{0}="
+        + f"{FREQUENCY_CENTER:.0f}"
+        + r"$",
         fontsize=18,
         y=1.05,
     )
@@ -215,7 +225,7 @@ for index, order in enumerate(ORDERS):
         n=order,
         y_fraction=0.01,
         alpha=FREQUENCY_GAMMA,
-        x_center=None,
+        x_center=FREQUENCY_CENTER,
     ).ravel()
     omega_fadeout_difference = omega_fadeout[1] - omega_fadeout[0]
     ax[0, 1].set_xlim(  # type: ignore
