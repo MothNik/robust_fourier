@@ -65,15 +65,15 @@ EQUATION_SPECIFICATIONS = {
     "generic_fourier_basis_pair": EquationSpecification(
         image_path=("../docs/general/equations/GEN-01-Generic_Fourier_Basis_Pair.svg"),
         latex_expression=(
-            r"$\lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+            r"$\lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
             r"\left( t\right)="
-            r"\mathcal{F}^{-1}\left\{\Lambda_{n}^"
+            r"\mathcal{F}^{-1}\left\{\Lambda_{j}^"
             r"{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
             r"\left(\omega\right)\right\}\left( t\right)$"
-            + "\n\n"
-            + r"$\Lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+            "\n\n"
+            r"$\Lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
             r"\left(\omega\right)="
-            r"\mathcal{F}\left\{\lambda_{n}^{"
+            r"\mathcal{F}\left\{\lambda_{j}^{"
             r"\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
             r"\left( t\right)\right\}\left(\omega\right)$"
         ),
@@ -98,6 +98,30 @@ EQUATION_SPECIFICATIONS = {
             r"$e^{i\cdot x}-e^{-i\cdot x}=2\cdot i\cdot sin\left(x\right)$"
         ),
     ),
+    "least_squares_fit_time_space_domain": EquationSpecification(
+        image_path=(
+            "../docs/general/equations"
+            "/GEN-05-Least_Squares_Fit_Time_Space_Domain.svg"
+        ),
+        latex_expression=(
+            r"$y\left(t\right)\approx\widehat{y}\left(t\right)="
+            r"\sum_{j=0}^{n}\left\{c_{j}\cdot"
+            r"\lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}\left( t\right)"
+            r"\right\}$"
+        ),
+    ),
+    "least_squares_fit_frequency_from_time_space_domain": EquationSpecification(
+        image_path=(
+            "../docs/general/equations"
+            "/GEN-06-Least_Squares_Fit_Frequency_From_Time_Space_Domain.svg"
+        ),
+        latex_expression=(
+            r"$Y\left(\omega\right)\approx\widehat{Y}\left(\omega\right)="
+            r"\sum_{j=0}^{n}\left\{c_{j}\cdot"
+            r"\Lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+            r"\left(\omega\right)\right\}$"
+        ),
+    ),
     "chebyshev_polynomials_recurrence_relation_first_kind": EquationSpecification(
         image_path=(
             "../docs/chebyshev_polynomials/equations"
@@ -107,10 +131,10 @@ EQUATION_SPECIFICATIONS = {
             r"$T_{n+1}^{\left(\alpha;\mu\right)}\left(x\right)=2\cdot "
             r"\frac{x-\mu}{\alpha}\cdot T_{n}^{\left(\alpha;\mu\right)}\left(x\right)-"
             r"T_{n-1}^{\left(\alpha;\mu\right)}\left(x\right)$"
-            + "\n\n"
-            + r"$T_{0}^{\left(\alpha;\mu\right)}\left(x\right)=1$"
-            + "\n\n"
-            + r"$T_{1}^{\left(\alpha;\mu\right)}\left(x\right)=\frac{x-\mu}{\alpha}$"
+            "\n\n"
+            r"$T_{0}^{\left(\alpha;\mu\right)}\left(x\right)=1$"
+            "\n\n"
+            r"$T_{1}^{\left(\alpha;\mu\right)}\left(x\right)=\frac{x-\mu}{\alpha}$"
         ),
     ),
     "chebyshev_polynomials_recurrence_relation_second_kind": EquationSpecification(
@@ -122,10 +146,10 @@ EQUATION_SPECIFICATIONS = {
             r"$U_{n+1}^{\left(\alpha;\mu\right)}\left(x\right)=2\cdot "
             r"\frac{x-\mu}{\alpha}\cdot U_{n}^{\left(\alpha;\mu\right)}\left(x\right)-"
             r"U_{n-1}^{\left(\alpha;\mu\right)}\left(x\right)$"
-            + "\n\n"
-            + r"$U_{0}^{\left(\alpha;\mu\right)}\left(x\right)=1$"
-            + "\n\n"
-            + r"$U_{1}^{\left(\alpha;\mu\right)}\left(x\right)="
+            "\n\n"
+            r"$U_{0}^{\left(\alpha;\mu\right)}\left(x\right)=1$"
+            "\n\n"
+            r"$U_{1}^{\left(\alpha;\mu\right)}\left(x\right)="
             r"2\cdot\frac{x-\mu}{\alpha}$"
         ),
     ),
@@ -206,15 +230,16 @@ EQUATION_SPECIFICATIONS = {
                 "Origin_TimeSpace_at_Origin.svg"
             ),
             latex_expression=(
-                r"$\Lambda_{n}^{\left(\beta;\gamma; t_{0}=0;\omega_{0}=0\right)}"
+                r"$\Lambda_{j}^{\left(\beta;\gamma; t_{0}=0;\omega_{0}=0\right)}"
                 r"\left(\omega\right)="
-                r"\left(-i\right)^{n}\cdot\psi_{n}^{\left(\alpha=\gamma;\mu=0\right)}"
-                r"\left(\omega\right)=\left(-i\right)^{n}"
-                r"\cdot\frac{exp\left(-\frac{1}{2}"
+                r"\left(-i\right)^{j}\cdot\psi_{j}^"
+                r"{\left(\alpha=\gamma;\mu=0\right)}\left(\omega\right)=$"
+                "\n\n"
+                r"$\left(-i\right)^{j}\cdot\frac{exp\left(-\frac{1}{2}"
                 r"\cdot\left(\frac{\omega}{\gamma}\right)^{2}\right)}"
                 r"{\sqrt[4]{\pi\cdot\gamma^{2}}\cdot\sqrt{n!\cdot"
-                r"\left(\frac{2}{\gamma^{2}}\right)^{n}}}"
-                r"\cdot H_{n}^{\left(\alpha=\gamma;\mu=0\right)}\left(\omega\right)$"
+                r"\left(\frac{2}{\gamma^{2}}\right)^{j}}}"
+                r"\cdot H_{j}^{\left(\alpha=\gamma;\mu=0\right)}\left(\omega\right)$"
             ),
         )
     ),
@@ -229,11 +254,11 @@ EQUATION_SPECIFICATIONS = {
                 "Origin_TimeSpace_at_Origin.svg"
             ),
             latex_expression=(
-                r"$\lambda_{n}^{\left(\beta;\gamma; t_{0}=0;\omega_{0}=0\right)}"
+                r"$\lambda_{j}^{\left(\beta;\gamma; t_{0}=0;\omega_{0}=0\right)}"
                 r"\left( t\right)="
-                r"\psi_{n}^{\left(\alpha=\beta;\mu=0\right)}\left( t\right)$"
-                + "\n\n"
-                + r"$\beta=\frac{1}{\gamma}$"
+                r"\psi_{j}^{\left(\alpha=\beta;\mu=0\right)}\left( t\right)$"
+                "\n\n"
+                r"$\beta=\frac{1}{\gamma}$"
             ),
         )
     ),
@@ -248,9 +273,9 @@ EQUATION_SPECIFICATIONS = {
                 "Origin_TimeSpace_Shifted.svg"
             ),
             latex_expression=(
-                r"$\lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}=0\right)}"
+                r"$\lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}=0\right)}"
                 r"\left( t\right)="
-                r"\psi_{n}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)$"
+                r"\psi_{j}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)$"
             ),
         )
     ),
@@ -265,10 +290,10 @@ EQUATION_SPECIFICATIONS = {
                 "Origin_TimeSpace_Shifted.svg"
             ),
             latex_expression=(
-                r"$\Lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}=0\right)}"
+                r"$\Lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}=0\right)}"
                 r"\left(\omega\right)="
-                r"(-i)^{n}\cdot exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
-                r"\psi_{n}^{\left(\alpha=\gamma;\mu=0\right)}\left(\omega\right)$"
+                r"(-i)^{j}\cdot exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
+                r"\psi_{j}^{\left(\alpha=\gamma;\mu=0\right)}\left(\omega\right)$"
             ),
         )
     ),
@@ -283,9 +308,9 @@ EQUATION_SPECIFICATIONS = {
                 "Shifted_TimeSpace_at_Origin.svg"
             ),
             latex_expression=(
-                r"$\Lambda_{n}^{\left(\beta;\gamma; t_{0}=0;\omega_{0}\right)}"
+                r"$\Lambda_{j}^{\left(\beta;\gamma; t_{0}=0;\omega_{0}\right)}"
                 r"\left(\omega\right)="
-                r"(-i)^{n}\cdot\psi_{n}^{\left(\alpha=\gamma;\mu=\omega_{0}\right)}"
+                r"(-i)^{j}\cdot\psi_{j}^{\left(\alpha=\gamma;\mu=\omega_{0}\right)}"
                 r"\left(\omega\right)$"
             ),
         )
@@ -301,10 +326,10 @@ EQUATION_SPECIFICATIONS = {
                 "Shifted_TimeSpace_at_Origin.svg"
             ),
             latex_expression=(
-                r"$\lambda_{n}^{\left(\beta;\gamma; t_{0}=0;\omega_{0}\right)}"
+                r"$\lambda_{j}^{\left(\beta;\gamma; t_{0}=0;\omega_{0}\right)}"
                 r"\left( t\right)="
                 r"exp\left(i\cdot\omega_{0}\cdot t\right)\cdot"
-                r"\psi_{n}^{\left(\alpha=\beta;\mu=0\right)}\left( t\right)$"
+                r"\psi_{j}^{\left(\alpha=\beta;\mu=0\right)}\left( t\right)$"
             ),
         )
     ),
@@ -319,10 +344,10 @@ EQUATION_SPECIFICATIONS = {
                 "Shifted_TimeSpace_Shifted.svg"
             ),
             latex_expression=(
-                r"$\Lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"$\Lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
                 r"\left(\omega\right)="
-                r"(-i)^{n}\cdot exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
-                r"\psi_{n}^{\left(\alpha=\gamma;\mu=\omega_{0}\right)}"
+                r"(-i)^{j}\cdot exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
+                r"\psi_{j}^{\left(\alpha=\gamma;\mu=\omega_{0}\right)}"
                 r"\left(\omega\right)$"
             ),
         )
@@ -338,10 +363,10 @@ EQUATION_SPECIFICATIONS = {
                 "Frequency_Shifted_TimeSpace_Shifted.svg"
             ),
             latex_expression=(
-                r"$\tilde{\Lambda}_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}="
+                r"$\tilde{\Lambda}_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}="
                 r"\left(\omega\right)="
-                r"(-i)^{n}\cdot exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
-                r"\psi_{n}^{\left(\alpha=\gamma;\mu=-\omega_{0}\right)}"
+                r"(-i)^{j}\cdot exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
+                r"\psi_{j}^{\left(\alpha=\gamma;\mu=-\omega_{0}\right)}"
                 r"\left(\omega\right)$"
             ),
         )
@@ -357,16 +382,17 @@ EQUATION_SPECIFICATIONS = {
                 "Frequency_Shifted_TimeSpace_Shifted.svg"
             ),
             latex_expression=(
-                r"$\widehat{\Lambda}_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}"
+                r"$\widehat{\Lambda}_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}"
                 r"\right)}\left(\omega\right)="
-                r"\Lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"\Lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
                 r"\left(\omega\right)+"
-                r"\tilde{\Lambda}_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
-                r"\left(\omega\right)=$" + "\n\n"
-                r"$(-i)^{n}\cdot exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
-                r"\left(\psi_{n}^{\left(\alpha=\gamma;\mu=-\omega_{0}\right)}"
+                r"\tilde{\Lambda}_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"\left(\omega\right)=$"
+                "\n\n"
+                r"$(-i)^{j}\cdot exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
+                r"\left(\psi_{j}^{\left(\alpha=\gamma;\mu=-\omega_{0}\right)}"
                 r"\left(\omega\right)+"
-                r"\cdot\psi_{n}^{\left(\alpha=\gamma;\mu=\omega_{0}\right)}"
+                r"\cdot\psi_{j}^{\left(\alpha=\gamma;\mu=\omega_{0}\right)}"
                 r"\left(\omega\right)\right)$"
             ),
         )
@@ -382,15 +408,15 @@ EQUATION_SPECIFICATIONS = {
                 "Symmetrized_from_Frequency_Shifted_TimeSpace_Shifted.svg"
             ),
             latex_expression=(
-                r"$\lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"$\lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
                 r"\left( t\right)="
                 r"exp\left(i\cdot\omega_{0}\cdot\left(t-t_{0}\right)\right)\cdot"
-                r"\psi_{n}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)$"
-                + "\n\n"
-                r"$\tilde{\lambda}_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"\psi_{j}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)$"
+                "\n\n"
+                r"$\tilde{\lambda}_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
                 r"\left( t\right)="
                 r"exp\left(-i\cdot\omega_{0}\cdot\left(t-t_{0}\right)\right)\cdot"
-                r"\psi_{n}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)$"
+                r"\psi_{j}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)$"
             ),
         )
     ),
@@ -405,18 +431,19 @@ EQUATION_SPECIFICATIONS = {
                 "Frequency_Shifted_TimeSpace_Shifted.svg"
             ),
             latex_expression=(
-                r"$\widehat{\lambda}_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}"
+                r"$\widehat{\lambda}_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}"
                 r"\right)}\left( t\right)="
-                r"\lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"\lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
                 r"\left( t\right)+"
-                r"\tilde{\lambda}_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
-                r"\left( t\right)=$" + "\n\n"
+                r"\tilde{\lambda}_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"\left( t\right)=$"
+                "\n\n"
                 r"$\left(exp\left(i\cdot\omega_{0}\cdot\left(t-t_{0}\right)\right)+"
                 r"exp\left(-i\cdot\omega_{0}\cdot\left(t-t_{0}\right)\right)\right)\cdot"
-                r"\psi_{n}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)=$"
-                + "\n\n"
+                r"\psi_{j}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)=$"
+                "\n\n"
                 r"$2\cdot cos\left(\omega_{0}\cdot\left(t-t_{0}\right)\right)\cdot "
-                r"\psi_{n}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)$"
+                r"\psi_{j}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)$"
             ),
         )
     ),
@@ -435,6 +462,8 @@ FIG_NAMES_TO_PREVIEW: List[str] = [
     # "eulers_formula",
     # "eulers_formula_add_opposite_sign_arguments",
     # "eulers_formula_subtract_opposite_sign_arguments",
+    # "least_squares_fit_time_space_domain",
+    # "least_squares_fit_frequency_from_time_space_domain",
     # "chebyshev_polynomials_recurrence_relation_first_kind",
     # "chebyshev_polynomials_recurrence_relation_second_kind",
     # "hermite_functions_time_space_domain",

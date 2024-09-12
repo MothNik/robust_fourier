@@ -57,7 +57,7 @@ if __name__ == "__main__":
     ax.axvline(
         x=0.0,
         color="black",
-        linewidth=0.5,
+        linewidth=1.0,
         zorder=2,
     )
 
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         ax.axhline(
             y=idx_order * OFFSET,
             color="black",
-            linewidth=0.5,
+            linewidth=1.0,
             zorder=2 + idx_order * 2,
         )
         ax.plot(

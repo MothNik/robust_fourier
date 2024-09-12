@@ -106,13 +106,13 @@ if __name__ == "__main__":
     ax.axvline(
         x=MU,
         color="black",
-        linewidth=0.5,
+        linewidth=1.0,
         zorder=2,
     )
     ax.axhline(
         y=0.0,
         color="black",
-        linewidth=0.5,
+        linewidth=1.0,
         zorder=2,
     )
     ax.plot(

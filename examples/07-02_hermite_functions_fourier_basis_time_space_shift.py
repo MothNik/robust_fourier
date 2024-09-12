@@ -13,8 +13,9 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib.patches import ArrowStyle
 
-from robust_fourier import hermite_approx, hermite_function_vander
+from robust_fourier import hermite_approx, single_hermite_function
 from robust_fourier.fourier_transform import (
     TimeSpaceSignal,
     convert_discrete_to_continuous_ft,
@@ -41,8 +42,8 @@ TIME_SPACE_NUM_POINTS = 10_001
 
 # the colours for the different orders as (colour for real, colour for imaginary)
 COLORS = [
-    ("#36A07F", "#962446"),
-    ("#DB9807", "#FF3399"),
+    ("#FF6B3F", "#962446"),
+    ("#36A07F", "#FF3399"),
 ]
 
 # the path where to store the plot (only for developers)
@@ -77,20 +78,20 @@ for index, order in enumerate(ORDERS):
     )
 
     # the Hermite functions are evaluated at the given points
-    hermite_basis_time_space = hermite_function_vander(
+    time_space_hermite_function_original = single_hermite_function(
         x=t_values,
         n=order,
         alpha=time_space_beta,
         x_center=TIME_SPACE_CENTER,
     )
-    hermite_function_time_space = TimeSpaceSignal(
-        y=hermite_basis_time_space[::, order],
+    time_space_hermite_function = TimeSpaceSignal(
+        y=time_space_hermite_function_original,
         x=t_values,
     )
 
     # the continuous Fourier transform is computed for the highest order
     hermite_function_cft = convert_discrete_to_continuous_ft(
-        dft=discrete_ft(signal=hermite_function_time_space),
+        dft=discrete_ft(signal=time_space_hermite_function),
     )
 
     # aside from this numerical computation, the analytical Fourier transform is
@@ -102,12 +103,12 @@ for index, order in enumerate(ORDERS):
             * TIME_SPACE_CENTER
             * np.fft.fftshift(hermite_function_cft.angular_frequencies)
         )
-        * hermite_function_vander(
+        * single_hermite_function(
             x=np.fft.fftshift(hermite_function_cft.angular_frequencies),
             n=order,
             alpha=FREQUENCY_GAMMA,
             x_center=None,
-        )[::, order]
+        )
     )
 
     # the Hermite function and its Fourier transform are plotted
@@ -125,30 +126,30 @@ for index, order in enumerate(ORDERS):
         ax[row_i, col_j].axvline(  # type: ignore
             x=0.0,
             color="black",
-            linewidth=0.5,
+            linewidth=1.0,
             zorder=2,
         )
         ax[row_i, col_j].axhline(  # type: ignore
             y=0.0,
             color="black",
-            linewidth=0.5,
-            zorder=2,
+            linewidth=1.0,
+            zorder=3,
         )
 
     # the time/space domain is plotted
     ax[0, 0].plot(  # type: ignore
-        hermite_function_time_space.x,
-        hermite_function_time_space.y,
+        time_space_hermite_function.x,
+        time_space_hermite_function.y,
         color=COLORS[index][0],
         linewidth=3.0,
-        zorder=3,
+        zorder=4,
     )
     ax[1, 0].plot(  # type: ignore
-        hermite_function_time_space.x,
-        np.zeros_like(hermite_function_time_space.y),
+        time_space_hermite_function.x,
+        np.zeros_like(time_space_hermite_function.y),
         color=COLORS[index][1],
         linewidth=3.0,
-        zorder=3,
+        zorder=4,
     )
 
     # the frequency domain is plotted
@@ -158,8 +159,8 @@ for index, order in enumerate(ORDERS):
         color="black",
         label="Numerical",
         linewidth=5.0,
-        alpha=0.25,
-        zorder=3,
+        alpha=0.15,
+        zorder=4,
     )
     ax[0, 1].plot(  # type: ignore
         np.fft.fftshift(hermite_function_cft.angular_frequencies),
@@ -168,7 +169,7 @@ for index, order in enumerate(ORDERS):
         label="Analytical",
         linewidth=3.0,
         linestyle="--",
-        zorder=4,
+        zorder=5,
     )
 
     ax[1, 1].plot(  # type: ignore
@@ -177,8 +178,8 @@ for index, order in enumerate(ORDERS):
         color="black",
         label="Numerical",
         linewidth=5.0,
-        alpha=0.25,
-        zorder=3,
+        alpha=0.15,
+        zorder=4,
     )
     ax[1, 1].plot(  # type: ignore
         np.fft.fftshift(hermite_function_cft.angular_frequencies),
@@ -187,7 +188,7 @@ for index, order in enumerate(ORDERS):
         label="Analytical",
         linewidth=3.0,
         linestyle="--",
-        zorder=4,
+        zorder=5,
     )
 
     # the labels and titles are set
@@ -201,7 +202,7 @@ for index, order in enumerate(ORDERS):
 
     fig.suptitle(
         "Hermite Function Basis Fourier Pair with Shift in the TIME/SPACE Domain\n\n"
-        + r"$n = "
+        + r"$j = "
         + f"{order}"
         + r"$"
         + r", $\beta = "
@@ -222,7 +223,7 @@ for index, order in enumerate(ORDERS):
     ax[0, 1].legend(loc=8, bbox_to_anchor=(1.25, 0.4))  # type: ignore
     ax[1, 1].legend(loc=8, bbox_to_anchor=(1.25, 0.4))  # type: ignore
 
-    # finally, the x-axis limits are set
+    # the x-axis limits are set
     ax[0, 0].set_xlim(  # type: ignore
         t_fadeout[0] - 0.2 * fadeout_difference,
         t_fadeout[1] + 0.2 * fadeout_difference,
@@ -238,6 +239,43 @@ for index, order in enumerate(ORDERS):
         omega_fadeout[0] - 0.2 * omega_fadeout_difference,
         omega_fadeout[1] + 0.2 * omega_fadeout_difference,
     )
+
+    # finally, the respective centers are highlighted
+    for iter_i in range(0, ax.size):  # type: ignore
+        row_i, col_j = divmod(iter_i, 2)
+        is_ax_for_center_label = (row_i, col_j) == (1, 0)
+        x_center = TIME_SPACE_CENTER if col_j == 0 else 0.0
+        # an arrow is added to indicate the center on the x-axis
+        x_lims = ax[row_i, col_j].get_xlim()  # type: ignore
+        y_lims = ax[row_i, col_j].get_ylim()  # type: ignore
+        x_diff = x_lims[1] - x_lims[0]
+        y_diff = y_lims[1] - y_lims[0]
+        x_diff_sign = -1.0 if col_j == 0 else 1.0
+        arrow_rad = -0.1 if col_j == 0 else 0.1
+        arrow_text = ""
+        if is_ax_for_center_label:
+            arrow_text = "Center"
+            x_diff_sign = 2.2 * x_diff_sign
+
+        ax[row_i, col_j].set_ylim(y_lims)  # type: ignore
+        ax[row_i, col_j].annotate(  # type: ignore
+            text=arrow_text,
+            xy=(x_center, y_lims[0]),
+            xytext=(x_center + 0.1 * x_diff_sign * x_diff, y_lims[0] + 0.15 * y_diff),
+            fontsize=18,
+            arrowprops=dict(
+                arrowstyle=ArrowStyle(
+                    "Fancy",
+                    head_length=0.6,
+                    head_width=0.6,
+                    tail_width=0.4,
+                ),
+                connectionstyle=f"arc3,rad={arrow_rad:.1f}",
+                color="black",
+                linewidth=2.0,
+            ),
+            zorder=6,
+        )
 
     # the plot is stored
     if os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":

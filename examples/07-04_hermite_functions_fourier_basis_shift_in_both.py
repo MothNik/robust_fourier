@@ -13,6 +13,7 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib.patches import ArrowStyle
 
 from robust_fourier import hermite_approx, single_hermite_function
 from robust_fourier.fourier_transform import (
@@ -43,14 +44,14 @@ TIME_SPACE_NUM_POINTS = 10_001
 
 # the colours for the different orders as (colour for real, colour for imaginary)
 COLORS = [
-    ("#36A07F", "#962446"),
-    ("#DB9807", "#FF3399"),
+    ("#FF6B3F", "#962446"),
+    ("#36A07F", "#FF3399"),
 ]
 
 # the path where to store the plot (only for developers)
 PLOT_FILEPATH = (
-    "../docs/hermite_functions/EX-07-02-{index:02d}-HermiteFunctionsFourierBasis_"
-    "Frequency_at_Origin_Time_Space_Shifted_Order_{order:02d}.png"
+    "../docs/hermite_functions/EX-07-04-{index:02d}-HermiteFunctionsFourierBasis_"
+    "Frequency_Shifted_Time_Space_Shifted_Order_{order:02d}.png"
 )
 
 
@@ -87,7 +88,7 @@ for index, order in enumerate(ORDERS):
     )
 
     # the pre-factors to account for the shift in the frequency domain and the
-    # symmetrization are computed
+    # symmetrization are computed and applied
     time_space_prefactor = 2.0 * np.cos(
         FREQUENCY_CENTER * (t_values - TIME_SPACE_CENTER)
     )
@@ -142,14 +143,14 @@ for index, order in enumerate(ORDERS):
         ax[row_i, col_j].axvline(  # type: ignore
             x=0.0,
             color="black",
-            linewidth=0.5,
+            linewidth=1.0,
             zorder=2,
         )
         ax[row_i, col_j].axhline(  # type: ignore
             y=0.0,
             color="black",
-            linewidth=0.5,
-            zorder=2,
+            linewidth=1.0,
+            zorder=3,
         )
 
     # the time/space domain is plotted
@@ -158,14 +159,14 @@ for index, order in enumerate(ORDERS):
         time_space_hermite_function.y.real,
         color=COLORS[index][0],
         linewidth=3.0,
-        zorder=3,
+        zorder=4,
     )
     ax[1, 0].plot(  # type: ignore
         time_space_hermite_function.x,
         time_space_hermite_function.y.imag,
         color=COLORS[index][1],
         linewidth=3.0,
-        zorder=3,
+        zorder=4,
     )
 
     # the frequency domain is plotted
@@ -175,8 +176,8 @@ for index, order in enumerate(ORDERS):
         color="black",
         label="Numerical",
         linewidth=5.0,
-        alpha=0.25,
-        zorder=3,
+        alpha=0.15,
+        zorder=4,
     )
     ax[0, 1].plot(  # type: ignore
         np.fft.fftshift(hermite_function_cft.angular_frequencies),
@@ -185,7 +186,7 @@ for index, order in enumerate(ORDERS):
         label="Analytical",
         linewidth=3.0,
         linestyle="--",
-        zorder=4,
+        zorder=5,
     )
 
     ax[1, 1].plot(  # type: ignore
@@ -194,8 +195,8 @@ for index, order in enumerate(ORDERS):
         color="black",
         label="Numerical",
         linewidth=5.0,
-        alpha=0.25,
-        zorder=3,
+        alpha=0.15,
+        zorder=4,
     )
     ax[1, 1].plot(  # type: ignore
         np.fft.fftshift(hermite_function_cft.angular_frequencies),
@@ -204,7 +205,7 @@ for index, order in enumerate(ORDERS):
         label="Analytical",
         linewidth=3.0,
         linestyle="--",
-        zorder=4,
+        zorder=5,
     )
 
     # the labels and titles are set
@@ -218,7 +219,7 @@ for index, order in enumerate(ORDERS):
 
     fig.suptitle(
         "Hermite Function Basis Fourier Pair with Shifts in BOTH domains\n\n"
-        + r"$n = "
+        + r"$j = "
         + f"{order}"
         + r"$"
         + r", $\beta = "
@@ -241,7 +242,7 @@ for index, order in enumerate(ORDERS):
     ax[0, 1].legend(loc=8, bbox_to_anchor=(1.25, 0.4))  # type: ignore
     ax[1, 1].legend(loc=8, bbox_to_anchor=(1.25, 0.4))  # type: ignore
 
-    # finally, the x-axis limits are set
+    # the x-axis limits are set
     ax[0, 0].set_xlim(  # type: ignore
         t_fadeout[0] - 0.2 * fadeout_difference,
         t_fadeout[1] + 0.2 * fadeout_difference,
@@ -258,14 +259,71 @@ for index, order in enumerate(ORDERS):
         omega_fadeout[1] + 0.2 * omega_fadeout_difference,
     )
 
+    # finally, the respective centers are highlighted
+    annotation_kwargs = dict(
+        fontsize=18,
+        arrowprops=dict(
+            arrowstyle=ArrowStyle(
+                "Fancy", head_length=0.6, head_width=0.6, tail_width=0.4
+            ),
+            connectionstyle="",  # to be filled later
+            color="black",
+            linewidth=2.0,
+        ),
+        zorder=6,
+    )
+    for iter_i in range(0, ax.size):  # type: ignore
+        row_i, col_j = divmod(iter_i, 2)
+        is_ax_for_center_label = (row_i, col_j) == (1, 0)
+        x_center = TIME_SPACE_CENTER if col_j == 0 else FREQUENCY_CENTER
+        # an arrow is added to indicate the center on the x-axis
+        x_lims = ax[row_i, col_j].get_xlim()  # type: ignore
+        y_lims = ax[row_i, col_j].get_ylim()  # type: ignore
+        x_diff = x_lims[1] - x_lims[0]
+        y_diff = y_lims[1] - y_lims[0]
+        x_diff_sign = -1.0 if col_j == 0 else 1.0
+        arrow_rad = -0.1 if col_j == 0 else 0.1
+        annotation_kwargs["arrowprops"]["connectionstyle"] = (  # type: ignore
+            f"arc3,rad={arrow_rad:.1f}"
+        )
+        arrow_text = ""
+        if is_ax_for_center_label:
+            arrow_text = "Center"
+            x_diff_sign = 2.2 * x_diff_sign
+
+        ax[row_i, col_j].set_ylim(y_lims)  # type: ignore
+        ax[row_i, col_j].annotate(  # type: ignore
+            text=arrow_text,
+            xy=(x_center, y_lims[0]),
+            xytext=(x_center + 0.1 * x_diff_sign * x_diff, y_lims[0] + 0.15 * y_diff),
+            **annotation_kwargs,
+        )
+
+        # the frequency domain has another center to be highlighted
+        if col_j == 1:
+            x_center = -FREQUENCY_CENTER
+            x_diff_sign *= -1.0
+            annotation_kwargs["arrowprops"]["connectionstyle"] = (  # type: ignore
+                f"arc3,rad={-arrow_rad:.1f}"
+            )
+            ax[row_i, col_j].annotate(  # type: ignore
+                text="",
+                xy=(x_center, y_lims[0]),
+                xytext=(
+                    x_center + 0.1 * x_diff_sign * x_diff,
+                    y_lims[0] + 0.15 * y_diff,
+                ),
+                **annotation_kwargs,
+            )
+
     # the plot is stored
-    # if os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":
-    #     plot_file_path = PLOT_FILEPATH.format(
-    #         index=index + 1,
-    #         order=order,
-    #     )
-    #     plt.savefig(
-    #         os.path.join(os.path.dirname(__file__), plot_file_path),
-    #     )
+    if os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":
+        plot_file_path = PLOT_FILEPATH.format(
+            index=index + 1,
+            order=order,
+        )
+        plt.savefig(
+            os.path.join(os.path.dirname(__file__), plot_file_path),
+        )
 
 plt.show()

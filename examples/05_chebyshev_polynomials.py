@@ -57,13 +57,13 @@ if __name__ == "__main__":
         ax[idx_alpha].axvline(  # type: ignore
             x=0.0,
             color="black",
-            linewidth=0.5,
+            linewidth=1.0,
             zorder=2,
         )
         ax[idx_alpha].axhline(  # type: ignore
             y=0.0,
             color="black",
-            linewidth=0.5,
+            linewidth=1.0,
             zorder=2,
         )
 
