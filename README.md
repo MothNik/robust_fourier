@@ -348,11 +348,12 @@ makes sense to make the form the basis in the frequency rather than the time/spa
 domain.
 
 A signal whose frequency domain is only nonzero in a particular interval is called
-_band-limited_. An example for this would be spectra in Fourier Transform Spectroscopy
-where the signal is only nonzero in a certain frequency range where, e.g., the light
-source emits its characteristic radiation. While the time/space representation of such
-signals may be infinitely wide without ever fading to zero, the band-limited nature in
-the frequency domain allows for a finite representation by band-limited basis functions.
+[_band-limited_](https://en.wikipedia.org/wiki/Bandlimiting). An example for this would
+be spectra in Fourier Transform Spectroscopy where the signal is only nonzero in a
+certain frequency range where, e.g., the light source emits its characteristic
+radiation. While the time/space representation of such signals may be infinitely wide
+without ever fading to zero, the band-limited nature in the frequency domain allows for
+a finite representation by band-limited basis functions.
 
 Now, the only question remaining is how these basis functions are constructed. For this,
 the following generic relation between the time/space domain and the frequency domain
@@ -363,22 +364,34 @@ representation of such a basis is defined:
 
 with
 
+- $j$ is the order of the basis function,
 - $t$ being the independent variable in the time/space domain,
 - $\omega$ being the independent variable in the frequency domain, i. e., the angular
   frequency $\omega = 2\cdot\pi\cdot f$ where $f$ is the frequency in Hz or 1/m,
 - $\mathcal{F}$ being the Fourier transform operator,
 - $\mathcal{F}^{-1}$ being the inverse Fourier transform operator,
-- $\lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}$ being the $n$-th basis
+- $\lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}$ being the $j$-th basis
   function in the time/space domain centered at $t_{0}$ and scaled in x-direction by
   $\beta$, and
-- $\Lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}$ being the $n$-th basis
+- $\Lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}$ being the $j$-th basis
   function in the frequency domain centered at $\omega_{0}$ and scaled in x-direction
-  \beta;\gamma; t*{0};\omega*{0}\rightby $\gamma$.
+  by $\gamma$.
 
-For fitting signals defined in the time/space domain, we need to fit the basis
-$\lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}$ to it. Subsequently, its
-Fourier transform can then be computed analytically using
-$\Lambda_{n}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}$.
+For fitting signals $y\left(t\right)$ defined in the time/space domain, we need to fit
+the basis $\lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}$ to it:
+
+<p align="center">
+  <img src="docs/general/equations/GEN-05-Least_Squares_Fit_Time_Space_Domain.svg" />
+
+where $n$ is the order of the basis functions and the coefficients $c_{j}$ are obtained
+from a Least Squares or Regularized Least Squares Regression, e.g., Ridge or Lasso
+Regression.
+
+Subsequently, its Fourier transform $Y\left(\omega\right)$ can then be computed
+analytically using $\Lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}$:
+
+<p align="center">
+  <img src="docs/general/equations/GEN-06-Least_Squares_Fit_Frequency_From_Time_Space_Domain.svg" />
 
 ### 🏄 A simple basis based on Hermite Functions
 
@@ -390,7 +403,7 @@ $\gamma$:
   <img src="docs/hermite_functions/equations/HF-07-Hermite_Functions_Derived_Basis_Frequency_from_Frequency_at_Origin_TimeSpace_at_Origin.svg" />
 
 Here, $i=\sqrt{-1}$ is the imaginary unit which is introduced to make the basis in the
-time/space domain purely real-valued (for now at least).
+purely real-valued time/space domain.
 
 Taking the Inverse Fourier Transform (IFT) yields the basis in the time/space domain,
 which turns out to be the Hermite Functions centered at $t_{0} = 0$ and scaled by
@@ -408,7 +421,13 @@ When fitted with the aforementioned basis, the order $n$ and the scaling factor 
 determine the point $\omega_{u}$ beyond which the coefficients of the signal are zero.
 This point can be approximated as, e.g., the 1% drop off point of the Gaussian tail
 approximation of the outermost oscillation as described in the
-[Hermite Functions](#〰️-hermite-functions) section.
+[Hermite Functions](#〰️-hermite-functions) section.<br>
+A similar relation holds for the time/space interval $\left[-t_{u}, t_{u}\right]$ in
+which the Hermite functions are effectively nonzero. Its width is determined by the
+order $n$ and the scaling factor $\beta$ (i.e., $\gamma$ again). Thus, the width in the
+time/space domain can also be approximated in the same fashion.<br>
+Independent of the domain, only the highest order $j=n$ has to be considered for the
+approximation because the higher the order the wider the Hermite functions become.
 
 <p align="center">
   <img src="docs/hermite_functions/EX-07-01-01-HermiteFunctionsFourierBasis_Frequency_at_Origin_Time_Space_at_Origin_Order_09.png" width="1000px" />
@@ -444,7 +463,8 @@ except for the fact that now the signal can be located at any point $t_{0}$ whic
 might be of more practical interest.
 
 Again, the order $n$ and the scaling factor $\gamma$ determine the point $\omega_{u}$
-beyond which the coefficients of the signal are zero just as in the simple basis.
+and the interval $\left[t_{0} - t_{u}, t_{0} + t_{u}\right]$ beyond which the frequency
+coefficients and the signal are effectively nonzero just as for the simple basis.
 
 <p align="center">
   <img src="docs/hermite_functions/EX-07-02-01-HermiteFunctionsFourierBasis_Frequency_at_Origin_Time_Space_Shifted_Order_09.png" width="1000px" />
@@ -464,7 +484,8 @@ basis functions:
 
 In analogy to the [previous sections](#⬅️🕰️➡️-introducing-shifts-in-time-and-space---a-more-versatile-hermite-function-basis),
 the shift property of the Inverse Fourier Transform (IFT) introduces a complex
-exponential factor in the time/space domain:
+exponential factor in the time/space domain - this time with an opposite sign of the
+argument:
 
 <p align="center">
   <img src="docs/hermite_functions/equations/HF-12-Hermite_Functions_Derived_Basis_TimeSpace_from_Frequency_Shifted_TimeSpace_at_Origin.svg" />
@@ -479,8 +500,8 @@ suitable for real signals in the time/space domain whose Fourier transforms show
 symmetry around the origin for the real part and odd symmetry for the imaginary part.
 
 Yet, real signals in the time/space domain are the most common use case. Thus, this
-basis has to be extended to its final form for being useful in practice and this is
-where _symmetrization_ comes into play.
+basis has to be extended to its final form by employing a _symmetrization_ that will be
+discussed in the next section.
 
 <p align="center">
   <img src="docs/hermite_functions/EX-07-03-01-HermiteFunctionsFourierBasis_Frequency_Shifted_Time_Space_at_Origin_Order_09.png" width="1000px" />
@@ -519,26 +540,27 @@ can nevertheless be advantageous in some cases, e.g., when the signal's frequenc
 representation only has nonzero coefficients within the intervals
 $\left[-\omega_{u},-\omega_{l}\right]$ and $\left[\omega_{l},\omega_{u}\right]$ (due
 to symmetry) where $\omega_{l}\ge0$ and $\omega_{u}\ge0$ are the lower and upper band
-limits of the signal's frequency representation, respectively (note that $\omega_{l}$
-was assumed to be 0 until now).
+limits of the signal's frequency representation, respectively. Until now, $\omega_{l}$
+was assumed to be 0.
 
 Consequently, some sort of symmetrization has to be applied to the basis functions in
 the frequency domain in a manner that makes them cover the relevant range on both the
 negative and the positive side of the frequency axis while retaining symmetry. The
-following approach for doing so is more oriented on the final result that should be
+following approach for doing so is more oriented towards the final result that should be
 achieved rather than mathematical principles.
 
-Let's recall the basis functions in the frequency domain that are centered at
-$\omega_{0}$ which is restricted to be non-negative due to symmetry. Their time/space
-domain representation is centered at $t_{0}$:
+Let's recall the basis functions that are centered at $\omega_{0}$ in the frequency and
+$t_{0}$ in the time/space domain. Given that the basis has to be symmetric in the
+frequency domain, $\omega_{0}$ will be restricted to $\omega_{0}\ge0$ without loss of
+generality. The time/space domain representation of this basis can be written as
 
 <p align="center">
   <img src="docs/hermite_functions/equations/HF-13-Hermite_Functions_Derived_Basis_Frequency_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
 
 This basis is already sufficient to describe the positive side of the frequency axis
-if $\gamma$ is chosen such that the basis functions are band-limited to the interval
-$\left[\omega_{l},\omega_{u}\right]$. Hence, a basis centered at $-\omega_{0}$ covers
-the negative counterpart of this interval, namely
+if $n$ and $\gamma$ are chosen such that the basis functions are band-limited to the
+interval $\left[\omega_{l},\omega_{u}\right]$. Hence, if the same basis was centered at
+$-\omega_{0}$ it would cover the negative counterpart of this interval, namely
 $\left[-\omega_{u},-\omega_{l}\right]$:
 
 <p align="center">
@@ -546,26 +568,45 @@ $\left[-\omega_{u},-\omega_{l}\right]$:
 
 Fortunately, this basis meets all the symmetry requirements for the negative side of the
 frequency axis because all even orders show even symmetry while all odd orders show odd
-symmetry. The only thing that is left to do is to combine the two bases to their final
-form in the frequency domain:
+symmetry. The only thing left to do is to combine the two bases to their final form in
+the frequency domain:
 
 <p align="center">
   <img src="docs/hermite_functions/equations/HF-15-Hermite_Functions_Derived_Basis_Frequency_Symmetrized_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
 
 Finally, it's about time to take the Inverse Fourier Transform (IFT) of this basis to
-obtain the basis in the time/space domain. For this, the fact that the IFT of a sum is
-the sum of the individual IFTs can be exploited for the following two expressions:
+obtain its time/space representation. For this, the linearity property of the IFT, i.e.,
+the fact that the IFT of a sum is the sum of the individual IFTs, can be exploited for
+the following two expressions:
 
 <p align="center">
   <img src="docs/hermite_functions/equations/HF-16-Hermite_Functions_Derived_Basis_TimeSpace_Single_Bases_Symmetrized_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
 
 Admittedly, the sum of this expression will be a bit complicated with the two complex
-exponentials, but when looking closer at, it becomes evident that the addition
-expression derived from [Euler's formula](#📖-interlude---eulers-formula) can be
-applied for an extreme simplification after summing up the two bases:
+exponentials, but upon a closer look it becomes evident that the addition expression
+derived from [Euler's formula](#📖-interlude---eulers-formula) can be applied for an
+extreme simplification after summing up the two bases:
 
 <p align="center">
   <img src="docs/hermite_functions/equations/HF-17-Hermite_Functions_Derived_Basis_Time_Symmetrized_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
+
+Surprisingly, this basis is relatively simple, especially because it is
+**still purely real-valued** in the time/space domain. It is the most general form of
+the Hermite Function basis and covers all the previous cases except for the only
+one-sided [shift in the frequency domain](#⬅️🔊➡️-shifts-in-frequency---a-mostly-useless-hermite-function-basis).
+However, ``robust_fourier`` will only make use of this symmetrized basis when
+$\omega_{0}\ne0$.
+
+The order $n$ and the scaling factor $\gamma$ determine the points $\omega_{l}$ and
+$\omega_{u}$ that bracket the nonzero coefficients of the signal's frequencies. On the
+other hand, they also dictate the interval $\left[t_{0} - t_{u}, t_{0} + t_{u}\right]$
+in which the signal is effectively nonzero in the time/space domain.
+
+<p align="center">
+  <img src="docs/hermite_functions/EX-07-04-01-HermiteFunctionsFourierBasis_Frequency_Shifted_Time_Space_Shifted_Order_09.png" width="1000px" />
+
+<p align="center">
+  <img src="docs/hermite_functions/EX-07-04-02-HermiteFunctionsFourierBasis_Frequency_Shifted_Time_Space_Shifted_Order_10.png" width="1000px" />
 
 ## 🙏 Acknowledgements
 
