@@ -591,10 +591,10 @@ extreme simplification after summing up the two bases:
   <img src="docs/hermite_functions/equations/HF-17-Hermite_Functions_Derived_Basis_Time_Symmetrized_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
 
 However, there are now two Hermite function bases in the frequency domain, so the
-previous formulation will not collapse to more simpler basis when $\omega_{0} = 0$.
+previous formulation will not collapse to a simpler basis when $\omega_{0} = 0$.
 Instead, this special case will result in a basis with twice the amplitude in the
 time/space domain because $2\cdot cos\left(\omega_{0}\cdot\left(t-t_{0}\right)\right)$
-will yield 2 for $\omega_{0} = 0$.<br>
+will yield $2$ for $\omega_{0} = 0$.<br>
 Simply multiplying the time/space representation by $\frac{1}{2}$ remedies this problem
 and leaves us with the final general form of the Hermite Function basis in the frequency
 
