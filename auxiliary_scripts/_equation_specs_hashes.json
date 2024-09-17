@@ -21,7 +21,9 @@
     "hermite_functions_derived_basis_time_space_from_freq_shifted_time_space_at_origin": 981044648784721365,
     "hermite_functions_derived_basis_frequency_from_freq_shifted_time_space_shifted": 1469017689492442565,
     "hermite_functions_derived_basis_frequency_complementary_from_freq_shifted_time_space_shifted": 2208694973537438943,
-    "hermite_functions_derived_basis_frequency_symmetrized_from_freq_shifted_time_space_shifted": 931614954235796444,
+    "hermite_functions_derived_basis_frequency_symmetrized_from_freq_shifted_time_space_shifted": 1873437823857119707,
     "hermite_functions_derived_basis_time_space_single_bases_symmetrized_from_freq_shifted_time_space_shifted": 723219590670327396,
-    "hermite_functions_derived_basis_time_symmetrized_from_freq_shifted_time_space_shifted": 1924096042135566052
+    "hermite_functions_derived_basis_time_symmetrized_from_freq_shifted_time_space_shifted": 637770388863646080,
+    "hermite_functions_derived_basis_frequency_symmetrized_normalized_from_freq_shifted_time_space_shifted": 1576447459149182974,
+    "hermite_functions_derived_basis_time_symmetrized_normalized_from_freq_shifted_time_space_shifted": 1641473148189299684
 }

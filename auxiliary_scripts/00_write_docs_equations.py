@@ -390,10 +390,10 @@ EQUATION_SPECIFICATIONS = {
                 r"\left(\omega\right)=$"
                 "\n\n"
                 r"$(-i)^{j}\cdot exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
-                r"\left(\psi_{j}^{\left(\alpha=\gamma;\mu=-\omega_{0}\right)}"
+                r"\left[\psi_{j}^{\left(\alpha=\gamma;\mu=-\omega_{0}\right)}"
                 r"\left(\omega\right)+"
-                r"\cdot\psi_{j}^{\left(\alpha=\gamma;\mu=\omega_{0}\right)}"
-                r"\left(\omega\right)\right)$"
+                r"\psi_{j}^{\left(\alpha=\gamma;\mu=\omega_{0}\right]}"
+                r"\left(\omega\right)\right]$"
             ),
         )
     ),
@@ -438,11 +438,66 @@ EQUATION_SPECIFICATIONS = {
                 r"\tilde{\lambda}_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
                 r"\left( t\right)=$"
                 "\n\n"
-                r"$\left(exp\left(i\cdot\omega_{0}\cdot\left(t-t_{0}\right)\right)+"
-                r"exp\left(-i\cdot\omega_{0}\cdot\left(t-t_{0}\right)\right)\right)\cdot"
+                r"$\left[exp\left(i\cdot\omega_{0}\cdot\left(t-t_{0}\right)\right)+"
+                r"exp\left(-i\cdot\omega_{0}\cdot\left(t-t_{0}\right)\right)\right]\cdot"
                 r"\psi_{j}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)=$"
                 "\n\n"
                 r"$2\cdot cos\left(\omega_{0}\cdot\left(t-t_{0}\right)\right)\cdot "
+                r"\psi_{j}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)$"
+            ),
+        )
+    ),
+    (
+        "hermite_functions_derived_basis_frequency_symmetrized_normalized_from_freq_"
+        "shifted_time_space_shifted"
+    ): (
+        EquationSpecification(
+            image_path=(
+                "../docs/hermite_functions/equations"
+                "/HF-18-Hermite_Functions_Derived_Basis_Frequency_Symmetrized_"
+                "Normalized_from_Frequency_Shifted_TimeSpace_Shifted.svg"
+            ),
+            latex_expression=(
+                r"$\widehat{\Lambda}_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}"
+                r"\right)}\left(\omega\right)="
+                r"\Lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"\left(\omega\right)+"
+                r"\tilde{\Lambda}_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"\left(\omega\right)=$"
+                "\n\n"
+                r"$(-i)^{j}\cdot exp\left(-i\cdot t_{0}\cdot\omega\right)\cdot"
+                r"\left[0.5\cdot\psi_{j}^{\left(\alpha=\gamma;\mu=-\omega_{0}\right)}"
+                r"\left(\omega\right)+"
+                r"0.5\cdot\psi_{j}^{\left(\alpha=\gamma;\mu=\omega_{0}\right]}"
+                r"\left(\omega\right)\right]$"
+            ),
+        )
+    ),
+    (
+        "hermite_functions_derived_basis_time_symmetrized_normalized_from_freq_shifted_"
+        "time_space_shifted"
+    ): (
+        EquationSpecification(
+            image_path=(
+                "../docs/hermite_functions/equations"
+                "/HF-19-Hermite_Functions_Derived_Basis_Time_Symmetrized_Normalized_"
+                "from_Frequency_Shifted_TimeSpace_Shifted.svg"
+            ),
+            latex_expression=(
+                r"$\widehat{\lambda}_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}"
+                r"\right)}\left( t\right)="
+                r"\lambda_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"\left( t\right)+"
+                r"\tilde{\lambda}_{j}^{\left(\beta;\gamma; t_{0};\omega_{0}\right)}"
+                r"\left( t\right)=$"
+                "\n\n"
+                r"$\left[0.5\cdot exp\left(i\cdot\omega_{0}\cdot\left(t-t_{0}\right)"
+                r"\right)+"
+                r"0.5\cdot exp\left(-i\cdot\omega_{0}\cdot\left(t-t_{0}\right)\right)"
+                r"\right]\cdot"
+                r"\psi_{j}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)=$"
+                "\n\n"
+                r"$cos\left(\omega_{0}\cdot\left(t-t_{0}\right)\right)\cdot "
                 r"\psi_{j}^{\left(\alpha=\beta;\mu=t_{0}\right)}\left( t\right)$"
             ),
         )
@@ -515,6 +570,14 @@ FIG_NAMES_TO_PREVIEW: List[str] = [
     # (
     #     "hermite_functions_derived_basis_time_symmetrized_from_freq_shifted_time_"
     #     "space_shifted"
+    # ),
+    # (
+    #     "hermite_functions_derived_basis_frequency_symmetrized_normalized_from_freq_"
+    #     "shifted_time_space_shifted"
+    # ),
+    # (
+    #     "hermite_functions_derived_basis_time_symmetrized_normalized_from_freq_"
+    #     "shifted_time_space_shifted"
     # ),
 ]
 

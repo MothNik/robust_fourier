@@ -11,9 +11,9 @@ are shifted in the x-direction.
 
 import os
 
+import _07_utils as ut
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib.patches import ArrowStyle
 
 from robust_fourier import hermite_approx, single_hermite_function
 from robust_fourier.fourier_transform import (
@@ -26,7 +26,7 @@ plt.style.use(
     os.path.join(os.path.dirname(__file__), "../docs/robust_fourier.mplstyle")
 )
 
-# === Example 1: Hermite functions centered at the origin in both domains ===
+# === Main ===
 
 # the orders of the Hermite functions
 ORDERS = [
@@ -89,9 +89,7 @@ for index, order in enumerate(ORDERS):
 
     # the pre-factors to account for the shift in the frequency domain and the
     # symmetrization are computed and applied
-    time_space_prefactor = 2.0 * np.cos(
-        FREQUENCY_CENTER * (t_values - TIME_SPACE_CENTER)
-    )
+    time_space_prefactor = np.cos(FREQUENCY_CENTER * (t_values - TIME_SPACE_CENTER))
 
     time_space_hermite_function = TimeSpaceSignal(
         y=time_space_prefactor * time_space_hermite_function_original,
@@ -106,10 +104,16 @@ for index, order in enumerate(ORDERS):
     # aside from this numerical computation, the analytical Fourier transform is
     # computed for comparison
     # a prefactor is computed to account for the shift in the time/space domain
-    ft_prefactor = ((-1.0j) ** order) * np.exp(
-        -1.0j
-        * TIME_SPACE_CENTER
-        * np.fft.fftshift(hermite_function_cft.angular_frequencies)
+    # NOTE: the 0.5 is required because the factor 2 of the 2 * cos(...) was dropped in
+    #       the time/space domain
+    ft_prefactor = (
+        0.5
+        * ((-1.0j) ** order)
+        * np.exp(
+            -1.0j
+            * TIME_SPACE_CENTER
+            * np.fft.fftshift(hermite_function_cft.angular_frequencies)
+        )
     )
 
     hermite_function_ft_analytical = ft_prefactor * single_hermite_function(
@@ -244,8 +248,8 @@ for index, order in enumerate(ORDERS):
 
     # the x-axis limits are set
     ax[0, 0].set_xlim(  # type: ignore
-        t_fadeout[0] - 0.2 * fadeout_difference,
-        t_fadeout[1] + 0.2 * fadeout_difference,
+        t_fadeout[0] - 0.33 * fadeout_difference,
+        t_fadeout[1] + 0.33 * fadeout_difference,
     )
     omega_fadeout = hermite_approx.x_tail_drop_to_fraction(
         n=order,
@@ -255,66 +259,135 @@ for index, order in enumerate(ORDERS):
     ).ravel()
     omega_fadeout_difference = omega_fadeout[1] - omega_fadeout[0]
     ax[0, 1].set_xlim(  # type: ignore
-        -(omega_fadeout[1] + 0.2 * omega_fadeout_difference),
-        omega_fadeout[1] + 0.2 * omega_fadeout_difference,
+        -(omega_fadeout[1] + 0.33 * omega_fadeout_difference),
+        omega_fadeout[1] + 0.33 * omega_fadeout_difference,
     )
 
     # finally, the respective centers are highlighted
-    annotation_kwargs = dict(
-        fontsize=18,
-        arrowprops=dict(
-            arrowstyle=ArrowStyle(
-                "Fancy", head_length=0.6, head_width=0.6, tail_width=0.4
-            ),
-            connectionstyle="",  # to be filled later
-            color="black",
-            linewidth=2.0,
-        ),
-        zorder=6,
-    )
     for iter_i in range(0, ax.size):  # type: ignore
         row_i, col_j = divmod(iter_i, 2)
-        is_ax_for_center_label = (row_i, col_j) == (1, 0)
-        x_center = TIME_SPACE_CENTER if col_j == 0 else FREQUENCY_CENTER
-        # an arrow is added to indicate the center on the x-axis
-        x_lims = ax[row_i, col_j].get_xlim()  # type: ignore
-        y_lims = ax[row_i, col_j].get_ylim()  # type: ignore
-        x_diff = x_lims[1] - x_lims[0]
-        y_diff = y_lims[1] - y_lims[0]
-        x_diff_sign = -1.0 if col_j == 0 else 1.0
-        arrow_rad = -0.1 if col_j == 0 else 0.1
-        annotation_kwargs["arrowprops"]["connectionstyle"] = (  # type: ignore
-            f"arc3,rad={arrow_rad:.1f}"
+        is_ax_for_center_label = ut.is_desired_axis(
+            iter_i,
+            domain="time_space",
+            complex_axis="imaginary",
         )
-        arrow_text = ""
+        is_time_space_axis = ut.is_time_space_axis(iter_i)
+        x_center = TIME_SPACE_CENTER if is_time_space_axis else FREQUENCY_CENTER
+        # an arrow is added to indicate the center on the x-axis
+        x_lims, y_lims = ut.get_and_freeze_both_axis_limits(
+            ax=ax[row_i, col_j],  # type: ignore
+        )
+        x_diff_sign = -1.0 if is_time_space_axis else 1.0
+        arrow_rad = -0.1 if is_time_space_axis else 0.1
+        center_text = "\n"
         if is_ax_for_center_label:
-            arrow_text = "Center"
+            center_text = ut.CENTER_ARROW_LABEL
             x_diff_sign = 2.2 * x_diff_sign
 
-        ax[row_i, col_j].set_ylim(y_lims)  # type: ignore
         ax[row_i, col_j].annotate(  # type: ignore
-            text=arrow_text,
-            xy=(x_center, y_lims[0]),
-            xytext=(x_center + 0.1 * x_diff_sign * x_diff, y_lims[0] + 0.15 * y_diff),
-            **annotation_kwargs,
+            text=center_text,
+            xy=(
+                x_center + x_lims.get_scaled_width(0.01 * x_diff_sign),
+                y_lims.lower + y_lims.get_scaled_width(0.01),
+            ),
+            xytext=(
+                x_center + x_lims.get_scaled_width(0.1 * x_diff_sign),
+                y_lims.lower + y_lims.get_scaled_width(0.15),
+            ),
+            fontsize=ut.LABEL_FONTSIZE,
+            horizontalalignment="center",
+            verticalalignment="center",
+            arrowprops=ut.CENTER_ARROWPROPS.as_arrow_properties(rad=arrow_rad),
+            bbox=ut.NORMAL_TEXTBOX_BBOX_PROPS_ASSIGNMENT[center_text],
+            zorder=6,
         )
 
         # the frequency domain has another center to be highlighted
-        if col_j == 1:
+        if not is_time_space_axis:
             x_center = -FREQUENCY_CENTER
             x_diff_sign *= -1.0
-            annotation_kwargs["arrowprops"]["connectionstyle"] = (  # type: ignore
-                f"arc3,rad={-arrow_rad:.1f}"
-            )
             ax[row_i, col_j].annotate(  # type: ignore
                 text="",
-                xy=(x_center, y_lims[0]),
-                xytext=(
-                    x_center + 0.1 * x_diff_sign * x_diff,
-                    y_lims[0] + 0.15 * y_diff,
+                xy=(
+                    x_center + x_lims.get_scaled_width(0.01 * x_diff_sign),
+                    y_lims.lower + y_lims.get_scaled_width(0.01),
                 ),
-                **annotation_kwargs,
+                xytext=(
+                    x_center + x_lims.get_scaled_width(0.1 * x_diff_sign),
+                    y_lims.lower + y_lims.get_scaled_width(0.15),
+                ),
+                fontsize=ut.LABEL_FONTSIZE,
+                horizontalalignment="center",
+                verticalalignment="center",
+                arrowprops=ut.CENTER_ARROWPROPS.as_arrow_properties(rad=-arrow_rad),
+                bbox=ut.NORMAL_TEXTBOX_BBOX_PROPS_ASSIGNMENT[center_text],
+                zorder=6,
             )
+
+    # the fadeout in both the time/space and frequency domain is highlighted
+    for iter_i in range(0, ax.size):  # type: ignore
+        row_i, col_j = divmod(iter_i, 2)
+        is_time_space_axis = ut.is_time_space_axis(iter_i)
+        if is_time_space_axis:
+            desired_domain = "time_space"
+            desired_complex_axis = "real"
+        else:
+            desired_domain = "frequency"
+            desired_complex_axis = "real"
+
+        is_ax_for_fadeout_label = ut.is_desired_axis(
+            iter_i=iter_i,
+            domain=desired_domain,
+            complex_axis=desired_complex_axis,
+        )
+
+        # an arrow is added to indicate the fadeout on the x-axis
+        x_lims, y_lims = ut.get_both_axis_limits(ax=ax[row_i, col_j])  # type: ignore
+        fadeout_text = "\n"
+        if is_ax_for_fadeout_label:
+            fadeout_text = (
+                ut.FADEOUT_TIME_SPACE_LABEL
+                if is_time_space_axis
+                else ut.FADEOUT_FREQUENCY_LABEL
+            )
+
+        for fadeout, x_diff_sign in zip(
+            t_fadeout if is_time_space_axis else omega_fadeout,
+            [-1.0, 1.0],
+        ):
+            xy = (fadeout, y_lims.get_scaled_width(0.025))
+            xytext = [
+                fadeout + x_lims.get_scaled_width(0.04 * x_diff_sign),
+                y_lims.upper - y_lims.get_scaled_width(0.2),
+            ]
+            ax[row_i, col_j].annotate(  # type: ignore
+                text=fadeout_text,
+                xy=xy,
+                xytext=xytext,
+                fontsize=ut.LABEL_FONTSIZE - 4,
+                horizontalalignment="center",
+                verticalalignment="center",
+                arrowprops=ut.FADEOUT_ARROWPROPS.as_arrow_properties(),
+                bbox=ut.REDUCED_PADDING_TEXTBOX_BBOX_PROPS_ASSIGNMENT[fadeout_text],
+                zorder=7,
+            )
+
+            # there is another fadeout to be highlighted in the frequency domain
+            if not ut.is_time_space_axis(iter_i):
+                xy = (-fadeout, -y_lims.get_scaled_width(0.025))
+                xytext[0] = -xytext[0]
+                xytext[1] = -xytext[1]
+                ax[row_i, col_j].annotate(  # type: ignore
+                    text=fadeout_text,
+                    xy=xy,
+                    xytext=xytext,
+                    fontsize=ut.LABEL_FONTSIZE - 4,
+                    horizontalalignment="center",
+                    verticalalignment="center",
+                    arrowprops=ut.FADEOUT_ARROWPROPS.as_arrow_properties(),
+                    bbox=ut.REDUCED_PADDING_TEXTBOX_BBOX_PROPS_ASSIGNMENT[fadeout_text],
+                    zorder=7,
+                )
 
     # the plot is stored
     if os.getenv("ROBFT_DEVELOPER", "false").lower() == "true":

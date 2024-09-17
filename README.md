@@ -590,11 +590,27 @@ extreme simplification after summing up the two bases:
 <p align="center">
   <img src="docs/hermite_functions/equations/HF-17-Hermite_Functions_Derived_Basis_Time_Symmetrized_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
 
+However, there are now two Hermite function bases in the frequency domain, so the
+previous formulation will not collapse to more simpler basis when $\omega_{0} = 0$.
+Instead, this special case will result in a basis with twice the amplitude in the
+time/space domain because $2\cdot cos\left(\omega_{0}\cdot\left(t-t_{0}\right)\right)$
+will yield 2 for $\omega_{0} = 0$.<br>
+Simply multiplying the time/space representation by $\frac{1}{2}$ remedies this problem
+and leaves us with the final general form of the Hermite Function basis in the frequency
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-18-Hermite_Functions_Derived_Basis_Frequency_Symmetrized_Normalized_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
+
+and the time/space domain
+
+<p align="center">
+  <img src="docs/hermite_functions/equations/HF-19-Hermite_Functions_Derived_Basis_Time_Symmetrized_Normalized_from_Frequency_Shifted_TimeSpace_Shifted.svg" />
+
 Surprisingly, this basis is relatively simple, especially because it is
 **still purely real-valued** in the time/space domain. It is the most general form of
 the Hermite Function basis and covers all the previous cases except for the only
 one-sided [shift in the frequency domain](#⬅️🔊➡️-shifts-in-frequency---a-mostly-useless-hermite-function-basis).
-However, ``robust_fourier`` will only make use of this symmetrized basis when
+However, `robust_fourier` will only make use of this symmetrized basis when
 $\omega_{0}\ne0$.
 
 The order $n$ and the scaling factor $\gamma$ determine the points $\omega_{l}$ and
