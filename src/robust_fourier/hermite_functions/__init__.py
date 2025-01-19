@@ -5,11 +5,11 @@ This module provides  implementations of the Hermite functions which are essenti
 the robust Fourier transform.
 The ``n``-th dilated and shifted Hermite function is given by
 
-.. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_TimeSpace_Domain.svg
+.. image:: docs/hermite_functions/equations/HF-01-Hermite_Functions_OfGenericX.svg
 
 where :math:`H_{n}` is the :math:`n`-th Hermite polynomial
 
-.. image:: docs/hermite_functions/equations/HF-02-Hermite_Polynomials_TimeSpace_Domain.svg
+.. image:: docs/hermite_functions/equations/HF-02-Hermite_Polynomials_OfGenericX.svg
 
 They have two nice properties:
 - they are orthogonal

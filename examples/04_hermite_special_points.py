@@ -106,13 +106,13 @@ if __name__ == "__main__":
     ax.axvline(
         x=MU,
         color="black",
-        linewidth=0.5,
+        linewidth=1.0,
         zorder=2,
     )
     ax.axhline(
         y=0.0,
         color="black",
-        linewidth=0.5,
+        linewidth=1.0,
         zorder=2,
     )
     ax.plot(
@@ -162,7 +162,7 @@ if __name__ == "__main__":
         y_largest_extremum,
         marker="H",
         facecolors="none",
-        edgecolors="#36A04F",
+        edgecolors="#36A07F",
         linewidths=3.0,
         label="Largest Extrema",
         s=285,
